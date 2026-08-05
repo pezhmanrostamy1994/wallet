@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'DM Sans', Arial, sans-serif;
+  color: #f4f4f5;
+  background: #e5e5e7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #e5e5e7; }
+button { border: 0; color: inherit; font: inherit; cursor: default; }
+
+.lock-screen { display: grid; min-height: 100vh; place-items: center; padding: 32px 24px; color: #f4f4f5; background: #18191a; }
+.lock-screen-content { display: flex; width: min(100%, 360px); flex-direction: column; align-items: center; text-align: center; }
+.lock-brand { display: grid; width: 78px; height: 78px; place-items: center; margin-bottom: 22px; border-radius: 25px; background: #292a2c; box-shadow: 0 18px 45px rgba(0,0,0,.22); }
+.lock-brand .wallet-glyph { width: 54px; height: 54px; flex-basis: 54px; border-radius: 17px; }
+.lock-eyebrow { margin: 0 0 10px; color: #929399; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.lock-screen h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -.04em; }
+.lock-caption { margin: 9px 0 28px; color: #929399; font-size: 15px; }
+.fingerprint-button { position: relative; display: grid; width: 126px; height: 126px; place-items: center; border: 1px solid rgba(55,238,144,.45); border-radius: 50%; color: #37ee90; background: rgba(55,238,144,.08); box-shadow: 0 0 0 11px rgba(55,238,144,.035), 0 15px 40px rgba(0,0,0,.2); cursor: pointer; touch-action: none; transition: transform .2s ease, background .2s ease, box-shadow .2s ease, color .2s ease; }
+.fingerprint-button::before { content: ''; position: absolute; inset: -9px; border: 2px solid rgba(55,238,144,.28); border-radius: 50%; opacity: 0; transform: scale(.82); pointer-events: none; }
+.fingerprint-button:hover { background: rgba(55,238,144,.15); transform: scale(1.03); }
+.fingerprint-button.holding { color: #baffdd; background: rgba(55,238,144,.19); box-shadow: 0 0 0 11px rgba(55,238,144,.06), 0 0 34px rgba(55,238,144,.42), 0 15px 40px rgba(0,0,0,.24); transform: scale(1.04); }
+.fingerprint-button.holding::before { opacity: 1; animation: hold-pulse 1s ease-in-out infinite; }
+.fingerprint-button.unlocking { color: #d8ffeb; background: rgba(55,238,144,.3); box-shadow: 0 0 0 16px rgba(55,238,144,.08), 0 0 48px rgba(55,238,144,.7); }
+.fingerprint-button:active { transform: scale(.97); }
+.fingerprint-button svg { stroke-width: 1.45; }
+.lock-hint { margin-top: 22px; color: #8c8d92; font-size: 13px; }
+.lock-footer { position: fixed; bottom: 25px; display: inline-flex; align-items: center; gap: 6px; color: #67686c; font-size: 11px; }
+
+@keyframes hold-pulse {
+  0%, 100% { opacity: .45; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.app-shell { min-height: 100vh; display: flex; justify-content: center; }
+.wallet-app { position: relative; width: min(100%, 540px); min-height: 100vh; padding: 26px 23px 155px; overflow-x: hidden; background: #18191a; }
+
+.wallet-header, .header-actions, .wallet-chip, .wallet-chip-copy, .limit-banner, .token-leading, .token-price, .bottom-dock, .nav-pill { display: flex; align-items: center; }
+
+.wallet-header { justify-content: space-between; padding-top: 16px; }
+.wallet-chip { min-width: 212px; height: 60px; gap: 11px; padding: 7px 16px 7px 8px; border-radius: 32px; background: #292a2c; }
+.wallet-glyph { display: grid; width: 43px; height: 43px; place-items: center; flex: 0 0 43px; border-radius: 14px; color: #fff; background: #37ee90; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
+.wallet-glyph svg { width: 16px; height: 16px; stroke-width: 1.55; }
+.wallet-chip-copy { flex-direction: column; align-items: flex-start; gap: 1px; }
+.wallet-chip-copy strong { font-size: 18px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
+.wallet-chip-copy span { color: #a4a4a8; font-size: 11px; font-weight: 500; }
+.header-actions { gap: 10px; }
+.round-button { display: grid; width: 60px; height: 60px; place-items: center; border-radius: 50%; color: #e5e5e7; background: #292a2c; }
+.round-button svg { width: 16px; height: 16px; stroke-width: 1.75; }
+
+.limit-banner { height: 82px; gap: 12px; margin-top: 23px; padding: 0 15px; border: 1px solid #56575a; border-radius: 20px; background: #191a1b; }
+.banner-accent { width: 5px; height: 22px; flex: 0 0 5px; border-radius: 4px; background: #a5a5aa; }
+.banner-icon { display: grid; width: 48px; height: 48px; place-items: center; flex: 0 0 48px; border-radius: 13px; color: #eeeeef; background: #2e3033; }
+.banner-icon svg { width: 18px; height: 18px; stroke-width: 2.3; }
+.limit-banner div { display: flex; flex-direction: column; gap: 3px; }
+.limit-banner strong { font-size: 17px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
+.limit-banner div span { color: #a1a1a6; font-size: 15px; }
+
+.start-section { padding-top: 31px; }
+.start-section h1 { margin: 0; color: #f2f2f3; font-size: 30px; font-weight: 700; letter-spacing: -.04em; line-height: 1.28; }
+.start-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 49px; }
+.start-action { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 13px; padding: 0; color: #efeff0; background: transparent; }
+.action-glyph { position: relative; display: grid; width: 100%; height: 89px; place-items: center; border-radius: 21px; background: #2b2c2e; }
+.qr-glyph { color: #f5f5f5; }
+.qr-glyph svg { width: 21px; height: 21px; stroke-width: 2.8; }
+.binance-glyph { color: #f4bd26; }
+.binance-glyph img { width: 29px; height: 29px; object-fit: contain; }
+.card-glyph { flex-direction: column; gap: 1px; }
+.card-glyph strong { font-family: Arial, sans-serif; font-size: 14px; font-style: italic; letter-spacing: -.08em; }
+.card-circles { position: relative; display: flex; height: 20px; }
+.card-circles i { display: block; width: 15px; height: 15px; border-radius: 50%; background: #f20d27; }
+.card-circles i + i { margin-left: -6px; background: #ffad00; mix-blend-mode: screen; }
+.start-action > span:last-child { min-height: 49px; font-size: 18px; font-weight: 600; line-height: 1.35; text-align: center; }
+
+.token-section { margin-top: 67px; }
+.token-section h2, .perps-section h2 { display: flex; align-items: center; gap: 7px; margin: 0; color: #eeeeef; font-size: 23px; font-weight: 600; letter-spacing: -.035em; }
+.token-section h2 svg, .perps-section h2 svg { transform: rotate(-90deg); stroke-width: 2.25; }
+.token-list { margin-top: 25px; }
+.token-row { display: flex; min-height: 86px; align-items: center; justify-content: space-between; gap: 12px; }
+.token-leading { min-width: 0; gap: 17px; }
+.token-leading strong { overflow: hidden; color: #ececee; font-size: 19px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.token-price { flex-direction: column; align-items: flex-end; gap: 3px; }
+.token-price strong { color: #e9e9eb; font-size: 20px; font-weight: 600; white-space: nowrap; }
+.token-price span { color: #23d891; font-size: 16px; font-weight: 500; }
+.token-mark { position: relative; display: grid; width: 55px; height: 55px; place-items: center; flex: 0 0 55px; overflow: hidden; border-radius: 50%; font-family: Arial, sans-serif; font-size: 28px; font-weight: 700; }
+.token-mark img { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.token-mark span { position: relative; z-index: 1; }
+.bitcoin-mark { color: #fff; background: #f89419; }
+.ethereum-mark { color: #fff; background: linear-gradient(145deg, #6c92ff, #4265db); font-size: 33px; text-shadow: 0 2px 0 rgba(255,255,255,.25); }
+.bnb-mark { color: #f4c22e; background: #050505; border: 1px solid #282828; font-size: 25px; }
+.view-all-button { display: inline-flex; width: 166px; height: 64px; align-items: center; justify-content: center; gap: 13px; margin-top: 15px; border-radius: 33px; color: #eeeeef; background: #2b2c2e; font-size: 19px; font-weight: 600; }
+.view-all-button svg { transform: rotate(-90deg); stroke-width: 2.2; }
+
+.perps-section { margin-top: 44px; padding-bottom: 22px; }
+.perps-preview { display: flex; min-height: 74px; align-items: center; gap: 12px; margin-top: 18px; padding: 10px 13px; border: 1px solid #303133; border-radius: 17px; background: #202122; }
+.perps-coin { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; color: #fff; background: #f89419; font-size: 20px; font-weight: 700; }
+.perps-preview div { display: flex; flex: 1; flex-direction: column; gap: 3px; }
+.perps-preview div strong { font-size: 14px; }.perps-preview div span { color: #898a8e; font-size: 11px; }.perps-value { font-size: 13px; }
+
+.bottom-dock { position: fixed; z-index: 20; bottom: 16px; left: 50%; width: min(calc(100% - 48px), 492px); gap: 12px; transform: translateX(-50%); }
+.nav-pill { flex: 1; height: 72px; justify-content: space-around; padding: 6px 7px; border: 1px solid #3d3e40; border-radius: 42px; background: rgba(25, 26, 28, .96); box-shadow: 0 10px 24px rgba(0,0,0,.28); backdrop-filter: blur(15px); }
+.nav-item { display: grid; width: 54px; height: 54px; place-items: center; padding: 0; border-radius: 50%; color: #a2a2a7; background: transparent; }
+.nav-item svg { width: 15px; height: 15px; }
+.nav-item.active { color: #f0f0f1; background: #37383a; }
+.nav-search { display: grid; width: 72px; height: 72px; flex: 0 0 72px; place-items: center; border: 1px solid #3d3e40; border-radius: 50%; color: #c9c9cc; background: rgba(25, 26, 28, .96); box-shadow: 0 10px 24px rgba(0,0,0,.28); }
+.nav-search svg { width: 17px; height: 17px; }
+
+@media (min-width: 560px) {
+  .wallet-app { min-height: 1120px; margin: 0; }
+  .bottom-dock { position: absolute; bottom: 16px; }
+}
+
+@media (max-width: 430px) {
+  .wallet-app { padding: 20px 18px 132px; }
+  .wallet-header { gap: 8px; }
+  .wallet-chip { min-width: 0; height: 54px; flex: 1; gap: 8px; padding: 6px 11px 6px 6px; }
+  .wallet-glyph { width: 39px; height: 39px; flex-basis: 39px; border-radius: 12px; }
+  .wallet-glyph svg { width: 14px; height: 14px; }
+  .wallet-chip-copy strong { font-size: 15px; }
+  .wallet-chip-copy span { font-size: 10px; }
+  .header-actions { gap: 7px; }
+  .round-button { width: 54px; height: 54px; }
+  .round-button svg { width: 14px; height: 14px; }
+
+  .limit-banner { height: 76px; gap: 10px; margin-top: 20px; padding: 0 12px; border-radius: 18px; }
+  .banner-accent { width: 4px; height: 19px; flex-basis: 4px; }
+  .banner-icon { width: 44px; height: 44px; flex-basis: 44px; border-radius: 12px; }
+  .banner-icon svg { width: 16px; height: 16px; }
+  .limit-banner strong { font-size: 15px; white-space: normal; }
+  .limit-banner div span { font-size: 13px; }
+
+  .start-section { padding-top: 25px; }
+  .start-section h1 { font-size: 27px; line-height: 1.24; }
+  .start-actions { gap: 9px; margin-top: 35px; }
+  .action-glyph { height: 80px; border-radius: 18px; }
+  .start-action { gap: 10px; }
+  .start-action > span:last-child { min-height: 44px; font-size: 16px; line-height: 1.3; }
+  .qr-glyph svg { width: 18px; height: 18px; }
+  .binance-glyph img { width: 26px; height: 26px; }
+  .card-glyph strong { font-size: 13px; }
+  .card-circles { height: 16px; }
+  .card-circles i { width: 13px; height: 13px; }
+
+  .token-section { margin-top: 51px; }
+  .token-section h2, .perps-section h2 { gap: 6px; font-size: 21px; }
+  .token-section h2 svg, .perps-section h2 svg { width: 21px; height: 21px; }
+  .token-list { margin-top: 17px; }
+  .token-row { min-height: 76px; }
+  .token-leading { gap: 12px; }
+  .token-leading strong { font-size: 17px; }
+  .token-price { gap: 2px; }
+  .token-price strong { font-size: 18px; }
+  .token-price span { font-size: 13px; }
+  .token-mark { width: 49px; height: 49px; flex-basis: 49px; font-size: 25px; }
+  .view-all-button { width: 147px; height: 56px; gap: 10px; margin-top: 12px; font-size: 17px; }
+  .view-all-button svg { width: 21px; height: 21px; }
+  .perps-section { margin-top: 35px; }
+  .perps-preview { min-height: 64px; margin-top: 13px; border-radius: 15px; }
+
+  .bottom-dock { bottom: 12px; width: calc(100% - 36px); gap: 8px; }
+  .nav-pill { height: 68px; padding: 5px 6px; }
+  .nav-item { width: 52px; height: 52px; }
+  .nav-search { width: 68px; height: 68px; flex-basis: 68px; }
+  .nav-search svg { width: 15px; height: 15px; }
+}
+
+@media (max-width: 360px) {
+  .wallet-app { padding-right: 15px; padding-left: 15px; }
+  .wallet-chip { padding-right: 8px; }
+  .wallet-chip-copy strong { font-size: 15px; }
+  .wallet-chip-copy span { font-size: 10px; }
+  .wallet-glyph { width: 39px; height: 39px; flex-basis: 39px; }
+  .round-button { width: 53px; height: 53px; }
+  .round-button svg { width: 13px; height: 13px; }
+  .limit-banner { padding-right: 9px; padding-left: 9px; }
+  .limit-banner strong { font-size: 14px; }
+  .limit-banner div span { font-size: 12px; }
+  .start-section h1 { font-size: 27px; }
+  .start-action > span:last-child { font-size: 16px; }
+  .token-leading strong { font-size: 17px; }
+  .token-price strong { font-size: 18px; }
+  .token-price span { font-size: 13px; }
+  .token-mark { width: 49px; height: 49px; flex-basis: 49px; }
+}
