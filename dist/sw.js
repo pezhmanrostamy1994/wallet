@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orbit-wallet-v1'
+const CACHE_NAME = 'orbit-wallet-v2'
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './pwa-icon.svg']
 
 self.addEventListener('install', (event) => {

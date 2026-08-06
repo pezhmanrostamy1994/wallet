@@ -53,10 +53,17 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .round-button svg { stroke-width: 1.75; }
 
 .limit-banner { height: 91px; gap: 12px; margin-top: 27px; padding: 0 15px; border: 1px solid #4e5052; border-radius: 21px; background: rgba(24,25,26,.62); }
-.banner-accent { width: 5px; height: 22px; flex: 0 0 5px; border-radius: 4px; background: #a5a5aa; }
+.banner-indicators { display: flex; width: 5px; height: 32px; flex: 0 0 5px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.banner-indicator { display: block; width: 4px; height: 10px; border-radius: 4px; background: #77797e; opacity: .72; transition: height .35s ease, background .35s ease, opacity .35s ease; }
+.banner-indicator.active { height: 22px; background: #f0f0f1; opacity: 1; }
 .hyperliquid-glyph { display: grid; width: 58px; height: 42px; place-items: center; flex: 0 0 58px; }
-.hyperliquid-glyph svg { display: block; width: 58px; height: 42px; }
-.limit-banner div { display: flex; flex-direction: column; gap: 3px; }
+.hyperliquid-glyph svg { display: block; width: 48px; height: 35px; }
+.promo-alt-glyph { display: grid; width: 58px; height: 42px; place-items: center; flex: 0 0 58px; }
+.promo-alt-glyph svg { display: block; width: 46px; height: 34px; }
+.limit-banner .promo-slide-viewport { min-width: 0; flex: 1; height: 48px; overflow: hidden; }
+.limit-banner .promo-slide-track { display: flex; height: 48px; flex-direction: column; gap: 0; transition: transform .55s cubic-bezier(.22,.8,.24,1); will-change: transform; }
+.limit-banner .promo-slide { display: flex; height: 48px; flex: 0 0 48px; align-items: center; gap: 12px; }
+.limit-banner .promo-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; justify-content: center; gap: 3px; }
 .limit-banner strong { font-size: 19px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
 .limit-banner div span { color: #a1a1a6; font-size: 15px; }
 
@@ -91,6 +98,7 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .tron-mark { color: #fff; background: #ef1238; }
 .bitcoin-mark { color: #fff; background: #f89419; }
 .bitcoin-mark strong { font-size: 35px; font-weight: 600; line-height: 1; }
+.tether-mark { color: #fff; background: #26a17b; }
 .ethereum-mark { color: #fff; background: linear-gradient(145deg, #6c92ff, #4265db); }
 .bnb-mark { color: #f4c22e; background: #050505; border: 1px solid #282828; }
 .view-all-button { display: inline-flex; width: 166px; height: 64px; align-items: center; justify-content: center; gap: 13px; margin-top: 15px; border-radius: 33px; color: #eeeeef; background: #2b2c2e; font-size: 19px; font-weight: 600; }
@@ -126,9 +134,16 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
   .round-button svg { width: 20px; height: 20px; }
 
   .limit-banner { height: 61px; gap: 8px; margin-top: 20px; padding: 0 10px; border-radius: 17px; }
-  .banner-accent { width: 4px; height: 19px; flex-basis: 4px; }
+  .banner-indicators { width: 4px; height: 29px; flex-basis: 4px; gap: 3px; }
+  .banner-indicator { width: 3px; height: 8px; }
+  .banner-indicator.active { height: 19px; }
   .hyperliquid-glyph { width: 40px; height: 30px; flex-basis: 40px; }
-  .hyperliquid-glyph svg { width: 40px; height: 30px; }
+  .hyperliquid-glyph svg { width: 34px; height: 25px; }
+  .promo-alt-glyph { width: 40px; height: 30px; flex-basis: 40px; }
+  .promo-alt-glyph svg { width: 33px; height: 24px; }
+  .limit-banner .promo-slide-viewport { height: 48px; }
+  .limit-banner .promo-slide-track { height: 48px; }
+  .limit-banner .promo-slide { height: 48px; flex-basis: 48px; gap: 8px; }
   .limit-banner strong { font-size: 14px; white-space: normal; }
   .limit-banner div span { font-size: 12px; }
 

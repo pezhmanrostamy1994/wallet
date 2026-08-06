@@ -92,13 +92,38 @@ function HyperliquidGlyph() {
   )
 }
 
+function MarketsGlyph() {
+  return (
+    <span className="promo-alt-glyph" aria-hidden="true">
+      <svg viewBox="0 0 58 42" fill="none">
+        <defs>
+          <linearGradient id="markets-blue" x1="8" y1="35" x2="48" y2="7" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#6e41ff" />
+            <stop offset=".52" stopColor="#32cfff" />
+            <stop offset="1" stopColor="#dffbff" />
+          </linearGradient>
+        </defs>
+        <circle cx="29" cy="21" r="16" fill="#252b70" fillOpacity=".72" />
+        <path d="m14 28 8-8 6 5 12-13" stroke="url(#markets-blue)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M39 12h5v5" stroke="#dffbff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="14" cy="28" r="2.6" fill="#7b5cff" />
+        <circle cx="40" cy="12" r="2.6" fill="#8eeeff" />
+      </svg>
+    </span>
+  )
+}
+
+function PromoGlyph({ kind }: { kind: 'hyperliquid' | 'markets' }) {
+  return kind === 'hyperliquid' ? <HyperliquidGlyph /> : <MarketsGlyph />
+}
+
 type WalletToken = {
   id: string
   name: string
   symbol: string
   balance: string
   value: string
-  kind: 'tron' | 'bitcoin' | 'ethereum' | 'bnb'
+  kind: 'bitcoin' | 'tether' | 'tron' | 'ethereum' | 'bnb'
 }
 
 function TokenMark({ token }: { token: WalletToken }) {
@@ -111,6 +136,12 @@ function TokenMark({ token }: { token: WalletToken }) {
         </svg>
       )}
       {token.kind === 'bitcoin' && <strong>₿</strong>}
+      {token.kind === 'tether' && (
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M14 10h20v5.5h-6.8v17.8c0 1.8-1.4 3.2-3.2 3.2s-3.2-1.4-3.2-3.2V15.5H14V10Z" fill="currentColor" />
+          <path d="M11.5 17.3c3.2 1.5 7.5 2.3 12.5 2.3s9.3-.8 12.5-2.3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+      )}
       {token.kind === 'ethereum' && (
         <svg viewBox="0 0 48 48" fill="none">
           <path d="m24 5 13.2 19.2L24 32 10.8 24.2 24 5Z" fill="#d7e1ff" />
@@ -131,10 +162,16 @@ function TokenMark({ token }: { token: WalletToken }) {
 }
 
 const walletTokens: WalletToken[] = [
+  { id: 'tether', name: 'Tether', symbol: 'USDT', balance: '1,013,452.76', value: '$1,013,452.76', kind: 'tether' },
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', balance: '15.42', value: '$1,026,784.32', kind: 'bitcoin' },
   { id: 'tron', name: 'TRON', symbol: 'TRX', balance: '0.000002', value: '$0.0₆541', kind: 'tron' },
-  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', balance: '0', value: '$0.00', kind: 'bitcoin' },
   { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', balance: '0', value: '$0.00', kind: 'ethereum' },
   { id: 'bnb', name: 'BNB Smart Chain', symbol: 'BNB', balance: '0', value: '$0.00', kind: 'bnb' },
+]
+
+const promoSlides: Array<{ title: string; subtitle: string; icon: 'hyperliquid' | 'markets' }> = [
+  { title: 'Explore Hyperliquid: 200+ markets live', subtitle: 'Explore now', icon: 'hyperliquid' },
+  { title: 'Trade faster with live crypto prices', subtitle: 'Discover markets now', icon: 'markets' },
 ]
 
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
@@ -189,6 +226,15 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
 function App() {
   const [isLocked, setIsLocked] = useState(true)
+  const [promoIndex, setPromoIndex] = useState(0)
+
+  useEffect(() => {
+    const promoTimer = window.setInterval(() => {
+      setPromoIndex((currentIndex) => (currentIndex + 1) % promoSlides.length)
+    }, 2000)
+
+    return () => window.clearInterval(promoTimer)
+  }, [])
 
   if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
 
@@ -206,10 +252,25 @@ function App() {
           </div>
         </header>
 
-        <section className="limit-banner">
-          <span className="banner-accent" />
-          <HyperliquidGlyph />
-          <div><strong>Explore Hyperliquid: 200+ markets live</strong><span>Explore now</span></div>
+        <section className="limit-banner" aria-label="Wallet promotions">
+          <div className="banner-indicators" aria-hidden="true">
+            {promoSlides.map((slide, index) => (
+              <span className={`banner-indicator${index === promoIndex ? ' active' : ''}`} key={slide.title} />
+            ))}
+          </div>
+          <div className="promo-slide-viewport">
+            <div className="promo-slide-track" style={{ transform: `translateY(-${promoIndex * 100}%)` }}>
+              {promoSlides.map((slide) => (
+                <div className="promo-slide" key={slide.title}>
+                  <PromoGlyph kind={slide.icon} />
+                  <div className="promo-copy">
+                    <strong>{slide.title}</strong>
+                    <span>{slide.subtitle}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="start-section">
