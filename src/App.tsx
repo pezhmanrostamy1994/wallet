@@ -2,11 +2,13 @@ import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from '
 
 type IconName =
   | 'activity'
+  | 'apple'
   | 'chart'
   | 'chevron'
   | 'clock'
   | 'compass'
   | 'fingerprint'
+  | 'home'
   | 'infinity'
   | 'qr'
   | 'refresh'
@@ -30,11 +32,13 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
 
   const paths: Record<IconName, ReactNode> = {
     activity: <><path d="M3 12h4l2.2-6 4.1 12 2.2-6H21" /></>,
+    apple: <><path fill="currentColor" stroke="none" d="M16.6 12.9c0-2.3 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.2-2.9.9-3.7.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3-.5 7.4 1.3 9.8.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s1.9.8 3.3.8c1.4 0 2.3-1.2 3.1-2.5.9-1.4 1.3-2.8 1.3-2.9-.1 0-2.9-1.1-2.9-4.1Z" /><path fill="currentColor" stroke="none" d="M14.3 6.1c.7-.8 1.2-2 1.1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1.1 3 1.1.1 2.2-.6 2.9-1.4Z" /></>,
     chart: <><path d="m4 17 5-5 3 3 7-8" /><path d="M17 7h2v2" /></>,
     chevron: <path d="m8 10 4 4 4-4" />,
     clock: <><path d="M5 8.5A8 8 0 1 1 4.4 14" /><path d="M4.5 5.5v4h4" /><path d="M12 8v4l2.7 1.7" /></>,
     compass: <><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z" /></>,
     fingerprint: <><path d="M12 4a7 7 0 0 0-7 7" /><path d="M12 4a7 7 0 0 1 7 7c0 2-.3 4-.8 5.7" /><path d="M12 7a4 4 0 0 0-4 4c0 4.8-1 7.1-2.7 9" /><path d="M12 7a4 4 0 0 1 4 4c0 4.6.8 7.1 2.1 8.8" /><path d="M12 10a1 1 0 0 0-1 1c0 4.2-.4 7.1-1.7 9" /><path d="M13 11c0 3.3.2 5.8 1.2 8" /></>,
+    home: <><path fill="currentColor" stroke="none" d="m2.8 10.4 8.1-6.8a1.7 1.7 0 0 1 2.2 0l8.1 6.8a1.4 1.4 0 0 1 .5 1.1v7.3a2.2 2.2 0 0 1-2.2 2.2H4.5a2.2 2.2 0 0 1-2.2-2.2v-7.3a1.4 1.4 0 0 1 .5-1.1Z" /><path d="M10 20.8v-4.6h4v4.6" fill="#37383a" stroke="none" /><path d="M10.9 18.7h2.2" stroke="#fff" strokeWidth="1.05" strokeLinecap="round" /></>,
     infinity: <path d="M7.2 7.5c-2.2 0-3.7 1.7-3.7 4.5s1.5 4.5 3.7 4.5c3 0 6.6-9 9.6-9 2.2 0 3.7 1.7 3.7 4.5s-1.5 4.5-3.7 4.5c-3 0-6.6-9-9.6-9Z" />,
     qr: <><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" /></>,
     refresh: <><path d="M20 11a8 8 0 0 0-14.7-3L4 10" /><path d="M4 5v5h5" /><path d="M4 13a8 8 0 0 0 14.7 3L20 14" /><path d="M20 19v-5h-5" /></>,
@@ -56,37 +60,82 @@ function QrBadge() {
 }
 
 function BinanceBadge() {
-  return <span className="action-glyph binance-glyph"><img src="https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png" alt="" /></span>
+  return <span className="action-glyph binance-glyph"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 4.8 5.6 5.6-5.6 5.6-5.6-5.6L24 4.8ZM11.2 17.6l5.6 5.6-5.6 5.6-5.6-5.6 5.6-5.6ZM36.8 17.6l5.6 5.6-5.6 5.6-5.6-5.6 5.6-5.6ZM24 17.6l7.9 7.9-7.9 7.9-7.9-7.9 7.9-7.9ZM11.2 30.4l5.6 5.6-5.6 5.6-5.6-5.6 5.6-5.6ZM36.8 30.4l5.6 5.6-5.6 5.6-5.6-5.6 5.6-5.6ZM24 30.4l5.6 5.6-5.6 5.6-5.6-5.6 5.6-5.6Z" fill="currentColor" /></svg></span>
 }
 
 function CardBadge() {
-  return <span className="action-glyph card-glyph"><strong>VISA</strong><span className="card-circles"><i /><i /></span></span>
+  return <span className="action-glyph card-glyph"><Icon name="apple" size={22} /><strong>Pay</strong></span>
 }
 
-type MarketAsset = {
+function HyperliquidGlyph() {
+  return (
+    <span className="hyperliquid-glyph" aria-hidden="true">
+      <svg viewBox="0 0 58 42" fill="none">
+        <defs>
+          <linearGradient id="hyperliquid-blue" x1="8" y1="5" x2="50" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#83f1ff" />
+            <stop offset=".45" stopColor="#3274ff" />
+            <stop offset="1" stopColor="#6d1cff" />
+          </linearGradient>
+          <linearGradient id="hyperliquid-pink" x1="10" y1="36" x2="48" y2="7" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#153eff" />
+            <stop offset=".52" stopColor="#1cc9ff" />
+            <stop offset="1" stopColor="#f2fcff" />
+          </linearGradient>
+        </defs>
+        <path d="M7 29.3c3.9-7.6 10.6-14.6 17.8-14.6 6.4 0 8.1 8.7 14.4 8.7 4.3 0 7.6-3.3 11.8-10.2" stroke="url(#hyperliquid-blue)" strokeWidth="7" strokeLinecap="round" />
+        <path d="M7 29.3c5.5 4 11.1 6.2 17.1 6.2 7.5 0 9.5-7.7 15.4-7.7 3.7 0 6.4 1.3 9.5 3.2" stroke="url(#hyperliquid-pink)" strokeWidth="5.5" strokeLinecap="round" />
+        <circle cx="40.2" cy="9.2" r="7" fill="#d6f6ff" stroke="#5b79ff" strokeWidth="2" />
+        <path d="M35.6 10.4c2.3-2.5 5.1-3.1 8.8-2.2" stroke="#2a3a9d" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    </span>
+  )
+}
+
+type WalletToken = {
   id: string
   name: string
-  kind: 'bitcoin' | 'ethereum' | 'bnb'
-  icon: string
-  price: string
-  change: string
+  symbol: string
+  balance: string
+  value: string
+  kind: 'tron' | 'bitcoin' | 'ethereum' | 'bnb'
 }
 
-function AssetMark({ asset }: { asset: MarketAsset }) {
-  return <span className={`token-mark ${asset.kind}-mark`}><img src={asset.icon} alt="" /><span>{asset.kind === 'ethereum' ? 'E' : 'B'}</span></span>
+function TokenMark({ token }: { token: WalletToken }) {
+  return (
+    <span className={`token-mark ${token.kind}-mark`} aria-hidden="true">
+      {token.kind === 'tron' && (
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="m9.2 11.1 29.7 4.2-9.1 23.1L9.2 11.1Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+          <path d="m9.2 11.1 14.2 8.2 15.5-4M23.4 19.3l6.4 19.1M9.2 11.1l20.6 27.3" stroke="currentColor" strokeWidth="1.55" strokeLinejoin="round" />
+        </svg>
+      )}
+      {token.kind === 'bitcoin' && <strong>₿</strong>}
+      {token.kind === 'ethereum' && (
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="m24 5 13.2 19.2L24 32 10.8 24.2 24 5Z" fill="#d7e1ff" />
+          <path d="m24 5-13.2 19.2L24 32V5Z" fill="#fff" fillOpacity=".34" />
+          <path d="m24 34.7 13.2-7.9L24 43 10.8 26.8 24 34.7Z" fill="#c2d1ff" />
+          <path d="m24 34.7-13.2-7.9L24 43V34.7Z" fill="#fff" fillOpacity=".36" />
+        </svg>
+      )}
+      {token.kind === 'bnb' && (
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="m24 8 4.1 4.1-4.1 4.1-4.1-4.1L24 8ZM14.8 17.2l4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1ZM33.2 17.2l4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1ZM24 17.2l7.2 7.2-7.2 7.2-7.2-7.2 7.2-7.2Z" fill="currentColor" />
+          <path d="m24 31.6 4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1Z" fill="currentColor" />
+          <path d="m14.8 27.8 4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1ZM33.2 27.8l4.1 4.1-4.1 4.1-4.1-4.1 4.1-4.1Z" fill="currentColor" />
+        </svg>
+      )}
+    </span>
+  )
 }
 
-const referenceAssets: MarketAsset[] = [
-  { id: 'bitcoin', name: 'Bitcoin', kind: 'bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png', price: '$64,634.71', change: '+0.71%' },
-  { id: 'ethereum', name: 'Ethereum', kind: 'ethereum', icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png', price: '$1,906.66', change: '+1.88%' },
-  { id: 'binancecoin', name: 'BNB Smart Chain', kind: 'bnb', icon: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png', price: '$595.28', change: '+0.33%' },
+const walletTokens: WalletToken[] = [
+  { id: 'tron', name: 'TRON', symbol: 'TRX', balance: '0.000002', value: '$0.0₆541', kind: 'tron' },
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', balance: '0', value: '$0.00', kind: 'bitcoin' },
+  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', balance: '0', value: '$0.00', kind: 'ethereum' },
+  { id: 'bnb', name: 'BNB Smart Chain', symbol: 'BNB', balance: '0', value: '$0.00', kind: 'bnb' },
 ]
-
-const livePriceUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin%2Cethereum%2Cbinancecoin&order=market_cap_desc&per_page=3&page=1&sparkline=false'
-
-function formatUsd(value: number) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
 
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -140,27 +189,6 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
 function App() {
   const [isLocked, setIsLocked] = useState(true)
-  const [assets, setAssets] = useState(referenceAssets)
-
-  useEffect(() => {
-    const liveMode = new URLSearchParams(window.location.search).get('live') === '1'
-    if (!liveMode) return
-
-    const controller = new AbortController()
-    fetch(livePriceUrl, { signal: controller.signal })
-      .then((response) => response.ok ? response.json() as Promise<Array<{ id: string; current_price: number; price_change_percentage_24h: number | null }>> : Promise.reject(new Error('Price request failed')))
-      .then((liveAssets) => {
-        setAssets((currentAssets) => currentAssets.map((asset) => {
-          const liveAsset = liveAssets.find((item) => item.id === asset.id)
-          if (!liveAsset) return asset
-          const change = liveAsset.price_change_percentage_24h ?? 0
-          return { ...asset, price: formatUsd(liveAsset.current_price), change: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%` }
-        }))
-      })
-      .catch(() => undefined)
-
-    return () => controller.abort()
-  }, [])
 
   if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
 
@@ -170,7 +198,7 @@ function App() {
         <header className="wallet-header">
           <div className="wallet-chip">
             <WalletGlyph />
-            <div className="wallet-chip-copy"><strong>Main Wallet 1</strong><span>$1,000.00</span></div>
+            <div className="wallet-chip-copy"><strong>Morse</strong></div>
           </div>
           <div className="header-actions">
             <button className="round-button" aria-label="Transaction history"><Icon name="clock" size={22} /></button>
@@ -180,8 +208,8 @@ function App() {
 
         <section className="limit-banner">
           <span className="banner-accent" />
-          <span className="banner-icon"><Icon name="refresh" size={25} /></span>
-          <div><strong>Set a price. Swap automatically</strong><span>Try Limit Orders</span></div>
+          <HyperliquidGlyph />
+          <div><strong>Explore Hyperliquid: 200+ markets live</strong><span>Explore now</span></div>
         </section>
 
         <section className="start-section">
@@ -189,17 +217,17 @@ function App() {
           <div className="start-actions">
             <button className="start-action"><QrBadge /><span>Receive<br />crypto</span></button>
             <button className="start-action"><BinanceBadge /><span>Deposit from<br />Binance</span></button>
-            <button className="start-action"><CardBadge /><span>Buy with<br />Cards</span></button>
+            <button className="start-action"><CardBadge /><span>Buy with<br />Apple Pay</span></button>
           </div>
         </section>
 
         <section className="token-section">
-          <h2>Explore tokens <Icon name="chevron" size={25} /></h2>
+          <h2>Tokens <Icon name="chevron" size={25} /></h2>
           <div className="token-list">
-            {assets.map((asset) => (
-              <div className="token-row" key={asset.name}>
-                <div className="token-leading"><AssetMark asset={asset} /><strong>{asset.name}</strong></div>
-                <div className="token-price"><strong>{asset.price}</strong><span>{asset.change}</span></div>
+            {walletTokens.map((token) => (
+              <div className="token-row" key={token.id}>
+                <div className="token-leading"><TokenMark token={token} /><div className="token-copy"><strong>{token.name}</strong><span>{token.balance} {token.symbol}</span></div></div>
+                <div className="token-price"><strong>{token.value}</strong><span>$0.00</span></div>
               </div>
             ))}
           </div>
@@ -213,7 +241,7 @@ function App() {
 
         <nav className="bottom-dock" aria-label="Main navigation">
           <div className="nav-pill">
-            <button className="nav-item active"><Icon name="wallet" size={22} /></button>
+            <button className="nav-item active"><Icon name="home" size={22} /></button>
             <button className="nav-item"><Icon name="chart" size={22} /></button>
             <button className="nav-item"><Icon name="infinity" size={23} /></button>
             <button className="nav-item"><Icon name="compass" size={22} /></button>
