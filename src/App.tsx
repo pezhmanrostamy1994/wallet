@@ -77,16 +77,47 @@ function WalletGlyph() {
   return <span className="wallet-glyph"><Icon name="wallet" size="md" /></span>
 }
 
+function TrustWalletBadge() {
+  return <span className="trust-wallet-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" fill="#fff" /><path d="M24 5v38C15.3 39 9 32 9 22V11L24 5Z" fill="#1111e8" /><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" stroke="#cfd9ea" strokeWidth="1.5" strokeLinejoin="round" /></svg></span>
+}
+
+function BackArrowIcon() {
+  return <svg className="back-arrow-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M26 16H6M6 16l8-8M6 16l8 8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function WalletSettingsIcon() {
+  return <svg className="wallet-settings-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="currentColor" d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.08-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.7 7.7 0 0 0-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42l-.38 2.65c-.61.25-1.18.58-1.69.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.05.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.49.42h4c.24 0 .45-.18.49-.42l.38-2.65c.61-.25 1.18-.58 1.69-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.1-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z" /></svg>
+}
+
+function ExtensionQrIcon() {
+  return <svg className="extension-qr-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><g stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="17.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="17.5" width="7" height="7" rx="1" /></g><g fill="currentColor"><circle cx="19" cy="19" r="1.35" /><circle cx="22.5" cy="19" r="1.35" /><circle cx="20.75" cy="20.75" r="1.35" /><circle cx="19" cy="22.5" r="1.35" /><circle cx="22.5" cy="22.5" r="1.35" /></g></svg>
+}
+
 function QrBadge() {
   return <span className="action-glyph qr-glyph"><Icon name="qr" size="lg" /></span>
 }
 
 function McapBadge() {
-  return <span className="action-glyph mcap-glyph"><strong>M</strong><span>cap</span></span>
+  return <span className="action-glyph binance-glyph" aria-hidden="true">
+    <svg viewBox="0 0 48 48" fill="none">
+      <path d="m24 5.5 5.5 5.5-5.5 5.5-5.5-5.5L24 5.5Z" fill="currentColor" />
+      <path d="m13 16.5 5.5 5.5-5.5 5.5L7.5 22l5.5-5.5Z" fill="currentColor" />
+      <path d="m35 16.5 5.5 5.5-5.5 5.5-5.5-5.5 5.5-5.5Z" fill="currentColor" />
+      <path d="m24 16.5 5.5 5.5-5.5 5.5-5.5-5.5 5.5-5.5Z" fill="currentColor" />
+      <path d="m24 27.5 5.5 5.5-5.5 5.5-5.5-5.5 5.5-5.5Z" fill="currentColor" />
+    </svg>
+  </span>
 }
 
 function CardBadge() {
-  return <span className="action-glyph card-glyph"><Icon name="apple" size="md" /><strong>Pay</strong></span>
+  return <span className="action-glyph card-glyph" aria-hidden="true">
+    <svg viewBox="0 0 64 36" fill="none">
+      <text x="32" y="14" textAnchor="middle" fill="#263b9f" fontFamily="Arial, sans-serif" fontSize="12" fontStyle="italic" fontWeight="700">VISA</text>
+      <circle cx="27" cy="24" r="7" fill="#eb001b" />
+      <circle cx="37" cy="24" r="7" fill="#f79e1b" />
+      <path d="M32 18.5a7 7 0 0 0 0 11" fill="#ff5f00" />
+    </svg>
+  </span>
 }
 
 function HyperliquidGlyph() {
@@ -191,12 +222,34 @@ function TokenMark({ token }: { token: WalletToken }) {
   return <span className={`token-mark ${token.kind}-mark`} aria-hidden="true"><img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${cmcId}.png`} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><strong>{token.symbol === 'BTC' ? '₿' : token.symbol === 'ETH' ? '◆' : token.symbol.slice(0, 1)}</strong></span>
 }
 
+function PerpsVenueBadge() {
+  return <span className="perps-venue-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 8.2c0-1.7 1.1-2.8 2.7-2.8 2.2 0 4.2 6.2 6.4 6.2 1.6 0 2.7-1.1 2.7-2.8M5 15.8c0 1.7 1.1 2.8 2.7 2.8 2.2 0 4.2-6.2 6.4-6.2 1.6 0 2.7 1.1 2.7 2.8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg></span>
+}
+
+function SolanaEarnMark() {
+  return <span className="earn-mark solana-earn-mark" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="28" fill="#050505" /><path d="M17 23h31l-7 6H10l7-6ZM25 31h31l-7 6H18l7-6ZM17 39h31l-7 6H10l7-6Z" fill="url(#solana-earn-gradient)" /><defs><linearGradient id="solana-earn-gradient" x1="14" y1="44" x2="49" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#8b5cf6" /><stop offset=".5" stopColor="#00d9ff" /><stop offset="1" stopColor="#37f3a5" /></linearGradient></defs></svg></span>
+}
+
+function JunoEarnMark() {
+  return <span className="earn-mark juno-earn-mark" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="27" fill="#171719" stroke="#ff7780" strokeWidth="2" /><circle cx="32" cy="32" r="22" stroke="#ff7780" strokeWidth="1.4" /><path d="M32 17v30M24 25h16M27 20l5-5 5 5M25 38l7-7 7 7" stroke="#ff7780" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+}
+
+function AiSparkle() {
+  return <span className="ai-sparkle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 2 1.7 5.3L15 9l-5.3 1.7L8 16l-1.7-5.3L1 9l5.3-1.7L8 2ZM18 11l.9 3.1L22 15l-3.1.9L18 19l-.9-3.1L14 15l3.1-.9L18 11Z" /></svg></span>
+}
+
 const walletTokens: WalletToken[] = [
   { id: 'tether', name: 'Tether', symbol: 'USDT', cmcId: 825, balance: '1,013,452.76', value: '$1,013,452.76', kind: 'tether' },
   { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', cmcId: 1, balance: '15.42', value: '$1,026,784.32', kind: 'bitcoin' },
   { id: 'tron', name: 'TRON', symbol: 'TRX', balance: '0.000002', value: '$0.0₆541', kind: 'tron' },
   { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', cmcId: 1027, balance: '0', value: '$0.00', kind: 'ethereum' },
   { id: 'bnb', name: 'BNB Smart Chain', symbol: 'BNB', cmcId: 1839, balance: '0', value: '$0.00', kind: 'bnb' },
+]
+
+const screenshotWatchlist = [
+  { token: walletTokens[3], value: '$1,893.85' },
+  { token: walletTokens[1], value: '$63,701.45' },
+  { token: walletTokens[4], value: '$604.54' },
 ]
 
 const promoSlides: Array<{ title: string; subtitle: string; icon: 'hyperliquid' | 'markets' }> = [
@@ -227,6 +280,7 @@ const cmcApiBase = '/api/cmc'
 const chartCachePrefix = 'orbit-cmc-chart-v1:'
 const cmcPersistentCachePrefix = 'orbit-cmc-response-v1:'
 const marketListingsPath = '/v1/cryptocurrency/listings/latest?start=1&limit=250&convert=USD'
+const walletTokenQuotesPath = '/v2/cryptocurrency/quotes/latest?symbol=USDT,BTC,TRX,ETH,BNB&convert=USD'
 const chartCacheTtl = 5 * 60 * 1000
 const chartRequests = new Map<string, Promise<number[]>>()
 const cmcRequestCache = new Map<string, { expiresAt: number; value: unknown }>()
@@ -596,13 +650,13 @@ function DiscoverScreen() {
 
 function WalletsScreen({ onClose }: { onClose: () => void }) {
   const [showAddWallet, setShowAddWallet] = useState(false)
-  const walletNames = ['Main Wallet 1', 'Main Wallet 2', 'Main Wallet 3']
+  const walletNames = ['Main Wallet 1', 'Main Wallet 2', 'Main Wallet 3', 'Main Wallet 4']
   const closeAddWallet = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
     setShowAddWallet(false)
   }
 
-  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" onClick={onClose} aria-label="Close wallet manager"><Icon name="close" size={25} /></button><h1>Wallets</h1><button type="button" aria-label="Wallet settings"><Icon name="settings" size={24} /></button></header><div className="wallet-card-list">{walletNames.map((name, index) => <article className="main-wallet-card" key={name}><div className="main-wallet-title"><span className="wallet-shield">◆</span><div><strong>{name}</strong></div><b>⋮</b></div>{index === 2 && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><Icon name="qr" size={20} />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><span className="illustration-card" /><span className="illustration-ring ring-one" /><span className="illustration-ring ring-two" /><span className="illustration-orb" /></div><button type="button" className="add-wallet-option"><span className="add-option-icon create-icon">✦</span><span><strong>Create new wallet</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option"><span className="add-option-icon import-icon">↓</span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" aria-label="Wallet settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{walletNames.map((name, index) => <article className="main-wallet-card" key={name}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{name}</strong></div><b>⋮</b></div>{index === 3 && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><span className="illustration-card" /><span className="illustration-ring ring-one" /><span className="illustration-ring ring-two" /><span className="illustration-orb" /></div><button type="button" className="add-wallet-option"><span className="add-option-icon create-icon">✦</span><span><strong>Create new wallet</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option"><span className="add-option-icon import-icon">↓</span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
 }
 
 function App() {
@@ -611,6 +665,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'markets' | 'discover'>('home')
   const [selectedMarket, setSelectedMarket] = useState<MarketAsset | null>(null)
   const [showWallets, setShowWallets] = useState(false)
+  const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
 
   useEffect(() => {
     const promoTimer = window.setInterval(() => {
@@ -619,6 +674,33 @@ function App() {
 
     return () => window.clearInterval(promoTimer)
   }, [])
+
+  useEffect(() => {
+    if (isLocked || activeTab !== 'home' || selectedMarket || showWallets) return
+    let cancelled = false
+
+    const refreshWalletChanges = async () => {
+      try {
+        const body = await cmcFetch<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(walletTokenQuotesPath)
+        const nextChanges: Record<string, number | null> = {}
+        walletTokens.forEach((token) => {
+          const rawAsset = body.data?.[token.symbol]
+          const asset = Array.isArray(rawAsset) ? rawAsset[0] : rawAsset
+          nextChanges[token.symbol] = asset?.quote?.USD?.percent_change_24h ?? null
+        })
+        if (!cancelled) setWalletChanges(nextChanges)
+      } catch {
+        // Keep the latest real value; if none exists, the UI shows an em dash instead of fake data.
+      }
+    }
+
+    void refreshWalletChanges()
+    const timer = window.setInterval(() => void refreshWalletChanges(), 10_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [activeTab, isLocked, selectedMarket, showWallets])
 
   if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
 
@@ -670,8 +752,8 @@ function App() {
           <h1>Get started by adding some<br />crypto</h1>
           <div className="start-actions">
             <button className="start-action"><QrBadge /><span>Receive<br />crypto</span></button>
-            <button className="start-action"><McapBadge /><span>Deposit from<br />MCap</span></button>
-            <button className="start-action"><CardBadge /><span>Buy with<br />Apple Pay</span></button>
+            <button className="start-action"><McapBadge /><span>Deposit from<br />Binance</span></button>
+            <button className="start-action"><CardBadge /><span>Buy with<br />Cards</span></button>
           </div>
         </section>
 
@@ -681,7 +763,7 @@ function App() {
             {walletTokens.map((token) => (
               <div className="token-row" key={token.id}>
                 <div className="token-leading"><TokenMark token={token} /><div className="token-copy"><strong>{token.name}</strong><span>{token.balance} {token.symbol}</span></div></div>
-                <div className="token-price"><strong>{token.value}</strong><span>$0.00</span></div>
+                <div className="token-price"><strong>{token.value}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
               </div>
             ))}
           </div>
@@ -690,7 +772,41 @@ function App() {
 
         <section className="perps-section">
           <h2>Perps <Icon name="chevron" size={25} /></h2>
-          <div className="perps-preview"><span className="perps-coin">B</span><div><strong>Bitcoin Perpetual</strong><span>BTC-PERP</span></div><strong className="perps-value">$64,634.71</strong></div>
+          <div className="perps-card-row">
+            <article className="perps-card">
+              <div className="perps-card-icon"><TokenMark token={walletTokens[1]} /><PerpsVenueBadge /></div>
+              <div className="perps-card-title"><strong>BTC</strong><span>40x</span></div>
+              <span className="perps-volume">$1.82B Vol</span>
+            </article>
+            <article className="perps-card">
+              <div className="perps-card-icon"><TokenMark token={walletTokens[3]} /><PerpsVenueBadge /></div>
+              <div className="perps-card-title"><strong>ETH</strong><span>25x</span></div>
+              <span className="perps-volume">$805.22M Vol</span>
+            </article>
+          </div>
+        </section>
+
+        <section className="earn-section">
+          <h2>Earn <Icon name="chevron" size={25} /></h2>
+          <div className="earn-card-row">
+            <article className="earn-card"><SolanaEarnMark /><strong>41.34% APY</strong><span>on SOL</span></article>
+            <article className="earn-card"><JunoEarnMark /><strong>24.07% APY</strong><span>on JUNO</span></article>
+          </div>
+        </section>
+
+        <button className="ai-banner"><span className="ai-banner-label"><AiSparkle /><strong>Trust Wallet AI</strong></span><span className="ai-banner-action">Ask anything <Icon name="chevron" size={22} /></span></button>
+
+        <section className="watchlist-section">
+          <h2>Watchlist <Icon name="chevron" size={25} /></h2>
+          <div className="watchlist-list">
+            {screenshotWatchlist.map(({ token, value }) => (
+              <div className="watchlist-row" key={token.id}>
+                <TokenMark token={token} />
+                <div className="watchlist-name"><strong>{token.name}</strong></div>
+                <div className="watchlist-price"><strong>{value}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
+              </div>
+            ))}
+          </div>
         </section>
 
         </>}
