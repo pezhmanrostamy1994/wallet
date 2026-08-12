@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 
 type IconName =
   | 'activity'
@@ -666,6 +666,10 @@ function App() {
   const [selectedMarket, setSelectedMarket] = useState<MarketAsset | null>(null)
   const [showWallets, setShowWallets] = useState(false)
   const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [activeTab, selectedMarket, showWallets])
 
   useEffect(() => {
     const promoTimer = window.setInterval(() => {

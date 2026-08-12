@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
-
 :root {
-  font-family: 'DM Sans', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Roboto, "Segoe UI", Arial, sans-serif;
   --top-control-size: 66px;
+  --font-size-header: 24px;
+  --font-size-subheading: 18px;
+  --font-size-body: 14px;
+  --font-size-caption: 12px;
   color: #f4f4f5;
   background: #e5e5e7;
   font-synthesis: none;
