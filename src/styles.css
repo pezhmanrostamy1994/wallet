@@ -328,19 +328,42 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 }
 
 /* Passcode and biometric authentication */
-.passcode-lock-screen { align-items: flex-start; padding: 16vh 24px 24px; background: #3a3f44; }
-.passcode-content { width: min(100%, 390px); text-align: center; }
-.passcode-content h1 { margin: 0; color: #f7f7f8; font-size: 24px; font-weight: 600; }
-.passcode-boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 23px; }
-.passcode-boxes span { display: grid; height: 58px; place-items: center; border: 2px solid #d9e0f1; border-radius: 5px; color: #fff; font-size: 32px; line-height: 1; }
-.passcode-boxes span.filled { background: rgba(255,255,255,.13); }
-.touch-id-button { display: inline-flex; align-items: center; gap: 14px; margin-top: 68px; color: #f7f7f8; background: transparent; font-size: 21px; font-weight: 600; cursor: pointer; }
-.touch-id-button svg { stroke-width: 1.65; stroke-linecap: round; }
-.passcode-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 31px 18px; margin-top: 112px; }
-.passcode-pad button { height: 54px; color: #fff; background: transparent; font-size: 34px; font-weight: 500; cursor: pointer; }
-.passcode-pad .fingerprint-key { color: #38f3a1; }
-.passcode-pad .fingerprint-key svg { stroke-width: 1.55; stroke-linecap: round; }
-.passcode-pad .delete-key { color: #f0f1f3; font-size: 30px; }
+.passcode-lock-screen { align-items: center; padding: 0; background: #121318; }
+.passcode-container { display: flex; width: min(100%, 380px); height: 90vh; max-height: 700px; flex-direction: column; align-items: center; justify-content: space-between; padding: 32px 24px; }
+.main-content { display: flex; flex-direction: column; align-items: center; }
+.main-content h2 { color: #fff; font-size: 24px; font-weight: 600; }
+.passcode-inputs { display: flex; gap: 10px; margin-top: 23px; }
+.input-box { display: block; width: 42px; height: 42px; border: 2px solid #d9e0f1; border-radius: 5px; }
+.input-box.filled { background: rgba(255,255,255,.13); }
+.touch-id-button { display: inline-flex; align-items: center; gap: 14px; margin-top: 58px; color: #f7f7f8; background: transparent; font-size: 18px; font-weight: 600; cursor: pointer; }
+.biometric-icon { display: inline-grid; width: 28px; height: 28px; place-items: center; color: #3375ff; }
+.biometric-icon svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 1.8; }
+.keypad-container { display: grid; width: 100%; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.key { display: flex; aspect-ratio: 1; align-items: center; justify-content: center; border: 0; border-radius: 50%; color: #fff; background: #1c1e26; font-size: 26px; font-weight: 500; cursor: pointer; user-select: none; transition: background-color .15s ease, transform .1s ease; -webkit-tap-highlight-color: transparent; }
+.key:hover { background: #262936; }
+.key:active { background: #3375ff; transform: scale(.95); }
+.key-action { color: #fff; background: transparent; }
+.key-action:hover { background: transparent; }
+.key-action:active { color: #3375ff; background: transparent; }
+.fingerprint-icon { display: inline-grid; color: #3375ff; place-items: center; }
+.fingerprint-icon svg { width: 30px; height: 30px; stroke: currentColor; stroke-width: 1.8; }
+.backspace-icon { display: inline-grid; color: #fff; place-items: center; }
+
+/* Passcode light mode */
+.passcode-lock-screen { color: var(--ref-ink); background: #fff; }
+.main-content h2 { color: var(--ref-ink); }
+.input-box { border-color: var(--ref-line); background: #fff; }
+.input-box.filled { border-color: var(--ref-blue); background: rgba(21,21,244,.08); }
+.touch-id-button { color: var(--ref-ink); }
+.key { color: var(--ref-ink); background: var(--ref-surface); }
+.key:hover { background: #e7e7ea; }
+.key:active { color: #fff; background: var(--ref-blue); }
+.key-action,
+.key-action:hover,
+.key-action:active { color: var(--ref-ink); background: transparent; }
+.biometric-icon,
+.fingerprint-icon { color: var(--ref-blue); }
+.backspace-icon { color: var(--ref-ink); }
 .auth-lock-screen { align-items: flex-end; padding: 0; background: #090a0b; }
 .auth-sheet { position: relative; display: flex; width: 100%; min-height: 47vh; flex-direction: column; align-items: center; padding: 38px 26px 25px; border-radius: 28px 28px 0 0; color: #f4f5f7; background: #4b5362; text-align: center; animation: auth-sheet-rise .28s cubic-bezier(.22,.8,.24,1) both; }
 .auth-brand-mark { position: absolute; top: -35px; display: grid; width: 70px; height: 70px; place-items: center; border-radius: 20px; background: #fff; }
@@ -429,12 +452,11 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .view-dapps-button span { font-size: 28px; line-height: 1; }
 
 @media (max-width: 430px) {
-  .passcode-lock-screen { padding: 14vh 24px 10px; }
-  .passcode-boxes { gap: 7px; }
-  .passcode-boxes span { height: 46px; }
-  .touch-id-button { margin-top: 68px; font-size: 18px; }
-  .passcode-pad { gap: clamp(18px, 3.8vh, 31px) 12px; margin-top: clamp(112px, 22vh, 175px); }
-  .passcode-pad button { height: 42px; font-size: 28px; }
+  .passcode-container { height: 90vh; padding: 32px 24px; }
+  .passcode-inputs { gap: 7px; }
+  .input-box { width: 39px; height: 46px; }
+  .touch-id-button { margin-top: 48px; font-size: 18px; }
+  .keypad-container { gap: 16px; }
   .auth-sheet { min-height: 0; height: 54dvh; padding: 25px 22px 18px; }
   .auth-brand-mark { top: -29px; width: 58px; height: 58px; }
   .auth-brand-mark .wallet-glyph { width: 40px; height: 40px; flex-basis: 40px; }
@@ -837,3 +859,20 @@ body, .app-shell { color: var(--light-ink); background: #fff; }
 .wallets-bottom-actions button { height: 52px; border: 0; border-radius: 26px; color: var(--gray-2); background: var(--wallet-surface); font-size: 15px; font-weight: 600; }
 .wallet-settings-icon { display: block; width: 28px; height: 28px; }
 .extension-qr-icon { display: block; width: 18px; height: 18px; flex: 0 0 18px; opacity: .72; }
+
+/* Restore the original numeric-only passcode keypad treatment. */
+.passcode-lock-screen .keypad-container { gap: 31px 18px; }
+.passcode-lock-screen .key { height: 54px; aspect-ratio: auto; border-radius: 0; color: var(--ref-ink); background: transparent; font-size: 34px; font-weight: 500; }
+.passcode-lock-screen .key:hover,
+.passcode-lock-screen .key:active,
+.passcode-lock-screen .key-action,
+.passcode-lock-screen .key-action:hover,
+.passcode-lock-screen .key-action:active { color: var(--ref-ink); background: transparent; }
+.passcode-lock-screen .key:active { color: var(--ref-blue); transform: scale(.95); }
+.passcode-lock-screen .fingerprint-icon { color: var(--ref-blue); }
+.passcode-lock-screen .backspace-icon { color: var(--ref-ink); }
+
+@media (max-width: 430px) {
+  .passcode-lock-screen .keypad-container { gap: clamp(18px, 3.8vh, 31px) 12px; }
+  .passcode-lock-screen .key { height: 42px; font-size: 28px; }
+}
