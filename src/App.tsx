@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { RiDownload2Line, RiFingerprint2Line, RiSparkling2Line } from 'react-icons/ri'
 
 type IconName =
   | 'activity'
@@ -74,11 +75,15 @@ function Icon({ name, size = 'md' }: { name: IconName; size?: IconSize | number 
 }
 
 function WalletGlyph() {
-  return <span className="wallet-glyph"><Icon name="wallet" size="md" /></span>
+  return <span className="wallet-glyph" aria-hidden="true"><img src="/trust-wallet-icon.webp" alt="" /></span>
 }
 
 function TrustWalletBadge() {
   return <span className="trust-wallet-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" fill="#fff" /><path d="M24 5v38C15.3 39 9 32 9 22V11L24 5Z" fill="#1111e8" /><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" stroke="#cfd9ea" strokeWidth="1.5" strokeLinejoin="round" /></svg></span>
+}
+
+function TrustWalletGreenMark() {
+  return <span className="auth-trust-mark" aria-hidden="true"><img src="/trust-wallet-icon.webp" alt="" /></span>
 }
 
 function BackArrowIcon() {
@@ -89,8 +94,41 @@ function PasscodeFingerprintIcon() {
   return <svg className="passcode-fingerprint" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4.5A11.5 11.5 0 0 0 4.5 16" /><path d="M16 4.5A11.5 11.5 0 0 1 27.5 16c0 4.1-.7 8.2-2 11.5" /><path d="M16 8A8 8 0 0 0 8 16c0 5.2-.7 9.2-1.8 12" /><path d="M16 8a8 8 0 0 1 8 8c0 3.8-.4 7.1-1.3 10" /><path d="M16 11.5a4.5 4.5 0 0 0-4.5 4.5c0 5.4-.3 9.1-1 12" /><path d="M16 11.5a4.5 4.5 0 0 1 4.5 4.5c0 3.8-.2 7-.7 10.2" /><path d="M16 15a1 1 0 0 0-1 1c0 5-.2 8.8-.6 12" /></svg>
 }
 
+function PasscodeFingerprintImage({ className = '' }: { className?: string }) {
+  return <span className={`passcode-fingerprint-image ${className}`} aria-hidden="true" />
+}
+
 function WalletSettingsIcon() {
   return <svg className="wallet-settings-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="currentColor" d="M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.08-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.7 7.7 0 0 0-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42l-.38 2.65c-.61.25-1.18.58-1.69.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.05.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.49.42h4c.24 0 .45-.18.49-.42l.38-2.65c.61-.25 1.18-.58 1.69-.98l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.1-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z" /></svg>
+}
+
+type SettingsMenuIconName = 'moon' | 'address-book' | 'extension' | 'handle' | 'scan' | 'wallet-connect' | 'preferences' | 'security' | 'notifications' | 'support' | 'about' | 'x' | 'telegram' | 'facebook' | 'reddit' | 'youtube' | 'instagram' | 'tiktok'
+
+function SettingsMenuIcon({ name }: { name: SettingsMenuIconName }) {
+  let glyph: ReactNode
+
+  switch (name) {
+    case 'moon': glyph = <path d="M20.7 18.2A10.1 10.1 0 0 1 9.8 4.1 10.2 10.2 0 1 0 20.7 18.2Z" />; break
+    case 'address-book': glyph = <><path d="M7 5.5h13.5v17H7z" /><path d="M7 8H4.5m2.5 4H4.5m2.5 4H4.5m2.5 4H4.5M11 10h6m-6 4h6m-6 4h4" /></>; break
+    case 'extension': glyph = <><rect x="4" y="4" width="6.5" height="6.5" rx=".8" /><rect x="17.5" y="4" width="6.5" height="6.5" rx=".8" /><rect x="4" y="17.5" width="6.5" height="6.5" rx=".8" /><path d="M18 18h2.2m1.8 0h.1M18 21.5h.1m3.9 0H24M20 20h.1" strokeLinecap="round" /></>; break
+    case 'handle': glyph = <><path d="M19.5 13.2v2.1a5.5 5.5 0 1 1-1.8-4.1" /><path d="M19.5 10.2v3h-4.1" /><circle cx="12" cy="13.5" r="3.2" /></>; break
+    case 'scan': glyph = <><path d="M9.5 4.5H5.2v4.3m0 10.4v4.3h4.3m9.3 0h4.3v-4.3m0-10.4V4.5h-4.3" /><path d="M10 14h8" strokeLinecap="round" /></>; break
+    case 'wallet-connect': glyph = <><path d="m9.1 17.2 3.1-3.1a3.5 3.5 0 0 1 5 5l-2.1 2.1a3.5 3.5 0 0 1-5 0" /><path d="m18.9 10.8-3.1 3.1a3.5 3.5 0 0 1-5-5l2.1-2.1a3.5 3.5 0 0 1 5 0" /></>; break
+    case 'preferences': glyph = <path d="M21.6 14.1c.1-.4.1-.8.1-1.1s0-.8-.1-1.2l2-1.5-2.1-3.6-2.3.9c-.6-.5-1.2-.8-1.9-1.1L17 4h-4l-.4 2.5c-.7.3-1.3.6-1.9 1.1l-2.3-.9-2.1 3.6 2 1.5c-.1.4-.1.8-.1 1.2s0 .7.1 1.1l-2 1.6 2.1 3.6 2.3-.9c.6.5 1.2.8 1.9 1.1L13 22h4l.4-2.5c.7-.3 1.3-.6 1.9-1.1l2.3.9 2.1-3.6-2-1.6ZM15 13a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none" />; break
+    case 'security': glyph = <><rect x="5.5" y="12" width="17" height="11" rx="2" /><path d="M9 12V9a5 5 0 0 1 10 0v3m-8.3 5.5h6.6m-6.6 2.5h6.6" /></>; break
+    case 'notifications': glyph = <><path d="M6.3 18.3h15.4l-2.1-3v-4.1a5.6 5.6 0 1 0-11.2 0v4.1l-2.1 3Z" /><path d="M11.3 22h3.4" strokeLinecap="round" /></>; break
+    case 'support': glyph = <><path d="M5 14v-1a9 9 0 0 1 18 0v1" /><path d="M5 14v3.5a2 2 0 0 0 2 2h1.5v-6H7a2 2 0 0 0-2 2.5Zm18 0v3.5a2 2 0 0 1-2 2h-1.5v-6H21a2 2 0 0 1 2 2.5Z" /><path d="M19.5 20.5c0 1.6-1.2 2.5-3.3 2.5h-1" strokeLinecap="round" /></>; break
+    case 'about': glyph = <><path d="M14 3.7 22 7v5.8c0 5.2-3.5 8.7-8 10.5-4.5-1.8-8-5.3-8-10.5V7l8-3.3Z" /><path d="m10.2 13.1 2.4 2.4 5.2-5.3" strokeLinecap="round" strokeLinejoin="round" /></>; break
+    case 'x': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="m9 9 10 10m0-10L9 19" strokeLinecap="round" /></>; break
+    case 'telegram': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="m8 11 12-3.5-3.8 12-3.2-4.2L8 11Zm5.2 4.3 2.2-2.3" strokeLinecap="round" strokeLinejoin="round" /></>; break
+    case 'facebook': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="M16.7 10h-2c-.8 0-1.2.4-1.2 1.2V14h3l-.4 2.7h-2.6V22h-3v-5.3H8V14h2.5v-3.1c0-2.4 1.4-3.9 3.8-3.9h2.4V10Z" fill="currentColor" stroke="none" /></>; break
+    case 'reddit': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="M8.5 14.1c0 2.3 2.5 4.2 5.5 4.2s5.5-1.9 5.5-4.2S17 10 14 10s-5.5 1.8-5.5 4.1Z" /><path d="m15.5 9.9.7-3.2 2.2.5m-7.2 7.4h.1m5.4 0h.1m-5 1.9c1.2.8 3.2.8 4.4 0" strokeLinecap="round" /><circle cx="19.2" cy="7.5" r="1.1" /></>; break
+    case 'youtube': glyph = <><rect x="3.8" y="6.2" width="20.4" height="15.6" rx="3.5" /><path d="m12 11 5 3-5 3v-6Z" fill="currentColor" stroke="none" /></>; break
+    case 'instagram': glyph = <><rect x="4" y="4" width="20" height="20" rx="4" /><circle cx="14" cy="14" r="4.2" /><circle cx="19.2" cy="8.8" r="1" fill="currentColor" stroke="none" /></>; break
+    case 'tiktok': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="M16.6 8v7a3.2 3.2 0 1 1-2.1-3v-1.6c1.1.9 2.3 1.3 3.5 1.3" strokeLinecap="round" strokeLinejoin="round" /></>; break
+  }
+
+  return <svg className="settings-row-icon" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{glyph}</svg>
 }
 
 function ExtensionQrIcon() {
@@ -620,6 +658,8 @@ function LegacyLockScreen({ onUnlock }: { onUnlock: () => void }) {
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const [passcode, setPasscode] = useState('')
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [isBiometricHolding, setIsBiometricHolding] = useState(false)
+  const biometricHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
   const addDigit = (digit: string) => {
@@ -630,11 +670,32 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
   const removeDigit = () => setPasscode((current) => current.slice(0, -1))
 
-  if (isAuthenticating) {
-    return <main className="lock-screen auth-lock-screen"><div className="auth-sheet"><div className="auth-brand-mark"><WalletGlyph /></div><h1>Authentication required</h1><p>Morse</p><button className="auth-touch-button" onClick={onUnlock}><span>Touch the fingerprint sensor</span><Icon name="fingerprint" size="hero" /></button><button className="auth-cancel" onClick={() => setIsAuthenticating(false)}>PIN</button></div></main>
+  const beginBiometricHold = (event: PointerEvent<HTMLButtonElement>) => {
+    if (biometricHoldTimer.current !== null) return
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+    setIsBiometricHolding(true)
+    biometricHoldTimer.current = window.setTimeout(() => {
+      biometricHoldTimer.current = null
+      onUnlock()
+    }, 330)
   }
 
-  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className="passcode-inputs" aria-label="Passcode progress">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index} />)}</div><button className="touch-id-button" onClick={() => setIsAuthenticating(true)}><span className="biometric-icon"><PasscodeFingerprintIcon /></span>Use Touch ID</button></div><div className="keypad-container">{digits.map((digit) => <button className="key" key={digit} onClick={() => addDigit(digit)}>{digit}</button>)}<button className="key key-action fingerprint-key" aria-hidden="true" tabIndex={-1}><span className="fingerprint-icon"><PasscodeFingerprintIcon /></span></button><button className="key" onClick={() => addDigit('0')}>0</button><button className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg></span></button></div></div></main>
+  const cancelBiometricHold = () => {
+    if (biometricHoldTimer.current === null) return
+    window.clearTimeout(biometricHoldTimer.current)
+    biometricHoldTimer.current = null
+    setIsBiometricHolding(false)
+  }
+
+  useEffect(() => () => {
+    if (biometricHoldTimer.current !== null) window.clearTimeout(biometricHoldTimer.current)
+  }, [])
+
+  if (isAuthenticating) {
+    return <main className="lock-screen auth-lock-screen"><button type="button" className="auth-dismiss-backdrop" onClick={() => setIsAuthenticating(false)} aria-label="Use passcode instead" /><div className="auth-background-trust-mark"><TrustWalletGreenMark /></div><div className="auth-sheet"><button type="button" className="auth-passcode-zone" onClick={() => setIsAuthenticating(false)} aria-label="Use passcode instead" /><h1>Authentication required</h1><p>Trust Wallet</p><button type="button" className={`auth-touch-button${isBiometricHolding ? ' holding' : ''}`} onPointerDown={beginBiometricHold} onPointerUp={cancelBiometricHold} onPointerCancel={cancelBiometricHold} onPointerLeave={cancelBiometricHold} aria-label="Hold the fingerprint sensor for half a second"><span>Touch the fingerprint sensor</span><PasscodeFingerprintImage className="auth-fingerprint-image" /></button><button type="button" className="auth-cancel" onClick={() => setIsAuthenticating(false)}>PIN</button></div></main>
+  }
+
+  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className="passcode-inputs" aria-label="Passcode progress">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div><button type="button" className="touch-id-button" onClick={() => setIsAuthenticating(true)} aria-label="Use Touch ID"><span className="biometric-icon"><RiFingerprint2Line className="ri-fingerprint-2-line" aria-hidden="true" /></span>Use Touch ID</button></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" onClick={() => setIsAuthenticating(true)} aria-label="Use Touch ID"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg></span></button></div></div></main>
 }
 
 type DappItem = { name: string; description: string; className: string; mark: string }
@@ -652,15 +713,231 @@ function DiscoverScreen() {
   return <section className="discover-screen"><header className="discover-heading"><h1>Discover</h1></header><div className="dapp-search"><Icon name="search" size={22} /><span>Search or enter dApp URL</span></div><div className="dapp-banner"><div><strong>Claim bStocks<br />campaign rewards<br />now</strong><div className="dapp-banner-dots"><span className="active" /><span /></div></div><div className="banner-coins"><i>EW</i><b>↗</b></div><span className="banner-arrow">›</span></div><h2 className="explore-title">Explore dApps <Icon name="chevron" size={25} /></h2><div className="dapp-categories">{categories.map((category, index) => <button className={index === 0 ? 'active' : ''} key={category}>{category}</button>)}</div><div className="dapp-list">{dapps.map((dapp) => <div className="dapp-row" key={dapp.name}><span className={`dapp-icon ${dapp.className}`}>{dapp.mark}</span><div><strong>{dapp.name}</strong><span>{dapp.description}</span></div></div>)}</div><button className="view-dapps-button">View all <span>›</span></button></section>
 }
 
-function WalletsScreen({ onClose }: { onClose: () => void }) {
+function SettingsScreen({ onClose }: { onClose: () => void }) {
+  const [darkMode, setDarkMode] = useState(false)
+  const groups: { icon: SettingsMenuIconName; label: string; alert?: boolean }[][] = [
+    [
+      { icon: 'address-book', label: 'Address Book' },
+      { icon: 'extension', label: 'Sync to Extension' },
+      { icon: 'handle', label: 'Trust handles' },
+      { icon: 'scan', label: 'Scan QR code' },
+      { icon: 'wallet-connect', label: 'WalletConnect' },
+    ],
+    [
+      { icon: 'preferences', label: 'Preferences' },
+      { icon: 'security', label: 'Security', alert: true },
+      { icon: 'notifications', label: 'Notifications' },
+    ],
+    [
+      { icon: 'support', label: 'Support' },
+      { icon: 'about', label: 'About' },
+    ],
+    [
+      { icon: 'x', label: 'X' },
+      { icon: 'telegram', label: 'Telegram' },
+      { icon: 'facebook', label: 'Facebook' },
+      { icon: 'reddit', label: 'Reddit' },
+      { icon: 'youtube', label: 'Youtube' },
+      { icon: 'instagram', label: 'Instagram' },
+      { icon: 'tiktok', label: 'TikTok' },
+    ],
+  ]
+
+  return <section className="settings-screen" aria-labelledby="settings-title">
+    <header className="settings-header">
+      <button type="button" className="settings-back-button" onClick={onClose} aria-label="Back to wallets"><BackArrowIcon /></button>
+      <h1 id="settings-title">Settings</h1>
+      <span aria-hidden="true" />
+    </header>
+    <div className="settings-group settings-dark-mode-group">
+      <button type="button" className="settings-row settings-dark-mode-row" onClick={() => setDarkMode((current) => !current)} aria-pressed={darkMode}>
+        <SettingsMenuIcon name="moon" />
+        <span>Dark Mode</span>
+        <i className={`settings-switch${darkMode ? ' enabled' : ''}`} aria-hidden="true" />
+      </button>
+    </div>
+    {groups.map((group, groupIndex) => <div className="settings-group" key={group[0].label}>
+      {groupIndex > 0 && <div className="settings-divider" />}
+      {group.map((item) => <button type="button" className="settings-row" key={item.label}>
+        <SettingsMenuIcon name={item.icon} />
+        <span>{item.label}</span>
+        {item.alert && <i className="settings-alert-dot" aria-label="Requires attention" />}
+      </button>)}
+    </div>)}
+  </section>
+}
+
+type CelebrationParticle = {
+  color: string
+  delay: number
+  gravity: number
+  opacity: number
+  phase: number
+  rotation: number
+  size: number
+  spin: number
+  type: 'dot' | 'ring' | 'ribbon'
+  velocityX: number
+  velocityY: number
+  x: number
+  y: number
+}
+
+function WalletReadyConfetti() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const context = canvas?.getContext('2d')
+    if (!canvas || !context || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const colors = ['#1515f4', '#249eee', '#3bef9a', '#ffeb52', '#f39eec']
+    const random = (minimum: number, maximum: number) => minimum + Math.random() * (maximum - minimum)
+    let animationFrame = 0
+    let previousFrameTime = 0
+    let startTime = 0
+    let particles: CelebrationParticle[] = []
+    let width = 0
+    let height = 0
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect()
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+      width = bounds.width
+      height = bounds.height
+      canvas.width = Math.round(width * pixelRatio)
+      canvas.height = Math.round(height * pixelRatio)
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
+    }
+
+    const launch = () => {
+      particles = Array.from({ length: 192 }, (_, index) => {
+        const type = index % 7 === 0 ? 'ribbon' : index % 4 === 0 ? 'ring' : 'dot'
+        const size = type === 'ribbon' ? random(4.5, 6.5) : type === 'ring' ? random(7, 11) : random(4.5, 9)
+        const sourceX = random(width * .07, width * .93)
+        const heightBand = index % 9
+        const launchSpeed = heightBand < 4 ? random(13, 16) : heightBand < 8 ? random(17, 21) : random(24, 28)
+        return {
+          color: colors[index % colors.length],
+          delay: random(0, 230),
+          gravity: random(.1375, .18125),
+          opacity: random(.72, 1),
+          phase: random(0, Math.PI * 2),
+          rotation: random(0, Math.PI * 2),
+          size: size * 2,
+          spin: random(-.12, .12),
+          type,
+          velocityX: (width * .5 - sourceX) * random(-.004375, .004375) + random(-1.375, 1.375),
+          velocityY: -launchSpeed,
+          x: sourceX,
+          y: height + random(12, 42),
+        }
+      })
+      startTime = performance.now()
+    }
+
+    const drawParticle = (particle: CelebrationParticle, alpha: number) => {
+      if (particle.y < -44 || particle.y > height + 52 || particle.x < -44 || particle.x > width + 44) return
+      context.save()
+      context.globalAlpha = alpha * particle.opacity
+      context.translate(particle.x, particle.y)
+      context.rotate(particle.rotation)
+      context.fillStyle = particle.color
+      if (particle.type === 'ribbon') {
+        context.strokeStyle = particle.color
+        context.lineCap = 'round'
+        context.lineWidth = particle.size * .62
+        context.beginPath()
+        context.moveTo(0, -particle.size * 1.9)
+        context.quadraticCurveTo(particle.size * 1.05, 0, 0, particle.size * 1.9)
+        context.stroke()
+      } else if (particle.type === 'ring') {
+        context.strokeStyle = particle.color
+        context.lineWidth = 1.45
+        context.beginPath()
+        context.arc(0, 0, particle.size * .5, 0, Math.PI * 2)
+        context.stroke()
+      } else {
+        context.beginPath()
+        context.arc(0, 0, particle.size * .5, 0, Math.PI * 2)
+        context.fill()
+      }
+      context.restore()
+    }
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime
+      const frameDelta = previousFrameTime ? Math.min((now - previousFrameTime) / (1000 / 60), 2) : 1
+      const fade = Math.max(0, Math.min(1, (6400 - elapsed) / 640))
+      previousFrameTime = now
+      context.clearRect(0, 0, width, height)
+      particles.forEach((particle) => {
+        if (elapsed < particle.delay) return
+        particle.velocityY += particle.gravity * frameDelta
+        particle.velocityX *= Math.pow(.998, frameDelta)
+        particle.x += (particle.velocityX + Math.sin(elapsed * .0065 + particle.phase) * .24) * frameDelta
+        particle.y += particle.velocityY * frameDelta
+        particle.rotation += particle.spin * frameDelta
+        drawParticle(particle, fade)
+      })
+      if (elapsed < 6400) animationFrame = window.requestAnimationFrame(animate)
+    }
+
+    resize()
+    launch()
+    animationFrame = window.requestAnimationFrame(animate)
+    window.addEventListener('resize', resize)
+    return () => {
+      window.cancelAnimationFrame(animationFrame)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return <canvas ref={canvasRef} className="wallet-ready-confetti" aria-hidden="true" />
+}
+
+function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
+  return <section className="wallet-ready-screen" aria-labelledby="wallet-ready-title">
+    <WalletReadyConfetti />
+    <button type="button" className="wallet-ready-skip" onClick={onContinue}>Skip</button>
+    <div className="wallet-ready-art"><img className="wallet-ready-illustration" src="/illustration-2-wallet.svg" alt="" /><span className="wallet-ready-bug-trail" aria-hidden="true"><i /><i /><i /><i /></span><span className="wallet-ready-bug-orbit" aria-hidden="true"><img src="/illustration-1-bow-1.svg" alt="" /></span></div>
+    <div className="wallet-ready-copy"><h1 id="wallet-ready-title">Brilliant! your wallet is ready!</h1><p>Add funds to get started</p></div>
+    <button type="button" className="wallet-ready-fund" onClick={onContinue}>Fund your wallet</button>
+  </section>
+}
+
+function WalletsScreen({ onClose, onOpenSettings }: { onClose: () => void; onOpenSettings: () => void }) {
   const [showAddWallet, setShowAddWallet] = useState(false)
+  const [isCreatingWallet, setIsCreatingWallet] = useState(false)
+  const [showWalletCreated, setShowWalletCreated] = useState(false)
+  const walletCreationTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
   const walletNames = ['Main Wallet 1', 'Main Wallet 2', 'Main Wallet 3', 'Main Wallet 4']
   const closeAddWallet = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
+    if (walletCreationTimer.current !== null) window.clearTimeout(walletCreationTimer.current)
+    walletCreationTimer.current = null
+    setIsCreatingWallet(false)
     setShowAddWallet(false)
   }
 
-  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" aria-label="Wallet settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{walletNames.map((name, index) => <article className="main-wallet-card" key={name}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{name}</strong></div><b>⋮</b></div>{index === 3 && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><span className="illustration-card" /><span className="illustration-ring ring-one" /><span className="illustration-ring ring-two" /><span className="illustration-orb" /></div><button type="button" className="add-wallet-option"><span className="add-option-icon create-icon">✦</span><span><strong>Create new wallet</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option"><span className="add-option-icon import-icon">↓</span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+  const createWallet = () => {
+    if (isCreatingWallet) return
+    setIsCreatingWallet(true)
+    walletCreationTimer.current = window.setTimeout(() => {
+      walletCreationTimer.current = null
+      setShowAddWallet(false)
+      setShowWalletCreated(true)
+      setIsCreatingWallet(false)
+    }, 1000)
+  }
+
+  useEffect(() => () => {
+    if (walletCreationTimer.current !== null) window.clearTimeout(walletCreationTimer.current)
+  }, [])
+
+  if (showWalletCreated) return <WalletReadyScreen onContinue={() => setShowWalletCreated(false)} />
+
+  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{walletNames.map((name, index) => <article className="main-wallet-card" key={name}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{name}</strong></div><b>⋮</b></div>{index === 3 && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
 }
 
 function App() {
@@ -669,11 +946,12 @@ function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'markets' | 'discover'>('home')
   const [selectedMarket, setSelectedMarket] = useState<MarketAsset | null>(null)
   const [showWallets, setShowWallets] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [activeTab, selectedMarket, showWallets])
+  }, [activeTab, selectedMarket, showWallets, showSettings])
 
   useEffect(() => {
     const promoTimer = window.setInterval(() => {
@@ -712,8 +990,12 @@ function App() {
 
   if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
 
+  if (showSettings) {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><SettingsScreen onClose={() => setShowSettings(false)} /></div></main>
+  }
+
   if (showWallets) {
-    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => setShowWallets(false)} /></div></main>
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => setShowWallets(false)} onOpenSettings={() => setShowSettings(true)} /></div></main>
   }
 
   if (selectedMarket) {

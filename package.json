@@ -1,5 +1,5 @@
 {
-  "name": "orbit-wallet-dashboard",
+  "name": "Trust-wallet-dashboard",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-icons": "^5.7.0",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",

@@ -14,7 +14,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: #18191a; }
-button { border: 0; color: inherit; font: inherit; cursor: default; }
+button { border: 0; color: inherit; font: inherit; cursor: default; -webkit-tap-highlight-color: transparent; }
 
 .lock-screen { display: grid; width: 100%; height: 100dvh; min-height: 0; place-items: center; overflow: hidden; padding: 32px 24px; color: #f4f4f5; background: #18191a; }
 .lock-screen-content { display: flex; width: min(100%, 360px); flex-direction: column; align-items: center; text-align: center; }
@@ -47,7 +47,7 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .wallet-header { justify-content: space-between; padding-top: 16px; }
 .wallet-chip { width: 158px; min-width: 158px; height: 66px; gap: 11px; padding: 8px 17px 8px 9px; border: 1px solid #3b3c3e; border-radius: 34px; background: rgba(24,25,26,.38); cursor: pointer; }
 .wallet-glyph { display: grid; width: 48px; height: 48px; place-items: center; flex: 0 0 48px; border-radius: 16px; color: #fff; background: #37ee90; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 0 18px rgba(55,238,144,.18); }
-.wallet-glyph svg { stroke-width: 1.55; }
+.wallet-glyph img { display: block; width: 78%; height: 78%; object-fit: contain; }
 .wallet-chip-copy { flex-direction: column; align-items: flex-start; gap: 1px; }
 .wallet-chip .wallet-glyph { border-radius: 50%; }
 .wallet-chip-copy strong { font-size: 20px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
@@ -399,6 +399,7 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .add-wallet-sheet { position: relative; width: min(100%, 591px); min-height: 53vh; padding: 40px 24px 26px; border-radius: 28px 28px 0 0; background: #1d1e1f; box-shadow: 0 -14px 40px rgba(0,0,0,.32); animation: add-wallet-sheet-rise .3s cubic-bezier(.22,.8,.24,1) both; }
 .add-wallet-close { position: absolute; z-index: 2; top: 20px; right: 21px; display: grid; width: 42px; height: 42px; place-items: center; border: 0; color: #f2f2f3; background: transparent; cursor: pointer; pointer-events: auto; }
 .wallet-illustration { position: relative; height: 225px; margin: 0 auto; overflow: hidden; }
+.wallet-illustration img { display: block; width: min(100%, 146px); height: 100%; margin: 0 auto; object-fit: contain; }
 .illustration-card { position: absolute; right: 50%; bottom: 26px; width: 126px; height: 88px; border: 2px solid #20272f; border-radius: 10px; background: linear-gradient(135deg, #37fb9a 5%, #0ddfce 52%, #304eff 100%); box-shadow: 0 12px 0 #22293c; transform: translateX(50%) rotate(-28deg); }
 .illustration-card::before { position: absolute; top: 17px; left: 31px; width: 44px; height: 27px; border: 3px solid #12203a; border-radius: 6px; content: ''; transform: rotate(8deg); }
 .illustration-card::after { position: absolute; right: 16px; bottom: 13px; width: 14px; height: 14px; border-radius: 50%; background: #12203a; content: ''; }
@@ -411,11 +412,15 @@ button { border: 0; color: inherit; font: inherit; cursor: default; }
 .add-wallet-option strong { font-size: 17px; }
 .add-wallet-option small { color: #9c9da1; font-size: 14px; }
 .add-wallet-option > b { color: #d7d8da; font-size: 31px; font-weight: 300; }
-.add-option-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; font-size: 25px; font-weight: 700; }
-.create-icon { color: #0a2117; background: #42f392; }
-.import-icon { color: #3df196; background: #1e4935; font-size: 32px; }
+.add-wallet-option:disabled { cursor: default; opacity: .68; }
+.add-wallet-option.creating .create-icon { animation: create-wallet-pulse .7s ease-in-out infinite alternate; }
+.add-option-icon { display: grid; width: 38px; height: 38px; place-items: center; flex: 0 0 38px; border-radius: 50%; }
+.add-option-icon svg { width: 19px; height: 19px; stroke-width: 1.55; }
+.create-icon { color: #fff; background: #1515f4; }
+.import-icon { color: #2157d6; background: #f0f1ff; }
 @keyframes add-wallet-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes add-wallet-sheet-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes create-wallet-pulse { from { transform: scale(.9); } to { transform: scale(1.08); } }
 
 /* Discover */
 .discover-screen { min-height: calc(100vh - 30px); padding: 15px 0 105px; }
@@ -872,7 +877,626 @@ body, .app-shell { color: var(--light-ink); background: #fff; }
 .passcode-lock-screen .fingerprint-icon { color: var(--ref-blue); }
 .passcode-lock-screen .backspace-icon { color: var(--ref-ink); }
 
+/* Use the supplied public fingerprint asset on the passcode screen. */
+.passcode-lock-screen .passcode-fingerprint-image {
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-color: var(--ref-blue);
+  -webkit-mask: url('/fingerprint%20(1).png') center / contain no-repeat;
+  mask: url('/fingerprint%20(1).png') center / contain no-repeat;
+}
+
+.passcode-lock-screen .ri-fingerprint-2-line {
+  display: block;
+  width: 32px;
+  height: 32px;
+  color: var(--ref-blue);
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.passcode-lock-screen .passcode-keypad-fingerprint-image {
+  width: 48px;
+  height: 48px;
+  background-color: var(--ref-blue);
+}
+
+.passcode-lock-screen .passcode-dot {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #111214;
+  animation: passcode-dot-pop .22s cubic-bezier(.22,.8,.24,1) both;
+}
+
+/* Filled PIN boxes stay transparent; only the masked dot changes state. */
+.passcode-lock-screen .input-box,
+.passcode-lock-screen .input-box.filled {
+  display: grid;
+  place-items: center;
+  border-color: #d9e0ea;
+  background: transparent;
+}
+
+@keyframes passcode-dot-pop {
+  from { opacity: .25; transform: scale(.2); }
+  70% { opacity: 1; transform: scale(1.12); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @media (max-width: 430px) {
   .passcode-lock-screen .keypad-container { gap: clamp(18px, 3.8vh, 31px) 12px; }
   .passcode-lock-screen .key { height: 42px; font-size: 28px; }
+}
+
+/* Biometric prompt: mirrors the native Trust Wallet authentication sheet. */
+.auth-lock-screen {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  align-items: flex-end;
+  overflow: hidden;
+  padding: 0;
+  background: #dfe1e5;
+}
+
+.auth-background-trust-mark {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(min(58dvh, 510px) - 48px);
+  left: 50%;
+  width: 104px;
+  height: 104px;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.auth-trust-mark,
+.auth-trust-mark img {
+  display: block;
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+}
+
+.auth-dismiss-backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.auth-sheet {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(calc(100% - 4px), 430px);
+  height: min(58dvh, 510px);
+  min-height: 440px;
+  margin: 0 auto 2px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 42px 34px calc(24px + env(safe-area-inset-bottom));
+  border-radius: 8px 8px 0 0;
+  color: #f4f5f7;
+  background: #1e232d;
+  text-align: left;
+  animation: auth-sheet-rise .32s cubic-bezier(.22,.8,.24,1) both;
+}
+
+.auth-passcode-zone {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 46%;
+  border: 0;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.auth-sheet h1 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #f6f7f9;
+  font-size: clamp(24px, 6.2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+}
+
+.auth-sheet p {
+  position: relative;
+  z-index: 1;
+  margin: 11px 0 0;
+  color: #f3f4f7;
+  font-size: clamp(17px, 4.7vw, 20px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.auth-touch-button {
+  z-index: 1;
+  position: absolute;
+  bottom: max(68px, calc(9dvh + env(safe-area-inset-bottom)));
+  left: 50%;
+  display: flex;
+  width: 180px;
+  min-height: 130px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 50%;
+  color: #f6f7f9;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  cursor: pointer;
+  transform: translateX(-50%);
+  touch-action: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.auth-touch-button .auth-fingerprint-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 58px;
+  height: 58px;
+  background-color: #f6f7f9;
+  -webkit-mask: url('/fingerprint%20(1).png') center / contain no-repeat;
+  mask: url('/fingerprint%20(1).png') center / contain no-repeat;
+  opacity: 1;
+  transform: scale(1);
+  transition: background-color .1s ease, filter .1s ease, transform .1s ease;
+}
+
+.auth-touch-button::after {
+  position: absolute;
+  z-index: 0;
+  bottom: 11px;
+  left: 50%;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224,236,255,.72) 0%, rgba(174,207,255,.32) 34%, rgba(122,174,255,.09) 58%, transparent 74%);
+  box-shadow: 0 0 19px rgba(181,213,255,.45), 0 0 42px rgba(127,177,255,.26);
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) scale(.62);
+  transition: opacity .08s ease, transform .12s ease;
+}
+
+.auth-touch-button.holding .auth-fingerprint-image {
+  background-color: #fff;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,1)) drop-shadow(0 0 13px rgba(211,229,255,1));
+  animation: none;
+}
+
+.auth-touch-button.holding::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  animation: biometric-sensor-halo .33s ease-out infinite alternate;
+}
+
+.auth-cancel {
+  z-index: 1;
+  position: absolute;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  left: 34px;
+  padding: 10px 0;
+  color: #f5f6f8;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-touch-button:focus-visible,
+.auth-cancel:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.auth-touch-button:disabled,
+.auth-cancel:disabled {
+  cursor: default;
+}
+
+@keyframes biometric-touch-glow {
+  0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 4px rgba(255,255,255,1)) drop-shadow(0 0 12px rgba(211,229,255,.98)) drop-shadow(0 0 26px rgba(164,202,255,.78)); }
+  50% { opacity: 1; transform: scale(1.08); filter: drop-shadow(0 0 7px rgba(255,255,255,1)) drop-shadow(0 0 19px rgba(211,229,255,1)) drop-shadow(0 0 38px rgba(164,202,255,.92)); }
+}
+
+@keyframes biometric-sensor-halo {
+  from { opacity: .72; transform: translateX(-50%) scale(.94); }
+  to { opacity: 1; transform: translateX(-50%) scale(1.1); }
+}
+
+/* The requested RiFingerprint2Line stays compact and black in the passcode action. */
+.passcode-lock-screen .biometric-icon {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #16171a;
+  border-radius: 50%;
+  color: #16171a;
+  background: #fff;
+}
+
+.passcode-lock-screen .ri-fingerprint-2-line {
+  width: 12px;
+  height: 12px;
+  color: #16171a;
+  stroke-width: 1.75;
+}
+
+@media (max-width: 430px) {
+  .auth-sheet {
+    height: 58dvh;
+    min-height: 420px;
+    padding: 39px 28px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .auth-background-trust-mark { bottom: calc(58dvh - 48px); width: 94px; height: 94px; }
+  .auth-trust-mark, .auth-trust-mark img { width: 94px; height: 94px; }
+  .auth-cancel { bottom: calc(16px + env(safe-area-inset-bottom)); left: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-sheet,
+  .auth-touch-button.holding .auth-fingerprint-image,
+  .auth-touch-button.holding::after { animation: none; opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* Settings follows the supplied Trust Wallet reference: a single, light, scrollable list. */
+.settings-screen {
+  height: 100dvh;
+  min-height: 100dvh;
+  padding: max(20px, env(safe-area-inset-top)) 0 calc(32px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  color: #242529;
+  background: #fff;
+  scrollbar-width: none;
+  animation: settings-screen-enter .24s cubic-bezier(.22, .8, .24, 1) both;
+}
+
+.settings-screen::-webkit-scrollbar { display: none; }
+
+/* Wallet-created confirmation: the supplied SVG stays vector-sharp at its smaller scale. */
+.wallet-ready-screen {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  color: var(--ref-ink);
+  background: #fff;
+  text-align: center;
+}
+
+.wallet-ready-skip {
+  z-index: 2;
+  align-self: flex-end;
+  min-width: 66px;
+  min-height: 48px;
+  padding: 0 19px;
+  border-radius: 999px;
+  color: #25262a;
+  background: var(--ref-surface);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wallet-ready-art {
+  position: relative;
+  z-index: 1;
+  width: min(42vw, 210px);
+  height: 250px;
+  margin-top: 98px;
+}
+
+.wallet-ready-illustration {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: wallet-ready-illustration-enter .42s cubic-bezier(.22, .8, .24, 1) both;
+}
+
+.wallet-ready-bug-trail {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.wallet-ready-bug-trail i {
+  --trail-opacity: .78;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(71, 76, 180, .66);
+  opacity: 0;
+  offset-anchor: 50% 50%;
+  offset-path: path('M 88 -10 C 47 -59 -36 -64 -73 -18 C -108 26 -67 81 -17 58 C 29 37 35 -26 -12 -37 C -59 -47 -72 15 -43 42 C -14 69 53 38 88 -10');
+  offset-rotate: auto;
+  will-change: offset-distance, opacity;
+  animation: wallet-ready-bug-tail 1.42s linear 3.32s infinite;
+}
+
+.wallet-ready-bug-trail i:nth-child(2) { --trail-opacity: .58; width: 1.75px; height: 1.75px; animation-delay: 3.4s; }
+.wallet-ready-bug-trail i:nth-child(3) { --trail-opacity: .38; width: 1.5px; height: 1.5px; animation-delay: 3.48s; }
+.wallet-ready-bug-trail i:nth-child(4) { --trail-opacity: .22; width: 1.25px; height: 1.25px; animation-delay: 3.56s; }
+
+.wallet-ready-bug-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  offset-anchor: 50% 50%;
+  offset-path: path('M 88 -10 C 47 -59 -36 -64 -73 -18 C -108 26 -67 81 -17 58 C 29 37 35 -26 -12 -37 C -59 -47 -72 15 -43 42 C -14 69 53 38 88 -10');
+  offset-rotate: auto;
+  will-change: offset-distance, opacity;
+  animation: wallet-ready-bug-appear .12s ease-out 3.12s both, wallet-ready-bug-alpha 1.42s linear 3.24s infinite;
+}
+
+.wallet-ready-bug-orbit img {
+  display: block;
+  width: 27px;
+  height: 27px;
+  object-fit: contain;
+  will-change: transform;
+  animation: wallet-ready-bug-flutter .15s ease-in-out 2.77s infinite alternate;
+}
+
+.wallet-ready-copy {
+  position: relative;
+  z-index: 1;
+  margin-top: 17px;
+}
+
+.wallet-ready-copy h1 {
+  margin: 0;
+  color: #3b3c40;
+  font-size: clamp(24px, 5.5vw, 30px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+}
+
+.wallet-ready-copy p {
+  margin: 12px 0 0;
+  color: #707176;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.wallet-ready-fund {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 495px;
+  min-height: 60px;
+  margin-top: auto;
+  border-radius: 999px;
+  color: #fff;
+  background: #1515f4;
+  box-shadow: 0 8px 20px rgba(21, 21, 244, .2);
+  font-size: 18px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.wallet-ready-confetti {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@keyframes wallet-ready-illustration-enter {
+  from { opacity: 0; transform: translateY(24px) scale(.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes wallet-ready-bug-appear {
+  to { opacity: 1; }
+}
+
+@keyframes wallet-ready-bug-alpha {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+@keyframes wallet-ready-bug-tail {
+  from { offset-distance: 0%; opacity: var(--trail-opacity); }
+  to { offset-distance: 100%; opacity: var(--trail-opacity); }
+}
+
+@keyframes wallet-ready-bug-flutter {
+  from { transform: rotate(-7deg) scale(.92); }
+  to { transform: rotate(7deg) scale(1.05); }
+}
+
+.settings-header {
+  display: grid;
+  min-height: 48px;
+  padding: 0 20px;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+}
+
+.settings-header h1 {
+  margin: 0;
+  color: #242529;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.settings-back-button {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-left: -10px;
+  padding: 0;
+  place-items: center start;
+  border: 0;
+  color: #616266;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.settings-back-button:active,
+.settings-row:active { opacity: .58; }
+
+.settings-back-button:focus-visible,
+.settings-row:focus-visible {
+  outline: 2px solid #1515f4;
+  outline-offset: -2px;
+}
+
+.settings-group { margin: 0; }
+.settings-dark-mode-group { margin-top: 28px; border-bottom: 1px solid #ececef; }
+
+.settings-divider {
+  height: 1px;
+  margin: 0;
+  background: #ececef;
+}
+
+.settings-row {
+  display: flex;
+  width: 100%;
+  min-height: 84px;
+  align-items: center;
+  gap: 22px;
+  padding: 0 26px;
+  border: 0;
+  color: #252629;
+  background: transparent;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity .16s ease;
+  touch-action: manipulation;
+}
+
+.settings-row-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  color: #696a6e;
+}
+
+.settings-row > span { min-width: 0; }
+.settings-dark-mode-row { min-height: 94px; }
+
+.settings-switch {
+  position: relative;
+  width: 76px;
+  height: 46px;
+  margin-left: auto;
+  flex: 0 0 76px;
+  border-radius: 999px;
+  background: #b2b2b5;
+  transition: background-color .2s ease;
+}
+
+.settings-switch::after {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
+  transition: transform .2s cubic-bezier(.22, .8, .24, 1);
+}
+
+.settings-switch.enabled { background: #1515f4; }
+.settings-switch.enabled::after { transform: translateX(30px); }
+
+.settings-alert-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  margin-left: -15px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #ef1e27;
+}
+
+@keyframes settings-screen-enter {
+  from { opacity: .65; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 430px) {
+  .settings-screen { padding-top: max(16px, env(safe-area-inset-top)); }
+  .settings-header { padding: 0 18px; }
+  .settings-header h1 { font-size: 20px; }
+  .settings-back-button { margin-left: -8px; }
+  .settings-dark-mode-group { margin-top: 23px; }
+  .settings-row { min-height: 76px; gap: 18px; padding: 0 22px; font-size: 18px; }
+  .settings-dark-mode-row { min-height: 86px; }
+  .settings-row-icon { width: 26px; height: 26px; flex-basis: 26px; }
+  .settings-switch { width: 70px; height: 42px; flex-basis: 70px; }
+  .settings-switch::after { top: 7px; left: 7px; width: 28px; height: 28px; }
+  .settings-switch.enabled::after { transform: translateX(28px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-screen { animation: none; }
+  .settings-row,
+  .settings-switch,
+  .settings-switch::after { transition: none; }
+  .wallet-ready-bug-orbit,
+  .wallet-ready-bug-orbit img,
+  .wallet-ready-bug-trail i { animation: none; }
+  .wallet-ready-bug-orbit { opacity: 1; offset-path: none; transform: none; }
+  .wallet-ready-bug-trail { display: none; }
 }
