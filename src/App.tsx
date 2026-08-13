@@ -809,18 +809,6 @@ function MarketsScreen({ onSelect }: { onSelect: (asset: MarketAsset) => void })
 
 type TransferMode = 'send' | 'receive'
 
-const demoReceiveAddresses: Record<string, string> = {
-  USDT: '0x9b7D6e37D5F0A1c1B8e9F02F5A6dB4c37E9a1c52',
-  BTC: 'bc1q8t7kp5x2u5q5rmlhp4jmvw2auu8f6ah6as4yhs',
-  TRX: 'TQmQfLpxH9K4xNY8yLzUg5HBVRxAPnZ9QW',
-  ETH: '0x5eA21c4A0B7d9D2f53A7C9e4B4Ab8B7C0D9A7F61',
-  BNB: '0x6A84E2bD4C0f8e14A3d4B5f6e8A9c1D2e3F4a5B6',
-}
-
-function getReceiveAddress(asset: MarketAsset) {
-  return demoReceiveAddresses[asset.symbol] ?? '0x4C8f2E5a9B0d1F3e6A7b8C9D0e1F2a3B4c5D6E7F'
-}
-
 function QrFallback({ value }: { value: string }) {
   const size = 29
   const seed = Array.from(value).reduce((total, character, index) => (total + character.charCodeAt(0) * (index + 17)) >>> 0, 0)
@@ -857,8 +845,8 @@ function TransferAsset({ asset }: { asset: MarketAsset }) {
   return <div className="transfer-asset"><CryptoMark asset={asset} /><strong>{asset.base}</strong><span>{assetType}</span></div>
 }
 
-function ReceiveScreen({ asset, onBack }: { asset: MarketAsset; onBack: () => void }) {
-  const address = getReceiveAddress(asset)
+function ReceiveScreen({ asset, wallet, onBack }: { asset: MarketAsset; wallet: WalletDefinition; onBack: () => void }) {
+  const address = wallet.address
   const [feedback, setFeedback] = useState('')
   const [showAmount, setShowAmount] = useState(false)
   const [amount, setAmount] = useState('')
@@ -890,11 +878,11 @@ function ReceiveScreen({ asset, onBack }: { asset: MarketAsset; onBack: () => vo
   return <section className="transfer-screen receive-screen">
     <TransferHeader title="Receive" onBack={onBack} showInfo onInfo={() => setShowInfo((current) => !current)} />
     <div className="receive-warning" role="note"><Icon name="info" size="sm" /><p>Only send <strong>{asset.base}</strong> assets to this address. Other assets will be lost forever.</p></div>
-    {showInfo && <p className="transfer-info-note">This is a demo wallet address for the current prototype. Do not send real assets.</p>}
+    {showInfo && <p className="transfer-info-note">This identifier belongs to {wallet.name}.</p>}
     <TransferAsset asset={asset} />
     <div className="receive-qr"><ReceiveQrCode value={amount ? `${address}?amount=${amount}` : address} /></div>
     <p className="receive-address">{address}</p>
-    <p className="receive-memo">No memo required · Demo address</p>
+    <p className="receive-memo">No memo required · {wallet.name}</p>
     <div className="receive-actions">
       <button type="button" onClick={() => void copyAddress()}><span><Icon name="copy" size="lg" /></span><strong>Copy</strong></button>
       <button type="button" onClick={() => setShowAmount((current) => !current)} aria-expanded={showAmount}><span className={showAmount ? 'selected' : ''}>#</span><strong>Set Amount</strong></button>
@@ -911,7 +899,7 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
   const [amount, setAmount] = useState('')
   const [message, setMessage] = useState('')
   const amountValue = Number(amount)
-  const recipientWallet = wallets.find((wallet) => wallet.id.toLowerCase() === recipient.trim().toLowerCase())
+  const recipientWallet = wallets.find((wallet) => wallet.address.toLowerCase() === recipient.trim().toLowerCase() || wallet.id.toLowerCase() === recipient.trim().toLowerCase())
   const recipientError = recipient && !recipientWallet ? 'Wallet ID was not found.' : recipientWallet?.id === senderWallet.id ? 'Choose a different wallet ID.' : ''
   const amountError = amount && (!Number.isFinite(amountValue) || amountValue <= 0) ? 'Enter an amount greater than zero.' : amountValue > balance ? 'Not enough balance' : ''
   const error = recipientError || amountError
@@ -949,7 +937,7 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
   return <section className="transfer-screen send-screen">
     <TransferHeader title={`Send ${asset.base}`} onBack={onBack} />
     <form className="send-form" onSubmit={submit}>
-      <label className="send-field"><span>Address or Domain Name</span><div className="send-address-input"><input value={recipient} onChange={(event) => { setRecipient(event.target.value); setMessage('') }} placeholder="Search or Enter" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label="Destination wallet ID" /><button type="button" className="send-paste-button" onClick={() => void pasteAddress()}>Paste</button><button type="button" className="send-inline-icon" onClick={() => void copyRecipient()} aria-label="Copy wallet ID"><Icon name="copy" size="lg" /></button><button type="button" className="send-inline-icon" onClick={() => setMessage('Use a wallet ID such as wallet-02.')} aria-label="Scan destination QR code"><Icon name="scan" size="lg" /></button></div>{recipientWallet && recipientWallet.id !== senderWallet.id && <small className="wallet-id-match">Destination: {recipientWallet.name}</small>}{recipientError && <em role="alert">{recipientError}</em>}</label>
+      <label className="send-field"><span>Address or Domain Name</span><div className="send-address-input"><input value={recipient} onChange={(event) => { setRecipient(event.target.value); setMessage('') }} placeholder="Search or Enter" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label="Destination wallet identifier" /><button type="button" className="send-paste-button" onClick={() => void pasteAddress()}>Paste</button><button type="button" className="send-inline-icon" onClick={() => void copyRecipient()} aria-label="Copy wallet identifier"><Icon name="copy" size="lg" /></button><button type="button" className="send-inline-icon" onClick={() => setMessage('Use the recipient wallet identifier.')} aria-label="Scan destination QR code"><Icon name="scan" size="lg" /></button></div>{recipientWallet && recipientWallet.id !== senderWallet.id && <small className="wallet-id-match">Destination: {recipientWallet.name}</small>}{recipientError && <em role="alert">{recipientError}</em>}</label>
       <section className="destination-network"><h2>Destination network</h2><div><CryptoMark asset={asset} /><strong>{asset.name}</strong><Icon name="chevron" size="sm" /></div></section>
       <label className="send-field send-amount-field"><span>Amount</span><div className="send-amount-input"><input value={amount} onChange={(event) => { setAmount(event.target.value.replace(/[^0-9.]/g, '')); setMessage('') }} inputMode="decimal" placeholder="0" aria-label={`Amount of ${asset.base}`} /><button type="button" className="send-clear-button" onClick={() => { setAmount(''); setMessage('') }} aria-label="Clear amount"><Icon name="close" size="xs" /></button><strong>{asset.base}</strong><button type="button" className="send-max-button" onClick={() => { setAmount(balance ? String(balance) : ''); setMessage('') }}>Max</button></div><small>≈ {formatUsd(amountInUsd)}</small>{amountError && <em role="alert">{amountError}</em>}</label>
       <button type="submit" className="send-continue" disabled={!canContinue}>Next</button>
@@ -959,7 +947,7 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
 }
 
 function TransferScreen({ mode, asset, onBack, senderWallet, wallets, onSendComplete }: { mode: TransferMode; asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onSendComplete: (recipientWalletId: string, amount: number) => void }) {
-  return mode === 'receive' ? <ReceiveScreen asset={asset} onBack={onBack} /> : <SendScreen asset={asset} onBack={onBack} senderWallet={senderWallet} wallets={wallets} onComplete={onSendComplete} />
+  return mode === 'receive' ? <ReceiveScreen asset={asset} wallet={senderWallet} onBack={onBack} /> : <SendScreen asset={asset} onBack={onBack} senderWallet={senderWallet} wallets={wallets} onComplete={onSendComplete} />
 }
 
 function MarketDetail({ asset, onBack, onTransfer }: { asset: MarketAsset; onBack: () => void; onTransfer: (mode: TransferMode, asset: MarketAsset) => void }) {
