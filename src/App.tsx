@@ -86,7 +86,7 @@ function WalletGlyph() {
 }
 
 function TrustWalletBadge() {
-  return <span className="trust-wallet-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" fill="#fff" /><path d="M24 5v38C15.3 39 9 32 9 22V11L24 5Z" fill="#1111e8" /><path d="M24 5 39 11v11c0 10-6.3 17-15 21C15.3 39 9 32 9 22V11L24 5Z" stroke="#cfd9ea" strokeWidth="1.5" strokeLinejoin="round" /></svg></span>
+  return <span className="trust-wallet-icon" aria-hidden="true"><img src="/trust-wallet-icon.webp" alt="" /></span>
 }
 
 function TrustWalletGreenMark() {
@@ -95,6 +95,22 @@ function TrustWalletGreenMark() {
 
 function BackArrowIcon() {
   return <svg className="back-arrow-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M26 16H6M6 16l8-8M6 16l8 8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function WalletMoreIcon() {
+  return <svg className="wallet-more-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.65" /><circle cx="12" cy="12" r="1.65" /><circle cx="12" cy="19" r="1.65" /></svg>
+}
+
+function WalletTrashIcon() {
+  return <svg className="wallet-trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4.5 7h15M9 7V4.5h6V7m-8.5 0 .8 12h9.4l.8-12M10 11v4.5m4-4.5v4.5" /></svg>
+}
+
+function GoogleDriveBackupIcon() {
+  return <svg className="wallet-backup-icon" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="m12.5 4 5.1 8.7-3.7 6.3H3.7L12.5 4Z" /><path d="m17.6 12.7 5.1 8.7H12.5l-3.7-6.3 3.7-6.4h5.1Z" opacity=".84" /><path d="m8.8 15.1 3.7 6.3h10.2L27 28H6.2l-5.1-8.6 3.7-6.3h4Z" opacity=".67" /></svg>
+}
+
+function ManualBackupIcon() {
+  return <svg className="wallet-backup-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.3 27.3 8.7 20V9.2a1.7 1.7 0 1 1 3.4 0v6.1" /><path d="M12.1 15.3v-7a1.7 1.7 0 1 1 3.4 0v6.2" /><path d="M15.5 14.5V9.6a1.7 1.7 0 1 1 3.4 0v5.6" /><path d="M18.9 15.3v-3.6a1.7 1.7 0 1 1 3.4 0v6.1l1.4-1.4a1.8 1.8 0 0 1 2.6 2.5l-4.5 5.2a5.2 5.2 0 0 1-4 1.8h-3.5a4.2 4.2 0 0 1-4-2.6Z" /></svg>
 }
 
 function PasscodeFingerprintIcon() {
@@ -170,28 +186,7 @@ function CardBadge() {
 }
 
 function HyperliquidGlyph() {
-  return (
-    <span className="hyperliquid-glyph" aria-hidden="true">
-      <svg viewBox="0 0 58 42" fill="none">
-        <defs>
-          <linearGradient id="hyperliquid-blue" x1="8" y1="5" x2="50" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#83f1ff" />
-            <stop offset=".45" stopColor="#3274ff" />
-            <stop offset="1" stopColor="#6d1cff" />
-          </linearGradient>
-          <linearGradient id="hyperliquid-pink" x1="10" y1="36" x2="48" y2="7" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#153eff" />
-            <stop offset=".52" stopColor="#1cc9ff" />
-            <stop offset="1" stopColor="#f2fcff" />
-          </linearGradient>
-        </defs>
-        <path d="M7 29.3c3.9-7.6 10.6-14.6 17.8-14.6 6.4 0 8.1 8.7 14.4 8.7 4.3 0 7.6-3.3 11.8-10.2" stroke="url(#hyperliquid-blue)" strokeWidth="7" strokeLinecap="round" />
-        <path d="M7 29.3c5.5 4 11.1 6.2 17.1 6.2 7.5 0 9.5-7.7 15.4-7.7 3.7 0 6.4 1.3 9.5 3.2" stroke="url(#hyperliquid-pink)" strokeWidth="5.5" strokeLinecap="round" />
-        <circle cx="40.2" cy="9.2" r="7" fill="#d6f6ff" stroke="#5b79ff" strokeWidth="2" />
-        <path d="M35.6 10.4c2.3-2.5 5.1-3.1 8.8-2.2" stroke="#2a3a9d" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
-    </span>
-  )
+  return <span className="hyperliquid-glyph" aria-hidden="true"><img src="/binahat.png" alt="" /></span>
 }
 
 function MarketsGlyph() {
@@ -319,6 +314,126 @@ function getWalletTotal(wallet: WalletDefinition, prices: Record<string, number>
   return getWalletTokens(wallet).reduce((total, token) => total + getWalletTokenValue(token, prices), 0)
 }
 
+const persistedWalletBalancesKey = 'trust-wallet-dashboard:wallet-balances:v1'
+const selectedWalletStorageKey = 'trust-wallet-dashboard:selected-wallet:v1'
+const unlockedSessionKey = 'trust-wallet-dashboard:unlocked-session:v1'
+const configuredWalletIds = new Set(walletDefinitions.map((wallet) => wallet.id))
+
+function cloneConfiguredWallets() {
+  return walletDefinitions.map((wallet) => ({ ...wallet, balances: { ...wallet.balances } }))
+}
+
+function sanitizeWalletBalances(value: unknown): WalletDefinition['balances'] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  const storedBalances = value as Record<string, unknown>
+  const balances: WalletDefinition['balances'] = {}
+  walletTokenDefinitions.forEach((token) => {
+    const balance = storedBalances[token.symbol]
+    if (typeof balance === 'number' && Number.isFinite(balance) && balance >= 0) balances[token.symbol] = balance
+  })
+  return balances
+}
+
+function restoreWallet(wallet: WalletDefinition, balanceValue: unknown, nameValue?: unknown): WalletDefinition {
+  const storedName = typeof nameValue === 'string' ? nameValue.trim() : ''
+  return { ...wallet, name: storedName || wallet.name, balances: { ...wallet.balances, ...sanitizeWalletBalances(balanceValue) } }
+}
+
+function readCustomWallet(value: unknown): WalletDefinition | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const wallet = value as Record<string, unknown>
+  if (typeof wallet.id !== 'string' || typeof wallet.name !== 'string' || typeof wallet.address !== 'string') return null
+  const id = wallet.id.trim()
+  const name = wallet.name.trim()
+  const address = wallet.address.trim()
+  if (!id || !name || !address) return null
+  return { id, name, address, balances: sanitizeWalletBalances(wallet.balances) }
+}
+
+function readPersistedWallets() {
+  const configuredWallets = cloneConfiguredWallets()
+  try {
+    const raw = window.localStorage.getItem(persistedWalletBalancesKey)
+    if (!raw) return configuredWallets
+    const stored = JSON.parse(raw) as { balances?: Record<string, unknown>; names?: Record<string, unknown>; wallets?: unknown }
+    const storedBalances = stored.balances && typeof stored.balances === 'object' ? stored.balances : {}
+    const storedNames = stored.names && typeof stored.names === 'object' ? stored.names : {}
+    const savedWallets = configuredWallets.map((wallet) => restoreWallet(wallet, storedBalances[wallet.id], storedNames[wallet.id]))
+    if (!Array.isArray(stored.wallets)) return savedWallets
+
+    const existingIds = new Set(savedWallets.map((wallet) => wallet.id))
+    const customWallets: WalletDefinition[] = []
+    stored.wallets.forEach((value) => {
+      const wallet = readCustomWallet(value)
+      if (!wallet || configuredWalletIds.has(wallet.id) || existingIds.has(wallet.id)) return
+      existingIds.add(wallet.id)
+      customWallets.push(restoreWallet(wallet, storedBalances[wallet.id], storedNames[wallet.id]))
+    })
+    return [...savedWallets, ...customWallets]
+  } catch {
+    return configuredWallets
+  }
+}
+
+function persistWalletBalances(wallets: WalletDefinition[]) {
+  try {
+    const balances = Object.fromEntries(wallets.map((wallet) => [wallet.id, wallet.balances]))
+    const names = Object.fromEntries(wallets.map((wallet) => [wallet.id, wallet.name]))
+    const customWallets = wallets.filter((wallet) => !configuredWalletIds.has(wallet.id))
+    window.localStorage.setItem(persistedWalletBalancesKey, JSON.stringify({ version: 2, balances, names, wallets: customWallets }))
+  } catch {
+    // The app remains usable when browser storage is unavailable.
+  }
+}
+
+function createWalletAddress() {
+  const bytes = new Uint8Array(20)
+  if (typeof globalThis.crypto?.getRandomValues === 'function') globalThis.crypto.getRandomValues(bytes)
+  else bytes.forEach((_, index) => { bytes[index] = Math.floor(Math.random() * 256) })
+  return `0x${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`
+}
+
+function createNewWallet(wallets: WalletDefinition[]): WalletDefinition {
+  const walletIds = new Set(wallets.map((wallet) => wallet.id))
+  let number = wallets.length + 1
+  let id = `wallet-${String(number).padStart(2, '0')}`
+  while (walletIds.has(id)) {
+    number += 1
+    id = `wallet-${String(number).padStart(2, '0')}`
+  }
+
+  const walletAddresses = new Set(wallets.map((wallet) => wallet.address.toLowerCase()))
+  let address = createWalletAddress()
+  while (walletAddresses.has(address.toLowerCase())) address = createWalletAddress()
+  return { id, name: `Main Wallet ${number}`, address, balances: {} }
+}
+
+function readSelectedWalletId(wallets: WalletDefinition[]) {
+  try {
+    const savedWalletId = window.localStorage.getItem(selectedWalletStorageKey)
+    if (savedWalletId && wallets.some((wallet) => wallet.id === savedWalletId)) return savedWalletId
+  } catch {
+    // Fall back to the first configured wallet when storage is unavailable.
+  }
+  return wallets[0]?.id ?? walletDefinitions[0].id
+}
+
+function isSessionUnlocked() {
+  try {
+    return window.sessionStorage.getItem(unlockedSessionKey) === '1'
+  } catch {
+    return false
+  }
+}
+
+function persistUnlockedSession() {
+  try {
+    window.sessionStorage.setItem(unlockedSessionKey, '1')
+  } catch {
+    // Session unlock still works until the next refresh if storage is unavailable.
+  }
+}
+
 const promoSlides: Array<{ title: string; subtitle: string; icon: 'hyperliquid' | 'markets' }> = [
   { title: 'Explore Hyperliquid: 200+ markets live', subtitle: 'Explore now', icon: 'hyperliquid' },
   { title: 'Trade faster with live crypto prices', subtitle: 'Discover markets now', icon: 'markets' },
@@ -333,6 +448,7 @@ type MarketAsset = {
   price: number | null
   change24h: number | null
   volume24h?: number | null
+  marketCap?: number | null
   logoUrl?: string
   points?: number[]
   walletBalance?: number
@@ -345,9 +461,12 @@ const symbolColors: Record<string, string> = {
 }
 
 const cmcApiBase = '/api/cmc'
-const chartCachePrefix = 'orbit-cmc-chart-v1:'
+// A versioned cache prevents malformed/downsampled chart data from older builds
+// from being reused after the chart pipeline changes.
+const chartCachePrefix = 'orbit-cmc-chart-v2:'
 const cmcPersistentCachePrefix = 'orbit-cmc-response-v1:'
 const marketListingsPath = '/v1/cryptocurrency/listings/latest?start=1&limit=250&convert=USD'
+const topTrendingListingsPath = '/v3/cryptocurrency/listings/latest?start=1&limit=500&convert=USD'
 const walletTokenQuotesPath = '/v2/cryptocurrency/quotes/latest?symbol=USDT,BTC,TRX,ETH,BNB&convert=USD'
 const chartCacheTtl = 5 * 60 * 1000
 const chartRequests = new Map<string, Promise<number[]>>()
@@ -357,9 +476,10 @@ const cmcRequestTimes: number[] = []
 let cmcRateQueue = Promise.resolve()
 const cmcMinuteRateLimit = 50
 const cmcResponseCacheTtl = 1_500
+const cmcListingsCacheTtl = 60_000
 
-type CmcQuote = { price?: number; percent_change_24h?: number; volume_24h?: number }
-type CmcListing = { id: number; name: string; symbol: string; tags?: string[]; quote?: { USD?: CmcQuote } }
+type CmcQuote = { id?: number; symbol?: string; price?: number; percent_change_24h?: number; percent_change_7d?: number; volume_24h?: number; market_cap?: number }
+type CmcListing = { id: number; name: string; symbol: string; tags?: string[]; quote?: { USD?: CmcQuote } | CmcQuote[] }
 type CmcHistoricalQuote = { quote?: { USD?: { price?: number } } }
 type CmcHistoricalAsset = { quotes?: CmcHistoricalQuote[] }
 type CmcLatestAsset = { quote?: { USD?: CmcQuote } }
@@ -385,7 +505,17 @@ function writePersistentCmc<T>(path: string, value: T) {
 }
 
 function shouldPersistCmc(path: string) {
-  return path.startsWith('/v1/cryptocurrency/listings/latest') || path.startsWith('/v2/cryptocurrency/quotes/latest')
+  return path.includes('/cryptocurrency/listings/latest') || path.startsWith('/v2/cryptocurrency/quotes/latest')
+}
+
+function getCmcResponseCacheTtl(path: string) {
+  return path.includes('/cryptocurrency/listings/latest') ? cmcListingsCacheTtl : cmcResponseCacheTtl
+}
+
+function getCmcUsdQuote(listing: CmcListing) {
+  const quote = listing.quote
+  if (Array.isArray(quote)) return quote.find((item) => item.symbol === 'USD' || item.id === 2781) ?? null
+  return quote?.USD ?? null
 }
 
 async function cmcFetch<T>(path: string) {
@@ -410,13 +540,13 @@ async function cmcFetch<T>(path: string) {
         const response = await fetch(`${cmcApiBase}${path}`)
         if (!response.ok) throw new Error(`CoinMarketCap ${response.status}`)
         const value = await response.json() as T
-        cmcRequestCache.set(path, { expiresAt: Date.now() + cmcResponseCacheTtl, value })
+        cmcRequestCache.set(path, { expiresAt: Date.now() + getCmcResponseCacheTtl(path), value })
         if (shouldPersistCmc(path)) writePersistentCmc(path, value)
         resolve(value)
       } catch (error) {
         const stale = shouldPersistCmc(path) ? readPersistentCmc<T>(path) : null
         if (stale) {
-          cmcRequestCache.set(path, { expiresAt: Date.now() + cmcResponseCacheTtl, value: stale.value })
+          cmcRequestCache.set(path, { expiresAt: Date.now() + getCmcResponseCacheTtl(path), value: stale.value })
           resolve(stale.value)
         } else {
           reject(error)
@@ -436,7 +566,8 @@ function mapCmcListingsToAssets(listings: CmcListing[], previous: MarketAsset[] 
 
   return ordered.map((item) => {
     const previousAsset = previousAssets.get(item.symbol)
-    const price = item.quote?.USD?.price ?? previousAsset?.price ?? null
+    const quote = getCmcUsdQuote(item)
+    const price = quote?.price ?? previousAsset?.price ?? null
     const cachedPoints = includeCachedCharts ? readChartCache(item.symbol)?.points : undefined
     return {
       symbol: item.symbol,
@@ -445,11 +576,77 @@ function mapCmcListingsToAssets(listings: CmcListing[], previous: MarketAsset[] 
       cmcId: item.id,
       color: symbolColors[item.symbol] ?? `hsl(${item.id % 360} 62% 52%)`,
       price,
-      change24h: item.quote?.USD?.percent_change_24h ?? previousAsset?.change24h ?? null,
-      volume24h: item.quote?.USD?.volume_24h ?? previousAsset?.volume24h ?? null,
+      change24h: quote?.percent_change_24h ?? previousAsset?.change24h ?? null,
+      volume24h: quote?.volume_24h ?? previousAsset?.volume24h ?? null,
+      marketCap: quote?.market_cap ?? previousAsset?.marketCap ?? null,
       points: syncChartWithLatestPrice(previousAsset?.points ?? cachedPoints, price),
     }
   })
+}
+
+type TrendingMarketAsset = MarketAsset & { trendingScore: number }
+
+const stablecoinSymbols = new Set([
+  'USDT', 'USDC', 'DAI', 'USDE', 'USDS', 'USD1', 'FDUSD', 'USDD', 'PYUSD', 'TUSD', 'USDP', 'FRAX', 'GUSD', 'LUSD', 'USDB', 'BUSD', 'CUSD', 'USDX', 'USDY', 'USD0', 'USDG',
+])
+
+function normalizeTrendingMetric(values: number[]) {
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min
+  return values.map((value) => range === 0 ? .5 : (value - min) / range)
+}
+
+function isStablecoin(listing: CmcListing) {
+  const tags = listing.tags ?? []
+  return stablecoinSymbols.has(listing.symbol.toUpperCase()) || tags.some((tag) => /stablecoin|stable-asset/i.test(tag))
+}
+
+function buildTopTrendingAssets(listings: CmcListing[], previous: TrendingMarketAsset[] = []): TrendingMarketAsset[] {
+  const candidates = listings.flatMap((listing) => {
+    const quote = getCmcUsdQuote(listing)
+    const marketCap = quote?.market_cap
+    const volume24h = quote?.volume_24h
+    const change24h = quote?.percent_change_24h
+    const change7d = quote?.percent_change_7d
+    if (
+      isStablecoin(listing)
+      || !Number.isFinite(marketCap)
+      || !Number.isFinite(volume24h)
+      || !Number.isFinite(change24h)
+      || !Number.isFinite(change7d)
+      || (marketCap ?? 0) < 10_000_000
+      || (volume24h ?? 0) < 1_000_000
+    ) return []
+
+    return [{ listing, marketCap: marketCap as number, volume24h: volume24h as number, change24h: change24h as number, change7d: change7d as number, volumeToMarketCap: (volume24h as number) / (marketCap as number) }]
+  })
+
+  if (!candidates.length) return previous.slice(0, 10)
+
+  const normalizedChange24h = normalizeTrendingMetric(candidates.map((item) => item.change24h))
+  const normalizedChange7d = normalizeTrendingMetric(candidates.map((item) => item.change7d))
+  const normalizedVolumeRatio = normalizeTrendingMetric(candidates.map((item) => item.volumeToMarketCap))
+  const normalizedVolume24h = normalizeTrendingMetric(candidates.map((item) => item.volume24h))
+  const previousBySymbol = new Map(previous.map((asset) => [asset.symbol, asset]))
+
+  return candidates.map((candidate, index) => {
+    const previousAsset = previousBySymbol.get(candidate.listing.symbol)
+    const price = getCmcUsdQuote(candidate.listing)?.price ?? previousAsset?.price ?? null
+    return {
+      symbol: candidate.listing.symbol,
+      base: candidate.listing.symbol,
+      name: candidate.listing.name,
+      cmcId: candidate.listing.id,
+      color: symbolColors[candidate.listing.symbol] ?? `hsl(${candidate.listing.id % 360} 62% 52%)`,
+      price,
+      change24h: candidate.change24h,
+      volume24h: candidate.volume24h,
+      marketCap: candidate.marketCap,
+      points: syncChartWithLatestPrice(previousAsset?.points ?? readChartCache(candidate.listing.symbol)?.points, price),
+      trendingScore: (normalizedChange24h[index] * .35 + normalizedChange7d[index] * .25 + normalizedVolumeRatio[index] * .25 + normalizedVolume24h[index] * .15) * 100,
+    }
+  }).sort((left, right) => right.trendingScore - left.trendingScore).slice(0, 10)
 }
 
 function readChartCache(id: string) {
@@ -481,10 +678,10 @@ async function getChartPoints(symbol: string) {
       const rawRecords = body.data?.[symbol]
       const records = Array.isArray(rawRecords) ? rawRecords : rawRecords ? [rawRecords] : []
       const points = records.flatMap((record) => record.quotes ?? []).map((item) => item.quote?.USD?.price ?? NaN).filter((value) => Number.isFinite(value))
-      if (!points.length) throw new Error('No chart data')
-      const trimmed = points.length > 72 ? points.filter((_, index) => index % Math.ceil(points.length / 72) === 0) : points
-      writeChartCache(symbol, trimmed)
-      return trimmed
+      if (points.length < 6) throw new Error('Not enough chart data')
+      const sampled = sampleChartPoints(points)
+      writeChartCache(symbol, sampled)
+      return sampled
     })
     .catch((error) => {
       const stale = readChartCache(symbol)
@@ -508,6 +705,54 @@ function formatPercent(value: number | null) {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
 }
 
+function sampleChartPoints(points: number[], maximumPoints = 72) {
+  if (points.length <= maximumPoints) return points
+
+  // Sampling by a fixed modulo could discard the most recent price. Keeping both
+  // endpoints makes the final segment reflect the latest historical observation.
+  return Array.from({ length: maximumPoints }, (_, index) => {
+    const sourceIndex = Math.round(index * (points.length - 1) / (maximumPoints - 1))
+    return points[sourceIndex]
+  })
+}
+
+function createSparklinePoints(points: number[], maximumPoints = 26) {
+  if (points.length <= maximumPoints) return points
+
+  // Sparklines have very little horizontal space. Keeping the local high and low
+  // from each time bucket preserves real peaks and troughs instead of allowing
+  // tightly packed points to collapse into a line that appears flat.
+  const bucketCount = Math.max(1, Math.floor((maximumPoints - 2) / 2))
+  const interiorCount = points.length - 2
+  const result = [points[0]]
+
+  for (let bucket = 0; bucket < bucketCount; bucket += 1) {
+    const start = 1 + Math.floor(bucket * interiorCount / bucketCount)
+    const end = 1 + Math.floor((bucket + 1) * interiorCount / bucketCount)
+    let lowIndex = start
+    let highIndex = start
+
+    for (let index = start + 1; index < end; index += 1) {
+      if (points[index] < points[lowIndex]) lowIndex = index
+      if (points[index] > points[highIndex]) highIndex = index
+    }
+
+    if (lowIndex <= highIndex) result.push(points[lowIndex], points[highIndex])
+    else result.push(points[highIndex], points[lowIndex])
+  }
+
+  result.push(points[points.length - 1])
+  return result
+}
+
+function formatCompactUsd(value: number | null | undefined) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—'
+  if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(value >= 10_000_000_000 ? 0 : 1)}B`
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`
+  return formatUsd(value)
+}
+
 function walletTokenToMarketAsset(token: WalletToken, prices: Record<string, number>, changes: Record<string, number | null>): MarketAsset {
   return {
     symbol: token.symbol,
@@ -521,12 +766,113 @@ function walletTokenToMarketAsset(token: WalletToken, prices: Record<string, num
   }
 }
 
-function Sparkline({ points, positive = false }: { points?: number[]; positive?: boolean }) {
-  if (!points?.length) return <span className="sparkline-empty" aria-label="Chart loading" />
-  const min = Math.min(...points)
-  const max = Math.max(...points)
+type AppRouteKind = 'home' | 'markets' | 'perps' | 'discover' | 'wallets' | 'wallet-edit' | 'settings' | 'search' | 'swap' | 'asset' | 'send' | 'receive' | 'unlock'
+type AppRoute = { kind: AppRouteKind; symbol?: string; walletId?: string }
+type AppNavigationState = { asset?: MarketAsset; returnTo?: string; appRoute?: true }
+type AppLocation = { pathname: string; state: AppNavigationState | null }
+
+const searchHistoryStorageKey = 'orbit-search-history-v1'
+const searchWatchlistStorageKey = 'orbit-search-watchlist-v1'
+
+function toSavedSearchAsset(asset: MarketAsset): MarketAsset {
+  return {
+    symbol: asset.symbol,
+    base: asset.base,
+    name: asset.name,
+    cmcId: asset.cmcId,
+    color: asset.color,
+    price: asset.price,
+    change24h: asset.change24h,
+    volume24h: asset.volume24h ?? null,
+    marketCap: asset.marketCap ?? null,
+    logoUrl: asset.logoUrl,
+  }
+}
+
+function readSavedSearchAssets(key: string) {
+  try {
+    const raw = window.localStorage.getItem(key)
+    if (!raw) return [] as MarketAsset[]
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return [] as MarketAsset[]
+    return parsed.filter((item): item is MarketAsset => {
+      if (!item || typeof item !== 'object') return false
+      const asset = item as Partial<MarketAsset>
+      return typeof asset.symbol === 'string' && typeof asset.base === 'string' && typeof asset.name === 'string' && typeof asset.cmcId === 'number' && typeof asset.color === 'string'
+    }).map(toSavedSearchAsset)
+  } catch {
+    return [] as MarketAsset[]
+  }
+}
+
+function writeSavedSearchAssets(key: string, assets: MarketAsset[]) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(assets.map(toSavedSearchAsset)))
+  } catch {
+    // Search stays usable even if local storage is unavailable.
+  }
+}
+
+const routeAssetDefaults: Record<string, Pick<MarketAsset, 'name' | 'cmcId'>> = {
+  SOL: { name: 'Solana', cmcId: 5426 }, XRP: { name: 'XRP', cmcId: 52 }, ADA: { name: 'Cardano', cmcId: 2010 },
+  DOGE: { name: 'Dogecoin', cmcId: 74 }, AVAX: { name: 'Avalanche', cmcId: 5805 }, LINK: { name: 'Chainlink', cmcId: 1975 },
+}
+
+function normalizePathname(pathname: string) {
+  const clean = pathname.replace(/\/+$/, '')
+  return clean || '/'
+}
+
+function readAppLocation(): AppLocation {
+  return { pathname: normalizePathname(window.location.pathname), state: window.history.state as AppNavigationState | null }
+}
+
+function parseAppRoute(pathname: string): AppRoute {
+  const segments = normalizePathname(pathname).split('/').filter(Boolean)
+  if (!segments.length) return { kind: 'home' }
+  if (segments[0] === 'markets') return { kind: 'markets' }
+  if (segments[0] === 'perps') return { kind: 'perps' }
+  if (segments[0] === 'discover') return { kind: 'discover' }
+  if (segments[0] === 'wallets' && segments[1] && segments[2] === 'edit') return { kind: 'wallet-edit', walletId: decodeURIComponent(segments[1]) }
+  if (segments[0] === 'wallets') return { kind: 'wallets' }
+  if (segments[0] === 'settings') return { kind: 'settings' }
+  if (segments[0] === 'search') return { kind: 'search' }
+  if (segments[0] === 'swap') return { kind: 'swap' }
+  if (segments[0] === 'unlock') return { kind: 'unlock' }
+  if ((segments[0] === 'asset' || segments[0] === 'send' || segments[0] === 'receive') && segments[1]) {
+    return { kind: segments[0], symbol: decodeURIComponent(segments[1]).toUpperCase() }
+  }
+  return { kind: 'home' }
+}
+
+function createRouteAsset(symbol: string, navigationState: AppNavigationState | null, activeTokens: WalletToken[], prices: Record<string, number>, changes: Record<string, number | null>): MarketAsset {
+  const routeAsset = navigationState?.asset
+  const token = activeTokens.find((item) => item.symbol === symbol)
+  if (routeAsset && routeAsset.symbol === symbol) return { ...routeAsset, walletBalance: token?.balance ?? routeAsset.walletBalance ?? 0 }
+  if (token) return walletTokenToMarketAsset(token, prices, changes)
+  const definition = walletTokenDefinitions.find((item) => item.symbol === symbol)
+  if (definition) return walletTokenToMarketAsset({ ...definition, balance: 0 }, prices, changes)
+  const fallback = routeAssetDefaults[symbol]
+  return {
+    symbol,
+    base: symbol,
+    name: fallback?.name ?? symbol,
+    cmcId: fallback?.cmcId ?? 0,
+    color: symbolColors[symbol] ?? '#77787d',
+    price: null,
+    change24h: null,
+    walletBalance: 0,
+  }
+}
+
+function Sparkline({ points, positive = false, fallbackPoints }: { points?: number[]; positive?: boolean; fallbackPoints?: number[] }) {
+  const displayPoints = points?.length ? points : fallbackPoints
+  if (!displayPoints?.length) return <span className="sparkline-empty" aria-label="Chart loading" />
+  const chartPoints = createSparklinePoints(displayPoints)
+  const min = Math.min(...chartPoints)
+  const max = Math.max(...chartPoints)
   const range = max - min || 1
-  const coords = points.map((point, index) => `${(index / Math.max(points.length - 1, 1)) * 100},${44 - ((point - min) / range) * 37}`).join(' ')
+  const coords = chartPoints.map((point, index) => `${(index / Math.max(chartPoints.length - 1, 1)) * 100},${44 - ((point - min) / range) * 37}`).join(' ')
   return <svg className={`sparkline ${positive ? 'positive' : ''}`} viewBox="0 0 100 48" preserveAspectRatio="none" aria-hidden="true"><polygon points={`0,48 ${coords} 100,48`} /><polyline points={coords} /></svg>
 }
 
@@ -548,10 +894,42 @@ type PerpsMarket = {
 
 function syncChartWithLatestPrice(points: number[] | undefined, price: number | null) {
   if (!points?.length || price === null || !Number.isFinite(price)) return points
-  const latest = points[points.length - 1]
+  const sanitized = points.filter((point) => Number.isFinite(point))
+  if (!sanitized.length) return points
+  const latest = sanitized[sanitized.length - 1]
   const tolerance = Math.max(Math.abs(price) * 0.00000001, 0.00000001)
-  if (Math.abs(latest - price) <= tolerance) return points
-  return [...points.slice(-71), price]
+  if (Math.abs(latest - price) <= tolerance) return sanitized
+
+  // The last historical point represents the open/current interval. Replacing it
+  // avoids repeatedly appending nearly identical live prices, which produced a
+  // flat tail followed by a visually abrupt final jump.
+  const next = sanitized.slice(-72)
+  next[next.length - 1] = price
+  return next
+}
+
+function createFallbackChartPoints(symbol: string, price: number | null, change: number | null, count = 28) {
+  let seed = Array.from(symbol).reduce((total, character, index) => (total + character.charCodeAt(0) * (index + 11)) >>> 0, 0)
+  const end = price && Number.isFinite(price) && price > 0 ? price : Math.max(1, (seed % 900) + 100)
+  const trend = Math.max(-0.65, Math.min(0.65, (change ?? 0) / 100))
+  const start = end / (1 + trend || 1)
+  const volatility = Math.max(.006, Math.min(.065, Math.abs(trend) * .42 + .012))
+  const primaryPhase = (seed % 29) / 29 * Math.PI * 2
+  const secondaryPhase = (seed % 17) / 17 * Math.PI * 2
+
+  return Array.from({ length: count }, (_, index) => {
+    if (index === 0) return start
+    if (index === count - 1) return end
+    seed = (seed * 1664525 + 1013904223) >>> 0
+    const progress = index / (count - 1)
+    const randomOffset = (seed / 4294967295 - .5) * .34
+    const wave = Math.sin(progress * Math.PI * 5 + primaryPhase) * .72
+      + Math.sin(progress * Math.PI * 10 + secondaryPhase) * .28
+      + randomOffset
+    const envelope = Math.sin(progress * Math.PI)
+    const baseline = start + (end - start) * progress
+    return Math.max(end * .02, baseline + end * volatility * envelope * wave)
+  })
 }
 
 const perpsMarkets: PerpsMarket[] = [
@@ -561,6 +939,27 @@ const perpsMarkets: PerpsMarket[] = [
   { id: 'spcx-20', symbol: 'SPCX', leverage: '20x', volume: '$443.04M Vol', price: '$146.49', change: '+8.79%', positive: true, mark: 'spcx', points: [16, 31, 48, 69, 63, 78, 66, 67, 64, 70, 68, 72, 68, 65, 70, 64, 58] },
   { id: 'skhynix-10', symbol: 'SKHYNIX', leverage: '10x', volume: '$435.63M Vol', price: '$1,110.9', change: '+1.87%', positive: true, mark: 'skhynix', points: [19, 36, 34, 50, 48, 64, 61, 89, 92, 74, 45, 49, 32, 38, 33, 38] },
 ]
+
+const perpsPopularMetadata: Record<PerpsMarket['mark'], Pick<MarketAsset, 'name' | 'cmcId' | 'color'>> = {
+  bitcoin: { name: 'Bitcoin', cmcId: 1, color: '#f7931a' },
+  ethereum: { name: 'Ethereum', cmcId: 1027, color: '#7c8cff' },
+  spcx: { name: 'SpaceX Tokenized Stock', cmcId: 0, color: '#131519' },
+  skhynix: { name: 'SK hynix Tokenized Stock', cmcId: 0, color: '#e73834' },
+}
+
+function toPerpsMarketAsset(market: PerpsMarket): MarketAsset {
+  const metadata = perpsPopularMetadata[market.mark]
+  return {
+    symbol: market.symbol,
+    base: market.symbol,
+    name: metadata.name,
+    cmcId: metadata.cmcId,
+    color: metadata.color,
+    price: Number(market.price.replace(/[$,]/g, '')),
+    change24h: Number(market.change.replace('%', '')),
+    points: market.points,
+  }
+}
 
 const perpsCategorySeeds: Record<'crypto' | 'stocks' | 'commodities', MarketAsset[]> = {
   crypto: [
@@ -590,14 +989,15 @@ const perpsCategorySeeds: Record<'crypto' | 'stocks' | 'commodities', MarketAsse
 }
 
 function toPerpsCategoryAsset(item: CmcListing): MarketAsset {
+  const quote = getCmcUsdQuote(item)
   return {
     symbol: item.symbol,
     base: item.symbol,
     name: item.name,
     cmcId: item.id,
     color: symbolColors[item.symbol] ?? `hsl(${item.id % 360} 62% 52%)`,
-    price: item.quote?.USD?.price ?? null,
-    change24h: item.quote?.USD?.percent_change_24h ?? null,
+    price: quote?.price ?? null,
+    change24h: quote?.percent_change_24h ?? null,
   }
 }
 
@@ -630,7 +1030,7 @@ function buildPerpsCategories(listings: CmcListing[], previous?: PerpsCategories
     const previousBySymbol = new Map((previous?.[category] ?? []).map((asset) => [asset.symbol, asset]))
     return selectPerpsCategory(listings, category).map((asset) => ({
       ...asset,
-      points: syncChartWithLatestPrice(previousBySymbol.get(asset.symbol)?.points, asset.price),
+      points: syncChartWithLatestPrice(previousBySymbol.get(asset.symbol)?.points ?? readChartCache(asset.symbol)?.points, asset.price),
     }))
   }
   return { crypto: buildCategory('crypto'), stocks: buildCategory('stocks'), commodities: buildCategory('commodities') }
@@ -650,16 +1050,16 @@ function usePerpsCategoryAssets() {
       } catch { /* Keep the most recent live or cached prices visible. */ }
     }
     void refresh()
-    const timer = window.setInterval(() => void refresh(), 10_000)
+    const timer = window.setInterval(() => void refresh(), cmcListingsCacheTtl)
     return () => { cancelled = true; window.clearInterval(timer) }
   }, [])
 
-  const chartCandidates = Object.values(categories).flat().filter((asset) => asset.cmcId > 0 && asset.price !== null && !asset.points)
+  const chartCandidates = Object.values(categories).flat().filter((asset) => asset.cmcId > 0 && asset.price !== null && !asset.points && !requestedCharts.current.has(asset.symbol))
   const chartKey = chartCandidates.map((asset) => asset.symbol).sort().join('|')
   useEffect(() => {
     let cancelled = false
     const loadCharts = async () => {
-      await Promise.all(chartCandidates.filter((asset) => !requestedCharts.current.has(asset.symbol)).map(async (asset) => {
+      await Promise.all(chartCandidates.map(async (asset) => {
         requestedCharts.current.add(asset.symbol)
         try {
           const points = await getChartPoints(asset.symbol)
@@ -669,7 +1069,7 @@ function usePerpsCategoryAssets() {
             stocks: current.stocks.map((item) => item.symbol === asset.symbol ? { ...item, points: syncChartWithLatestPrice(points, item.price) } : item),
             commodities: current.commodities.map((item) => item.symbol === asset.symbol ? { ...item, points: syncChartWithLatestPrice(points, item.price) } : item),
           }))
-        } catch { /* A row keeps its latest price when its historical chart is unavailable. */ }
+        } catch { /* The fallback chart remains visible when historical data is unavailable. */ }
       }))
     }
     if (chartKey) void loadCharts()
@@ -680,7 +1080,7 @@ function usePerpsCategoryAssets() {
 }
 
 function PerpsHeroMark() {
-  return <span className="perps-hero-mark" aria-hidden="true"><svg viewBox="0 0 146 103" fill="none"><defs><linearGradient id="perps-hero-main" x1="18" y1="88" x2="123" y2="19" gradientUnits="userSpaceOnUse"><stop stopColor="#2111ff" /><stop offset=".44" stopColor="#20b9ff" /><stop offset="1" stopColor="#b5efff" /></linearGradient><linearGradient id="perps-hero-loop" x1="38" y1="24" x2="117" y2="84" gradientUnits="userSpaceOnUse"><stop stopColor="#8defff" /><stop offset=".54" stopColor="#316dff" /><stop offset="1" stopColor="#5c12ed" /></linearGradient></defs><path d="M17 71.6C30.6 47.1 43.5 33 58.6 33c17.5 0 27.2 27.3 43.4 27.3 12.2 0 19.3-13.5 26.1-30.8" stroke="url(#perps-hero-main)" strokeWidth="14" strokeLinecap="round" /><path d="M17 71.6C31.3 84.3 43.7 89.2 58.6 89.2c17.5 0 28.1-25.5 43.4-25.5 11.7 0 20.1 5.5 26.1 13.8" stroke="url(#perps-hero-loop)" strokeWidth="14" strokeLinecap="round" /><path d="M15.7 72.2C30.4 57.5 39.8 51.4 50.7 51.4c10.7 0 19.4 8.5 28.5 13.6M100 60.4c9.2-2.9 16-11.1 23.1-25.5" stroke="#1b0ed6" strokeOpacity=".55" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
+  return <span className="perps-hero-mark" aria-hidden="true"><img src="/binahat.png" alt="" /></span>
 }
 
 function PerpsAssetMark({ mark }: { mark: PerpsMarket['mark'] }) {
@@ -690,33 +1090,36 @@ function PerpsAssetMark({ mark }: { mark: PerpsMarket['mark'] }) {
   return <span className="perps-asset-mark perps-skhynix-mark" aria-hidden="true"><svg viewBox="0 0 52 38" fill="none"><path d="m3 6 20 9.4-8.1 7.4L3 6Z" fill="#e73834" /><path d="m5.2 29.8 9.7-7.4 8.1 9.9-17.8-2.5Z" fill="#f1ad18" /><path d="m24 15.4 14.9-9.8 9.2 13.1-12 8L24 15.4Z" fill="#f2ad19" /><path d="m23.2 31.9 12.5-5.2 10.9 4.9-23.4.3Z" fill="#e73834" /></svg></span>
 }
 
-function PerpsMiniChart({ points, positive = false, compact = false }: { points?: number[]; positive?: boolean; compact?: boolean }) {
-  if (!points?.length) return <span className={`perps-mini-chart perps-mini-chart-loading${compact ? ' compact' : ''}`} aria-label="Chart loading" />
-  const min = Math.min(...points)
-  const max = Math.max(...points)
+function PerpsMiniChart({ points, positive = false, compact = false, fallbackPoints }: { points?: number[]; positive?: boolean; compact?: boolean; fallbackPoints?: number[] }) {
+  const displayPoints = points?.length ? points : fallbackPoints
+  if (!displayPoints?.length) return <span className={`perps-mini-chart perps-mini-chart-loading${compact ? ' compact' : ''}`} aria-label="Chart loading" />
+  const chartPoints = createSparklinePoints(displayPoints)
+  const min = Math.min(...chartPoints)
+  const max = Math.max(...chartPoints)
   const range = max - min || 1
-  const coords = points.map((point, index) => `${(index / Math.max(points.length - 1, 1)) * 112},${58 - ((point - min) / range) * 49}`).join(' ')
-  return <svg className={`perps-mini-chart${positive ? ' positive' : ''}${compact ? ' compact' : ''}`} viewBox="0 0 112 64" preserveAspectRatio="none" aria-hidden="true"><polygon points={`0,64 ${coords} 112,64`} /><polyline points={coords} /><circle cx={(points.length - 1) / Math.max(points.length - 1, 1) * 112} cy={58 - ((points[points.length - 1] - min) / range) * 49} r="3.4" /></svg>
+  const coords = chartPoints.map((point, index) => `${(index / Math.max(chartPoints.length - 1, 1)) * 112},${58 - ((point - min) / range) * 49}`).join(' ')
+  const lastPoint = chartPoints[chartPoints.length - 1]
+  return <svg className={`perps-mini-chart${positive ? ' positive' : ''}${compact ? ' compact' : ''}`} viewBox="0 0 112 64" preserveAspectRatio="none" aria-hidden="true"><polygon points={`0,64 ${coords} 112,64`} /><polyline points={coords} /><circle cx="112" cy={58 - ((lastPoint - min) / range) * 49} r="3.4" /></svg>
 }
 
 function PerpsCategorySection({ title, assets, onSelect }: { title: string; assets: MarketAsset[]; onSelect: (asset: MarketAsset) => void }) {
   return <section className="perps-category-section" aria-labelledby={`perps-${title.toLowerCase().replaceAll(' ', '-')}`}>
     <h2 id={`perps-${title.toLowerCase().replaceAll(' ', '-')}`}>{title} <Icon name="chevron" size={21} /></h2>
-    <div className="perps-category-list">{assets.map((asset) => <button type="button" className="perps-category-row" key={`${title}-${asset.symbol}`} onClick={() => onSelect(asset)} aria-label={`View ${asset.name}`}><CryptoMark asset={asset} /><span className="perps-category-identity"><strong>{asset.base}</strong><small>{asset.name}</small></span><PerpsMiniChart points={asset.points} positive={(asset.change24h ?? -1) >= 0} compact /><span className={`perps-category-price${asset.change24h !== null && asset.change24h >= 0 ? ' positive' : ''}`}><strong>{formatUsd(asset.price)}</strong><small>{formatPercent(asset.change24h)}</small></span></button>)}</div>
+    <div className="perps-category-list">{assets.map((asset) => <button type="button" className="perps-category-row" key={`${title}-${asset.symbol}`} onClick={() => onSelect(asset)} aria-label={`View ${asset.name}`}><CryptoMark asset={asset} /><span className="perps-category-identity"><strong>{asset.base}</strong><small>{asset.name}</small></span><PerpsMiniChart points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} compact /><span className={`perps-category-price${asset.change24h !== null && asset.change24h >= 0 ? ' positive' : ''}`}><strong>{formatUsd(asset.price)}</strong><small>{formatPercent(asset.change24h)}</small></span></button>)}</div>
   </section>
 }
 
-function PerpsScreen({ onOpenSettings, onOpenMarkets, onSelect }: { onOpenSettings: () => void; onOpenMarkets: () => void; onSelect: (asset: MarketAsset) => void }) {
+function PerpsScreen({ onOpenSettings, onOpenSearch, onSelect }: { onOpenSettings: () => void; onOpenSearch: () => void; onSelect: (asset: MarketAsset) => void }) {
   const categories = usePerpsCategoryAssets()
 
   return <section className="perps-trading-screen" aria-labelledby="perps-title">
     <header className="perps-header">
       <div className="perps-header-actions"><button type="button" className="perps-header-button" aria-label="Perps activity"><Icon name="clock" size={22} /></button><button type="button" className="perps-header-button" onClick={onOpenSettings} aria-label="Open settings"><Icon name="settings" size={22} /></button></div>
       <h1 id="perps-title">Perps</h1>
-      <button type="button" className="perps-header-button perps-search-button" onClick={onOpenMarkets} aria-label="Search markets"><Icon name="search" size={22} /></button>
+      <button type="button" className="perps-header-button perps-search-button" onClick={onOpenSearch} aria-label="Search assets"><Icon name="search" size={22} /></button>
     </header>
     <section className="perps-deposit-promo" aria-label="Fund your first perpetual position"><div><h2>Deposit to fund your<br />first position</h2><button type="button" className="perps-deposit-button">Deposit</button></div><PerpsHeroMark /></section>
-    <section className="perps-popular-section" aria-labelledby="popular-perps-title"><h2 id="popular-perps-title">Popular <Icon name="chevron" size={23} /></h2><div className="perps-market-list">{perpsMarkets.map((market) => <button type="button" className="perps-market-row" key={market.id} aria-label={`Trade ${market.symbol}`}><div className="perps-market-identity"><span className="perps-market-icon"><PerpsAssetMark mark={market.mark} /><PerpsVenueBadge /></span><span className="perps-market-copy"><span><strong>{market.symbol}</strong><em>{market.leverage}</em></span><small>{market.volume}</small></span></div><PerpsMiniChart points={market.points} positive={market.positive} /><span className={`perps-market-price${market.positive ? ' positive' : ''}`}><strong>{market.price}</strong><small>{market.change}</small></span></button>)}</div></section>
+    <section className="perps-popular-section" aria-labelledby="popular-perps-title"><h2 id="popular-perps-title">Popular <Icon name="chevron" size={23} /></h2><div className="perps-market-list">{perpsMarkets.map((market) => <button type="button" className="perps-market-row" key={market.id} onClick={() => onSelect(toPerpsMarketAsset(market))} aria-label={`View ${market.symbol}`}><div className="perps-market-identity"><span className="perps-market-icon"><PerpsAssetMark mark={market.mark} /><PerpsVenueBadge /></span><span className="perps-market-copy"><span><strong>{market.symbol}</strong><em>{market.leverage}</em></span><small>{market.volume}</small></span></div><PerpsMiniChart points={market.points} positive={market.positive} /><span className={`perps-market-price${market.positive ? ' positive' : ''}`}><strong>{market.price}</strong><small>{market.change}</small></span></button>)}</div></section>
     <PerpsCategorySection title="Crypto" assets={categories.crypto} onSelect={onSelect} />
     <PerpsCategorySection title="Crypto Stocks" assets={categories.stocks} onSelect={onSelect} />
     <PerpsCategorySection title="Commodities" assets={categories.commodities} onSelect={onSelect} />
@@ -750,11 +1153,63 @@ function useMarketData() {
 
   useEffect(() => {
     void refresh()
-    const timer = window.setInterval(() => void refresh(), 10_000)
+    const timer = window.setInterval(() => void refresh(), cmcListingsCacheTtl)
     return () => window.clearInterval(timer)
   }, [])
 
   return { assets, setAssets, isLoading, error, refresh }
+}
+
+function useTopTrendingAssets() {
+  const cachedListings = readPersistentCmc<{ data?: CmcListing[] }>(topTrendingListingsPath)?.value.data ?? []
+  const [assets, setAssets] = useState<TrendingMarketAsset[]>(() => buildTopTrendingAssets(cachedListings))
+
+  useEffect(() => {
+    let cancelled = false
+    const refresh = async () => {
+      try {
+        const body = await cmcFetch<{ data?: CmcListing[] }>(topTrendingListingsPath)
+        if (!cancelled) setAssets((current) => buildTopTrendingAssets(body.data ?? [], current))
+      } catch {
+        // Keep the latest cached Top Trending list visible while CMC is unavailable.
+      }
+    }
+
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), cmcListingsCacheTtl)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  return assets
+}
+
+function useSearchAssetCache() {
+  const cachedListings = readPersistentCmc<{ data?: CmcListing[] }>(topTrendingListingsPath)?.value.data ?? []
+  const [assets, setAssets] = useState<MarketAsset[]>(() => mapCmcListingsToAssets(cachedListings, [], true))
+
+  useEffect(() => {
+    let cancelled = false
+    const refresh = async () => {
+      try {
+        const body = await cmcFetch<{ data?: CmcListing[] }>(topTrendingListingsPath)
+        if (!cancelled) setAssets((current) => mapCmcListingsToAssets(body.data ?? [], current, true))
+      } catch {
+        // Keep the cached list ready for offline search if CMC is temporarily unavailable.
+      }
+    }
+
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), cmcListingsCacheTtl)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  return assets
 }
 
 function MarketChart({ points, positive }: { points?: number[]; positive: boolean }) {
@@ -763,47 +1218,215 @@ function MarketChart({ points, positive }: { points?: number[]; positive: boolea
   const max = Math.max(...points)
   const range = max - min || 1
   const coords = points.map((point, index) => `${(index / Math.max(points.length - 1, 1)) * 100},${260 - ((point - min) / range) * 220}`).join(' ')
-  return <svg className={`detail-chart ${positive ? 'positive' : ''}`} viewBox="0 0 100 280" preserveAspectRatio="none" aria-label="7 day price chart"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#35e89a" stopOpacity=".2" /><stop offset="1" stopColor="#35e89a" stopOpacity="0" /></linearGradient></defs><polygon points={`0,280 ${coords} 100,280`} /><polyline points={coords} /></svg>
+  const chartColor = positive ? '#008a38' : '#b40029'
+  return <svg className={`detail-chart ${positive ? 'positive' : ''}`} viewBox="0 0 100 280" preserveAspectRatio="none" aria-label="7 day price chart"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={chartColor} stopOpacity=".38" /><stop offset="1" stopColor={chartColor} stopOpacity="0" /></linearGradient></defs><polygon points={`0,280 ${coords} 100,280`} /><polyline points={coords} /></svg>
 }
 
-function MarketsScreen({ onSelect }: { onSelect: (asset: MarketAsset) => void }) {
+function MarketsScreen({ onSelect, onOpenSearch, onOpenSwap }: { onSelect: (asset: MarketAsset) => void; onOpenSearch: () => void; onOpenSwap: () => void }) {
   const { assets, setAssets, isLoading, error, refresh } = useMarketData()
-  const [search, setSearch] = useState('')
+  const topTrendingAssets = useTopTrendingAssets()
   const [filter, setFilter] = useState('Trending')
   const previewRequested = useRef(new Set<string>())
-  const previewSymbols = assets.filter((asset) => !asset.points).slice(0, 6).map((asset) => asset.symbol).join('|')
+  const [previewBatch, setPreviewBatch] = useState(0)
+  const previewCandidates = assets.filter((asset) => !asset.points && !previewRequested.current.has(asset.symbol)).slice(0, 6)
+  const previewSymbols = previewCandidates.map((asset) => asset.symbol).join('|')
 
   useEffect(() => {
     let cancelled = false
     const loadPreviews = async () => {
-      const visible = assets.filter((asset) => !previewRequested.current.has(asset.symbol)).slice(0, 6)
-      await Promise.all(visible.map(async (asset) => {
+      await Promise.all(previewCandidates.map(async (asset) => {
         previewRequested.current.add(asset.symbol)
         try {
           const points = await getChartPoints(asset.symbol)
           if (cancelled) return
           setAssets((current) => current.map((item) => item.symbol === asset.symbol ? { ...item, points } : item))
-        } catch { /* The detail screen can retry and still shows the current price. */ }
+        } catch { /* The fallback chart remains visible when historical data is unavailable. */ }
       }))
+      if (!cancelled) setPreviewBatch((current) => current + 1)
     }
     if (previewSymbols) void loadPreviews()
     return () => { cancelled = true }
-  }, [previewSymbols])
+  }, [previewBatch, previewSymbols])
 
-  const visibleAssets = assets.filter((asset) => `${asset.name} ${asset.base}`.toLowerCase().includes(search.toLowerCase()))
-  const topAssets = assets.slice(0, 3)
+  const visibleAssets = assets
+  const topAssets = topTrendingAssets.length ? topTrendingAssets : assets.slice(0, 10)
 
   return <section className="markets-screen">
-    <header className="markets-heading"><h1>Markets</h1><button className="search-circle" onClick={() => setSearch((current) => current ? '' : ' ')} aria-label="Search markets"><Icon name="search" size="md" /></button></header>
-    {search !== '' && <input autoFocus className="market-search" value={search.trim()} onChange={(event) => setSearch(event.target.value)} placeholder="Search coins" />}
-    <div className="market-promos"><button><span className="promo-icon">▱</span>Predictions</button><button><span className="promo-icon">◈</span>Meme Rush</button></div>
-    <h2 className="market-section-title">Top traded <span>(24h)</span></h2>
-    <div className="top-traded-row">{topAssets.map((asset) => <button className="top-card" key={asset.base} onClick={() => onSelect(asset)}><div className="top-card-name"><span>{asset.name}</span><CryptoMark asset={asset} /></div><strong>{formatUsd(asset.price)}</strong><span className={`market-change ${asset.change24h !== null && asset.change24h >= 0 ? 'positive-text' : ''}`}>{formatPercent(asset.change24h)}</span><Sparkline points={asset.points} positive={(asset.change24h ?? -1) >= 0} /></button>)}</div>
-    <div className="market-filters"><button className="filter-star"><Icon name="star" size="sm" /></button>{['Trending', 'bStocks', 'Ondo', 'Stock Meme', 'Popular'].map((item) => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>
-    <div className="market-sort"><button>Network <Icon name="chevron" size="xs" /></button><button>Volume (24h) <span>↓</span></button><button>24h <Icon name="chevron" size="xs" /></button></div>
+    <header className="markets-heading"><h1>Markets</h1><button className="search-circle" onClick={onOpenSearch} aria-label="Search assets"><Icon name="search" size="md" /></button></header>
+    <div className="market-promos"><button><span className="promo-icon market-promo-predictions" aria-hidden="true" />Predictions</button><button><span className="promo-icon market-promo-meme-rush" aria-hidden="true" />Meme Rush</button></div>
+    <h2 className="market-section-title">Top Trending</h2>
+    <div className="top-traded-row">{topAssets.map((asset) => <button className="top-card" key={asset.base} onClick={() => onSelect(asset)}><div className="top-card-name"><span>{asset.name}</span><CryptoMark asset={asset} /></div><strong>{formatUsd(asset.price)}</strong><span className={`market-change ${asset.change24h !== null && asset.change24h >= 0 ? 'positive-text' : ''}`}>{formatPercent(asset.change24h)}</span><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></button>)}</div>
+    <div className="market-filter-panel">
+      <div className="market-filters"><button className="filter-star"><Icon name="star" size="sm" /></button>{['Trending', 'bStocks', 'Ondo', 'Stock Meme', 'Popular'].map((item) => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>
+      <div className="market-sort"><button>Network <Icon name="chevron" size="xs" /></button><button>Volume (24h) <span>↓</span></button><button>24h <Icon name="chevron" size="xs" /></button></div>
+    </div>
     {error && <button className="market-error" onClick={() => void refresh()}>{error} · Retry</button>}
-    <div className="market-list">{isLoading && assets.every((asset) => asset.price === null) ? Array.from({ length: 5 }).map((_, index) => <div className="market-row skeleton-row" key={index} />) : visibleAssets.map((asset) => <button className="market-row" key={asset.base} onClick={() => onSelect(asset)}><div className="market-row-main"><CryptoMark asset={asset} /><div><strong>{asset.name}</strong><span>{asset.base}/USDT · MCap</span></div></div><div className="market-row-price"><strong>{formatUsd(asset.price)}</strong><span className={(asset.change24h ?? -1) >= 0 ? 'positive-text' : ''}>{formatPercent(asset.change24h)}</span></div><Sparkline points={asset.points} positive={(asset.change24h ?? -1) >= 0} /></button>)}</div>
-    <button className="swap-cta"><Icon name="swap" size="md" />Swap</button>
+    <div className="market-list">{isLoading && assets.every((asset) => asset.price === null) ? Array.from({ length: 5 }).map((_, index) => <div className="market-row skeleton-row" key={index} />) : visibleAssets.map((asset) => <button className="market-row" key={asset.base} onClick={() => onSelect(asset)}><div className="market-row-main"><CryptoMark asset={asset} /><div><strong>{asset.name}</strong><span>{asset.base}/USDT · MCap</span></div></div><span className="market-row-chart"><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></span><div className="market-row-price"><strong>{formatUsd(asset.price)}</strong><span className={(asset.change24h ?? -1) >= 0 ? 'positive-text' : ''}>{formatPercent(asset.change24h)}</span></div></button>)}</div>
+    <button type="button" className="swap-cta" onClick={onOpenSwap}><Icon name="swap" size="md" />Swap</button>
+  </section>
+}
+
+function matchesAssetSearch(asset: MarketAsset, query: string) {
+  return `${asset.name} ${asset.base} ${asset.symbol}`.toLowerCase().includes(query)
+}
+
+function SearchAssetRow({ asset, isWatched, onSelect, onToggleWatchlist }: { asset: MarketAsset; isWatched: boolean; onSelect: (asset: MarketAsset) => void; onToggleWatchlist: (asset: MarketAsset) => void }) {
+  return <article className="search-result-row">
+    <button type="button" className="search-result-main" onClick={() => onSelect(asset)} aria-label={`View ${asset.name}`}><CryptoMark asset={asset} /><span className="search-result-copy"><strong>{asset.name}</strong><small>{asset.base} · {formatCompactUsd(asset.marketCap)} MCap</small></span><span className={`search-result-price${(asset.change24h ?? -1) >= 0 ? ' positive' : ''}`}><strong>{formatUsd(asset.price)}</strong><small>{formatPercent(asset.change24h)}</small></span></button>
+    <button type="button" className={`search-result-star${isWatched ? ' active' : ''}`} onClick={() => onToggleWatchlist(asset)} aria-label={isWatched ? `Remove ${asset.name} from watchlist` : `Add ${asset.name} to watchlist`} aria-pressed={isWatched}><Icon name="star" size={23} /></button>
+  </article>
+}
+
+function SearchScreen({ assets, history, watchlist, watchedSymbols, onClose, onSelect, onToggleWatchlist, onClearHistory }: {
+  assets: MarketAsset[]
+  history: MarketAsset[]
+  watchlist: MarketAsset[]
+  watchedSymbols: ReadonlySet<string>
+  onClose: () => void
+  onSelect: (asset: MarketAsset) => void
+  onToggleWatchlist: (asset: MarketAsset) => void
+  onClearHistory: () => void
+}) {
+  const [query, setQuery] = useState('')
+  const [notice, setNotice] = useState('')
+  const normalizedQuery = query.trim().toLowerCase()
+  const assetsBySymbol = new Map(assets.map((asset) => [asset.symbol, asset]))
+  const recents = history.map((asset) => assetsBySymbol.get(asset.symbol) ?? asset)
+  const visibleWatchlist = watchlist.map((asset) => assetsBySymbol.get(asset.symbol) ?? asset).filter((asset) => !normalizedQuery || matchesAssetSearch(asset, normalizedQuery))
+  const searchResults = normalizedQuery
+    ? assets.filter((asset) => !watchedSymbols.has(asset.symbol) && matchesAssetSearch(asset, normalizedQuery)).sort((left, right) => {
+      const leftKey = `${left.name} ${left.base} ${left.symbol}`.toLowerCase()
+      const rightKey = `${right.name} ${right.base} ${right.symbol}`.toLowerCase()
+      const leftRank = left.base.toLowerCase() === normalizedQuery ? 0 : leftKey.startsWith(normalizedQuery) ? 1 : 2
+      const rightRank = right.base.toLowerCase() === normalizedQuery ? 0 : rightKey.startsWith(normalizedQuery) ? 1 : 2
+      return leftRank - rightRank || (right.volume24h ?? 0) - (left.volume24h ?? 0)
+    }).slice(0, 50)
+    : assets.filter((asset) => !watchedSymbols.has(asset.symbol)).sort((left, right) => (right.volume24h ?? 0) - (left.volume24h ?? 0)).slice(0, 20)
+
+  useEffect(() => {
+    if (!notice) return
+    const timer = window.setTimeout(() => setNotice(''), 2400)
+    return () => window.clearTimeout(timer)
+  }, [notice])
+
+  const selectAsset = (asset: MarketAsset) => onSelect(asset)
+  const toggleWatchlist = (asset: MarketAsset) => {
+    const isWatched = watchedSymbols.has(asset.symbol)
+    onToggleWatchlist(asset)
+    setNotice(isWatched ? 'Removed from Watchlist' : 'Added to Watchlist')
+  }
+
+  return <section className="search-screen" aria-labelledby="search-title">
+    {notice && <div className="search-toast" role="status">{notice}</div>}
+    <header className="search-screen-header">
+      <label className="global-search-input" id="search-title"><Icon name="search" size={24} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tokens, stocks, dApps, address…" aria-label="Search tokens, stocks, dApps, or addresses" /></label>
+      <button type="button" className="global-search-close" onClick={onClose} aria-label="Close search"><Icon name="close" size={23} /></button>
+    </header>
+
+    {visibleWatchlist.length > 0 && <section className="search-watchlist" aria-labelledby="watchlist-title">
+      <div className="search-section-heading"><h2 id="watchlist-title">Watchlist</h2><span>{visibleWatchlist.length}</span></div>
+      <div className="search-results-list search-watchlist-list">{visibleWatchlist.map((asset) => <SearchAssetRow asset={asset} isWatched key={asset.symbol} onSelect={selectAsset} onToggleWatchlist={toggleWatchlist} />)}</div>
+    </section>}
+
+    {recents.length > 0 && <section className="search-recents" aria-labelledby="recents-title">
+      <div className="search-section-heading"><h2 id="recents-title">Recents</h2><button type="button" onClick={onClearHistory}>Clear all</button></div>
+      <div className="search-recents-list">{recents.map((asset) => <button type="button" className="search-recent-item" key={asset.symbol} onClick={() => selectAsset(asset)}><CryptoMark asset={asset} /><span>{asset.name}</span></button>)}</div>
+    </section>}
+
+    <section className="search-results-section" aria-labelledby="search-results-title">
+      <h2 id="search-results-title">{normalizedQuery ? 'Results' : 'Trending'}</h2>
+      {searchResults.length ? <div className="search-results-list">{searchResults.map((asset) => <SearchAssetRow asset={asset} isWatched={false} key={asset.symbol} onSelect={selectAsset} onToggleWatchlist={toggleWatchlist} />)}</div> : <p className="search-empty-state">No matching assets in the cached list.</p>}
+    </section>
+  </section>
+}
+
+type SwapCurrency = 'hype' | 'whale'
+
+const swapCurrencies: Record<SwapCurrency, { symbol: string; label: string; usdPrice: number }> = {
+  hype: { symbol: 'HYPE', label: 'HYPE', usdPrice: 12.84 },
+  whale: { symbol: 'WHALE', label: '大鱼 🐟', usdPrice: .84 },
+}
+
+function SwapTokenMark({ currency }: { currency: SwapCurrency }) {
+  return <span className={`swap-token-mark ${currency}`} aria-hidden="true">{currency === 'hype'
+    ? <svg viewBox="0 0 34 34" fill="none"><path d="M5 19.7c3.6-7.8 7-10.3 10.2-7.3 2.8 2.7 3 8.1 5.7 8.1 2.4 0 3.7-4 5.1-7.6" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" /><path d="M5.1 19.6c3.8 4.3 7.5 6 10.2 3.3 2.7-2.7 3.3-8.2 5.7-8.2 2.5 0 3.9 2.4 5.1 5" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" /></svg>
+    : <svg viewBox="0 0 34 34" fill="none"><path d="M7 17.4c3.6-6.5 12.7-8 18.2-2.8-1 5.4-5.7 9.5-11.2 9.5-3.2 0-5.6-1.2-7-3.2 1.9-.2 3.6-1.7 4.1-3.5-1.2.6-2.6.6-4.1 0Z" fill="currentColor" /><path d="M25.2 14.6 29 11v8l-3.8-2.8" fill="currentColor" /><circle cx="18.4" cy="15.8" r="1.2" fill="#fff" /></svg>}</span>
+}
+
+function SwapControlsIcon() {
+  return <svg className="swap-controls-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M5 8h18M5 20h18M10.5 8a2.6 2.6 0 1 0-5.2 0 2.6 2.6 0 0 0 5.2 0ZM22.7 20a2.6 2.6 0 1 0-5.2 0 2.6 2.6 0 0 0 5.2 0Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg>
+}
+
+function SwapBackspaceIcon() {
+  return <svg className="swap-backspace-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M24.5 5.5H9.1c-.7 0-1.4.35-1.8.95L2.2 13.4a1.1 1.1 0 0 0 0 1.2l5.1 6.95c.4.6 1.1.95 1.8.95h15.4c.85 0 1.55-.7 1.55-1.55v-13.9c0-.85-.7-1.55-1.55-1.55Z" stroke="currentColor" strokeWidth="2.1" strokeLinejoin="round" /><path d="m12.4 10.7 6.8 6.6m0-6.6-6.8 6.6" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" /></svg>
+}
+
+function formatSwapQuantity(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return '0'
+  return value.toLocaleString('en-US', { maximumFractionDigits: 6 })
+}
+
+function SwapScreen({ onBack }: { onBack: () => void }) {
+  const [amount, setAmount] = useState('')
+  const [isReversed, setIsReversed] = useState(false)
+  const [percentage, setPercentage] = useState(0)
+  const fromKey: SwapCurrency = isReversed ? 'whale' : 'hype'
+  const toKey: SwapCurrency = isReversed ? 'hype' : 'whale'
+  const from = swapCurrencies[fromKey]
+  const to = swapCurrencies[toKey]
+  const amountValue = Number(amount)
+  const validAmount = Number.isFinite(amountValue) && amountValue > 0 ? amountValue : 0
+  const outputAmount = validAmount * from.usdPrice / to.usdPrice
+  const inputUsd = validAmount * from.usdPrice
+  const outputUsd = outputAmount * to.usdPrice
+  const hasInsufficientBalance = validAmount > 0
+
+  const addKey = (key: string) => {
+    setAmount((current) => {
+      if (key === '.') return current.includes('.') ? current : `${current || '0'}.`
+      if (current === '0') return key
+      return `${current}${key}`.slice(0, 14)
+    })
+  }
+
+  const updatePercentage = (value: number) => {
+    setPercentage(value)
+    // The demonstration pair starts with zero balance, matching the reference state.
+    setAmount('')
+  }
+
+  const reversePair = () => {
+    setIsReversed((current) => !current)
+    setAmount('')
+    setPercentage(0)
+  }
+
+  const keypad = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+  return <section className="swap-screen" aria-labelledby="swap-title">
+    <header className="swap-header"><button type="button" className="swap-round-button" onClick={onBack} aria-label="Back"><BackArrowIcon /></button><h1 id="swap-title">Swap</h1><button type="button" className="swap-market-button">Market <Icon name="chevron" size={19} /></button><button type="button" className="swap-round-button" aria-label="Swap settings"><SwapControlsIcon /></button></header>
+    <section className="swap-form" aria-label="Swap form">
+      <div className="swap-amount-card">
+        <button type="button" className="swap-amount-display" onClick={() => setAmount((current) => current)} aria-label={`Amount of ${from.symbol}`}><strong>{amount || '0'}</strong>{!amount && <i aria-hidden="true" />}</button>
+        <button type="button" className="swap-token-picker" aria-label={`From ${from.symbol}`}><SwapTokenMark currency={fromKey} /><strong>{from.label}</strong></button>
+        <span className="swap-usd-value">${inputUsd.toFixed(2)} <Icon name="refresh" size={16} /></span>
+        <span className="swap-available"><Icon name="wallet" size={16} /> 0</span>
+      </div>
+      <button type="button" className="swap-direction-button" onClick={reversePair} aria-label="Reverse swap direction"><Icon name="chevron" size={24} /></button>
+      <div className="swap-amount-card swap-output-card">
+        <div className="swap-amount-display" aria-label={`Estimated amount of ${to.symbol}`}><strong>{formatSwapQuantity(outputAmount)}</strong></div>
+        <button type="button" className="swap-token-picker" aria-label={`To ${to.symbol}`}><SwapTokenMark currency={toKey} /><strong>{to.label}</strong></button>
+        <span className="swap-usd-value">${outputUsd.toFixed(2)}</span>
+        <span className="swap-available"><Icon name="wallet" size={16} /> 0</span>
+      </div>
+    </section>
+    {hasInsufficientBalance && <p className="swap-balance-warning" role="status">Not enough {from.symbol} balance</p>}
+    <section className="swap-keypad-area" aria-label="Amount controls">
+      <div className="swap-range-labels"><strong>Min</strong><strong>Max</strong></div>
+      <input className="swap-range" type="range" min="0" max="100" step="25" value={percentage} onChange={(event) => updatePercentage(Number(event.target.value))} aria-label="Percentage of available balance" />
+      <div className="swap-range-marks"><span>25%</span><span>50%</span><span>75%</span></div>
+      <div className="swap-keypad">{keypad.map((key) => <button type="button" key={key} onClick={() => addKey(key)}>{key}</button>)}<button type="button" onClick={() => addKey('.')} aria-label="Decimal point">.</button><button type="button" onClick={() => addKey('0')}>0</button><button type="button" onClick={() => setAmount((current) => current.slice(0, -1))} aria-label="Delete amount"><SwapBackspaceIcon /></button></div>
+    </section>
+    <button type="button" className="swap-submit" disabled={hasInsufficientBalance || !validAmount}>Tap to Swap</button>
   </section>
 }
 
@@ -829,11 +1452,31 @@ function QrFallback({ value }: { value: string }) {
   return <svg className="receive-qr-fallback" viewBox={`0 0 ${size} ${size}`} role="img" aria-label="QR code preview">{cells}</svg>
 }
 
+const receiveQrImageCache = new Map<string, HTMLImageElement>()
+
+function getReceiveQrUrl(value: string) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=svg&margin=0&data=${encodeURIComponent(value)}`
+}
+
+function preloadReceiveQr(value: string) {
+  const url = getReceiveQrUrl(value)
+  if (receiveQrImageCache.has(url)) return url
+  const image = new Image()
+  image.decoding = 'sync'
+  image.src = url
+  receiveQrImageCache.set(url, image)
+  return url
+}
+
 function ReceiveQrCode({ value }: { value: string }) {
   const [failed, setFailed] = useState(false)
-  const url = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=svg&margin=0&data=${encodeURIComponent(value)}`
+  const url = getReceiveQrUrl(value)
+  useEffect(() => {
+    preloadReceiveQr(value)
+    setFailed(false)
+  }, [value])
   if (failed) return <QrFallback value={value} />
-  return <img className="receive-qr-image" src={url} alt="QR code for wallet address" onError={() => setFailed(true)} />
+  return <img className="receive-qr-image" src={url} alt="QR code for wallet address" decoding="sync" onError={() => setFailed(true)} />
 }
 
 function TransferHeader({ title, onBack, showInfo, onInfo }: { title: string; onBack: () => void; showInfo?: boolean; onInfo?: () => void }) {
@@ -975,7 +1618,12 @@ function MarketDetail({ asset, onBack, onTransfer }: { asset: MarketAsset; onBac
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    getChartPoints(asset.symbol).then((result) => { if (!cancelled) setPoints(result) }).catch(() => { if (!cancelled) setChartError(true) }).finally(() => { if (!cancelled) setLoading(false) })
+    getChartPoints(asset.symbol).then((result) => { if (!cancelled) setPoints(result) }).catch(() => {
+      if (!cancelled) {
+        setChartError(true)
+        setPoints((current) => current?.length ? current : createFallbackChartPoints(asset.symbol, asset.price, asset.change24h, 40))
+      }
+    }).finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [asset.symbol])
   const old = points?.[Math.max(0, (points?.length ?? 1) - 25)]
@@ -1040,6 +1688,7 @@ function LegacyLockScreen({ onUnlock }: { onUnlock: () => void }) {
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const [passcode, setPasscode] = useState('')
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+  const isVerified = passcode.length === 6
 
   const addDigit = (digit: string) => {
     const next = `${passcode}${digit}`.slice(0, 6)
@@ -1049,7 +1698,7 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
   const removeDigit = () => setPasscode((current) => current.slice(0, -1))
 
-  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className="passcode-inputs" aria-label="Passcode progress">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" disabled aria-disabled="true" aria-label="Fingerprint sign-in unavailable"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path className="backspace-shape" d="M21.5 3.5H7.7c-.62 0-1.2.31-1.53.82L1.58 11.6a.75.75 0 0 0 0 .8l4.59 7.28c.33.51.91.82 1.53.82h13.8c.83 0 1.5-.67 1.5-1.5V5c0-.83-.67-1.5-1.5-1.5Z" /><path className="backspace-close" d="m10.7 8.8 5.6 6.4m0-6.4-5.6 6.4" /></svg></span></button></div></div></main>
+  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className={`passcode-inputs${isVerified ? ' verified' : ''}`} aria-label={isVerified ? 'Passcode accepted' : 'Passcode progress'}>{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" disabled aria-disabled="true" aria-label="Fingerprint sign-in unavailable"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path className="backspace-shape" d="M21.5 3.5H7.7c-.62 0-1.2.31-1.53.82L1.58 11.6a.75.75 0 0 0 0 .8l4.59 7.28c.33.51.91.82 1.53.82h13.8c.83 0 1.5-.67 1.5-1.5V5c0-.83-.67-1.5-1.5-1.5Z" /><path className="backspace-close" d="m10.7 8.8 5.6 6.4m0-6.4-5.6 6.4" /></svg></span></button></div></div></main>
 }
 
 type DappItem = { name: string; description: string; className: string; mark: string }
@@ -1062,9 +1711,9 @@ const dapps: DappItem[] = [
   { name: 'Pendle', description: 'Pendle Finance is a protocol that enables the t…', className: 'pendle-dapp', mark: '◐' },
 ]
 
-function DiscoverScreen() {
+function DiscoverScreen({ onOpenSearch }: { onOpenSearch: () => void }) {
   const categories = ['Featured', 'DEX', 'Lending', 'Yield', 'Staking']
-  return <section className="discover-screen"><header className="discover-heading"><h1>Discover</h1></header><div className="dapp-search"><Icon name="search" size={22} /><span>Search or enter dApp URL</span></div><div className="dapp-banner"><div><strong>Claim bStocks<br />campaign rewards<br />now</strong><div className="dapp-banner-dots"><span className="active" /><span /></div></div><div className="banner-coins"><i>EW</i><b>↗</b></div><span className="banner-arrow">›</span></div><h2 className="explore-title">Explore dApps <Icon name="chevron" size={25} /></h2><div className="dapp-categories">{categories.map((category, index) => <button className={index === 0 ? 'active' : ''} key={category}>{category}</button>)}</div><div className="dapp-list">{dapps.map((dapp) => <div className="dapp-row" key={dapp.name}><span className={`dapp-icon ${dapp.className}`}>{dapp.mark}</span><div><strong>{dapp.name}</strong><span>{dapp.description}</span></div></div>)}</div><button className="view-dapps-button">View all <span>›</span></button></section>
+  return <section className="discover-screen"><header className="discover-heading"><h1>Discover</h1></header><button type="button" className="dapp-search" onClick={onOpenSearch} aria-label="Search assets"><Icon name="search" size={22} /><span>Search or enter dApp URL</span></button><div className="dapp-banner"><img className="dapp-explore-image" src="/explore.png" alt="" fetchPriority="high" /><div><strong>Claim bStocks<br />campaign rewards<br />now</strong></div><span className="banner-arrow" aria-hidden="true"><Icon name="chevron" size={28} /></span></div><h2 className="explore-title">Explore dApps <Icon name="chevron" size={25} /></h2><div className="dapp-categories">{categories.map((category, index) => <button className={index === 0 ? 'active' : ''} key={category}>{category}</button>)}</div><div className="dapp-list">{dapps.map((dapp) => <div className="dapp-row" key={dapp.name}><span className={`dapp-icon ${dapp.className}`}>{dapp.mark}</span><div><strong>{dapp.name}</strong><span>{dapp.description}</span></div></div>)}</div><button className="view-dapps-button">View all <Icon name="chevron" size={20} /></button></section>
 }
 
 function SettingsScreen({ onClose }: { onClose: () => void }) {
@@ -1260,7 +1909,50 @@ function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
   </section>
 }
 
-function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, prices, onSelectWallet }: { onClose: () => void; onOpenSettings: () => void; wallets: WalletDefinition[]; selectedWalletId: string; prices: Record<string, number>; onSelectWallet: (walletId: string) => void }) {
+function WalletEditScreen({ wallet, onBack, onRename }: { wallet: WalletDefinition; onBack: () => void; onRename: (walletId: string, name: string) => void }) {
+  const [draftName, setDraftName] = useState(wallet.name)
+
+  useEffect(() => {
+    setDraftName(wallet.name)
+  }, [wallet.id, wallet.name])
+
+  const saveName = () => {
+    const nextName = draftName.trim().replace(/\s+/g, ' ')
+    if (!nextName) {
+      setDraftName(wallet.name)
+      return
+    }
+    if (nextName !== wallet.name) onRename(wallet.id, nextName)
+  }
+
+  const closeEditor = () => {
+    saveName()
+    onBack()
+  }
+
+  return <section className="wallet-edit-screen" aria-labelledby="wallet-edit-title">
+    <header className="wallet-edit-header">
+      <button type="button" className="wallet-edit-back" onClick={closeEditor} aria-label="Back to wallets"><BackArrowIcon /></button>
+      <h1 id="wallet-edit-title">{draftName.trim() || wallet.name}</h1>
+      <span className="wallet-edit-delete" aria-hidden="true"><WalletTrashIcon /></span>
+    </header>
+    <form className="wallet-edit-form" onSubmit={(event) => { event.preventDefault(); saveName() }}>
+      <label className="wallet-name-label" htmlFor="wallet-name-input">Name</label>
+      <div className="wallet-name-input-wrap">
+        <input id="wallet-name-input" value={draftName} onChange={(event) => setDraftName(event.target.value)} onBlur={saveName} autoComplete="off" maxLength={48} aria-describedby="wallet-name-save-note" />
+        {draftName && <button type="button" className="wallet-name-clear" onClick={() => setDraftName('')} aria-label="Clear wallet name"><Icon name="close" size={22} /></button>}
+      </div>
+      <span id="wallet-name-save-note" className="wallet-name-save-note">Changes save when you leave this field.</span>
+    </form>
+    <section className="wallet-backups" aria-labelledby="wallet-backups-title">
+      <h2 id="wallet-backups-title">Secret phrase backups</h2>
+      <div className="wallet-backup-row"><GoogleDriveBackupIcon /><strong>Google Drive</strong><span>Back up now</span></div>
+      <div className="wallet-backup-row"><ManualBackupIcon /><strong>Manual</strong><span>Back up now</span></div>
+    </section>
+  </section>
+}
+
+function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, prices, onSelectWallet, onCreateWallet, onOpenWalletEditor }: { onClose: () => void; onOpenSettings: () => void; wallets: WalletDefinition[]; selectedWalletId: string; prices: Record<string, number>; onSelectWallet: (walletId: string) => void; onCreateWallet: () => void; onOpenWalletEditor: (walletId: string) => void }) {
   const [showAddWallet, setShowAddWallet] = useState(false)
   const [isCreatingWallet, setIsCreatingWallet] = useState(false)
   const [showWalletCreated, setShowWalletCreated] = useState(false)
@@ -1278,6 +1970,7 @@ function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, pri
     setIsCreatingWallet(true)
     walletCreationTimer.current = window.setTimeout(() => {
       walletCreationTimer.current = null
+      onCreateWallet()
       setShowAddWallet(false)
       setShowWalletCreated(true)
       setIsCreatingWallet(false)
@@ -1290,54 +1983,134 @@ function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, pri
 
   if (showWalletCreated) return <WalletReadyScreen onContinue={() => setShowWalletCreated(false)} />
 
-  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{wallets.map((wallet) => <button type="button" className="main-wallet-card" key={wallet.id} onClick={() => onSelectWallet(wallet.id)} aria-pressed={wallet.id === selectedWalletId}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{wallet.name}</strong><span>{formatUsd(getWalletTotal(wallet, prices))}</span></div><b>⋮</b></div>{wallet.id === selectedWalletId && <span className="wallet-selected">✓</span>}</button>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{wallets.map((wallet) => <article className="main-wallet-card" key={wallet.id}><button type="button" className="wallet-card-select" onClick={() => onSelectWallet(wallet.id)} aria-pressed={wallet.id === selectedWalletId} aria-label={`Select ${wallet.name}`}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{wallet.name}</strong><span>{formatUsd(getWalletTotal(wallet, prices))}</span></div></div></button><button type="button" className="wallet-card-menu" onClick={() => onOpenWalletEditor(wallet.id)} aria-label={`Edit ${wallet.name}`}><WalletMoreIcon /></button>{wallet.id === selectedWalletId && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
 }
 
 function App() {
-  const [isLocked, setIsLocked] = useState(true)
+  const [isLocked, setIsLocked] = useState(() => !isSessionUnlocked())
   const [promoIndex, setPromoIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState<'home' | 'markets' | 'perps' | 'discover'>('home')
-  const [selectedMarket, setSelectedMarket] = useState<MarketAsset | null>(null)
-  const [transferFlow, setTransferFlow] = useState<{ mode: TransferMode; asset: MarketAsset } | null>(null)
-  const [showWallets, setShowWallets] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
-  const [wallets, setWallets] = useState<WalletDefinition[]>(() => walletDefinitions.map((wallet) => ({ ...wallet, balances: { ...wallet.balances } })))
-  const [selectedWalletId, setSelectedWalletId] = useState(walletDefinitions[0].id)
+  const [location, setLocation] = useState<AppLocation>(() => readAppLocation())
+  const [wallets, setWallets] = useState<WalletDefinition[]>(() => readPersistedWallets())
+  const [selectedWalletId, setSelectedWalletId] = useState(() => readSelectedWalletId(readPersistedWallets()))
   const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
   const [walletPrices, setWalletPrices] = useState<Record<string, number>>(() => Object.fromEntries(walletTokenDefinitions.map((token) => [token.symbol, token.fallbackPrice])))
+  const searchableAssets = useSearchAssetCache()
+  const [searchHistory, setSearchHistory] = useState<MarketAsset[]>(() => readSavedSearchAssets(searchHistoryStorageKey))
+  const [watchlistAssets, setWatchlistAssets] = useState<MarketAsset[]>(() => readSavedSearchAssets(searchWatchlistStorageKey))
+  const route = parseAppRoute(location.pathname)
+  const navigationState = location.state
+  const navigate = (pathname: string, state: Omit<AppNavigationState, 'appRoute'> = {}) => {
+    const nextPathname = normalizePathname(pathname)
+    const nextState: AppNavigationState = { ...state, appRoute: true }
+    window.history.pushState(nextState, '', nextPathname)
+    setLocation({ pathname: nextPathname, state: nextState })
+  }
+  const goBack = (fallbackPathname: string) => navigate(navigationState?.returnTo ?? fallbackPathname)
   const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) ?? wallets[0]
   const activeWalletTokens = getWalletTokens(selectedWallet)
   const bitcoinToken = activeWalletTokens.find((token) => token.symbol === 'BTC') ?? activeWalletTokens[0]
   const ethereumToken = activeWalletTokens.find((token) => token.symbol === 'ETH') ?? activeWalletTokens[0]
   const receiveToken = activeWalletTokens.find((token) => token.symbol === 'USDT') ?? activeWalletTokens[0]
-  const watchlistTokens = activeWalletTokens.filter((token) => ['ETH', 'BTC', 'BNB'].includes(token.symbol))
+  const latestSearchAssetBySymbol = new Map(searchableAssets.map((asset) => [asset.symbol, asset]))
+  const homeWatchlistAssets = watchlistAssets.map((asset) => latestSearchAssetBySymbol.get(asset.symbol) ?? asset)
+  const routeAsset = route.symbol ? createRouteAsset(route.symbol, navigationState, activeWalletTokens, walletPrices, walletChanges) : null
+  const selectedMarket = route.kind === 'asset' ? routeAsset : null
+  const transferFlow = (route.kind === 'send' || route.kind === 'receive') && routeAsset ? { mode: route.kind, asset: routeAsset } : null
+  const activeTab: 'home' | 'markets' | 'perps' | 'discover' = route.kind === 'markets' || route.kind === 'perps' || route.kind === 'discover' ? route.kind : 'home'
+  const watchedSymbols = new Set(watchlistAssets.map((asset) => asset.symbol))
+  const recordSearchHistory = (asset: MarketAsset) => {
+    setSearchHistory((current) => [toSavedSearchAsset(asset), ...current.filter((item) => item.symbol !== asset.symbol)].slice(0, 8))
+  }
+  const toggleWatchlist = (asset: MarketAsset) => {
+    setWatchlistAssets((current) => current.some((item) => item.symbol === asset.symbol)
+      ? current.filter((item) => item.symbol !== asset.symbol)
+      : [toSavedSearchAsset(asset), ...current].slice(0, 50))
+  }
   const openAssetDetail = (asset: MarketAsset) => {
     const heldToken = activeWalletTokens.find((token) => token.symbol === asset.symbol)
-    setSelectedMarket({ ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance })
+    const routeAsset = { ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance ?? 0 }
+    navigate(`/asset/${encodeURIComponent(asset.symbol.toLowerCase())}`, { asset: routeAsset, returnTo: location.pathname })
   }
-  const openWalletTokenDetail = (token: WalletToken) => setSelectedMarket(walletTokenToMarketAsset(token, walletPrices, walletChanges))
+  const openWalletTokenDetail = (token: WalletToken) => openAssetDetail(walletTokenToMarketAsset(token, walletPrices, walletChanges))
   const openTransfer = (mode: TransferMode, asset: MarketAsset) => {
     const heldToken = activeWalletTokens.find((token) => token.symbol === asset.symbol)
-    setTransferFlow({ mode, asset: { ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance ?? 0 } })
+    const routeAsset = { ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance ?? 0 }
+    navigate(`/${mode}/${encodeURIComponent(asset.symbol.toLowerCase())}`, { asset: routeAsset, returnTo: location.pathname })
   }
   const completeInternalTransfer = (recipientWalletId: string, amount: number) => {
     const transferSymbol = transferFlow && walletTokenDefinitions.find((token) => token.symbol === transferFlow.asset.symbol)?.symbol
     if (!transferSymbol || !transferFlow) return
     const senderWalletId = selectedWallet.id
-    setWallets((current) => current.map((wallet) => {
+    const nextWallets = wallets.map((wallet) => {
       const currentBalance = wallet.balances[transferSymbol] ?? 0
       if (wallet.id === senderWalletId) return { ...wallet, balances: { ...wallet.balances, [transferSymbol]: currentBalance - amount } }
       if (wallet.id === recipientWalletId) return { ...wallet, balances: { ...wallet.balances, [transferSymbol]: currentBalance + amount } }
       return wallet
-    }))
+    })
+    persistWalletBalances(nextWallets)
+    setWallets(nextWallets)
     setSelectedWalletId(recipientWalletId)
-    setSelectedMarket(null)
-    setTransferFlow(null)
+    navigate('/')
+  }
+
+  const addNewWallet = () => {
+    const newWallet = createNewWallet(wallets)
+    const nextWallets = [...wallets, newWallet]
+    persistWalletBalances(nextWallets)
+    setWallets(nextWallets)
+    setSelectedWalletId(newWallet.id)
+  }
+
+  const renameWallet = (walletId: string, name: string) => {
+    const nextName = name.trim().replace(/\s+/g, ' ')
+    if (!nextName) return
+    const nextWallets = wallets.map((wallet) => wallet.id === walletId ? { ...wallet, name: nextName } : wallet)
+    persistWalletBalances(nextWallets)
+    setWallets(nextWallets)
   }
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [activeTab, selectedMarket, transferFlow, showWallets, showSettings])
+  }, [location.pathname])
+
+  useEffect(() => {
+    const syncLocation = () => setLocation(readAppLocation())
+    window.addEventListener('popstate', syncLocation)
+    return () => window.removeEventListener('popstate', syncLocation)
+  }, [])
+
+  useEffect(() => {
+    persistWalletBalances(wallets)
+  }, [wallets])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(selectedWalletStorageKey, selectedWalletId)
+    } catch {
+      // The active wallet can remain in memory when browser storage is unavailable.
+    }
+  }, [selectedWalletId])
+
+  useEffect(() => {
+    writeSavedSearchAssets(searchHistoryStorageKey, searchHistory)
+  }, [searchHistory])
+
+  useEffect(() => {
+    writeSavedSearchAssets(searchWatchlistStorageKey, watchlistAssets)
+  }, [watchlistAssets])
+
+  useEffect(() => {
+    if (!searchableAssets.length || !watchlistAssets.length) return
+    const latestBySymbol = new Map(searchableAssets.map((asset) => [asset.symbol, asset]))
+    setWatchlistAssets((current) => current.map((asset) => {
+      const latest = latestBySymbol.get(asset.symbol)
+      return latest ? toSavedSearchAsset(latest) : asset
+    }))
+  }, [searchableAssets])
+
+  useEffect(() => {
+    wallets.forEach((wallet) => { preloadReceiveQr(wallet.address) })
+  }, [wallets])
 
   useEffect(() => {
     const promoTimer = window.setInterval(() => {
@@ -1379,31 +2152,44 @@ function App() {
     }
   }, [isLocked])
 
-  if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
+  if (isLocked) return <LockScreen onUnlock={() => { persistUnlockedSession(); setIsLocked(false); if (route.kind === 'unlock') navigate('/') }} />
 
-  if (showSettings) {
-    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><SettingsScreen onClose={() => setShowSettings(false)} /></div></main>
+  if (route.kind === 'settings') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><SettingsScreen onClose={() => goBack('/')} /></div></main>
   }
 
-  if (showWallets) {
-    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => setShowWallets(false)} onOpenSettings={() => setShowSettings(true)} wallets={wallets} selectedWalletId={selectedWallet.id} prices={walletPrices} onSelectWallet={(walletId) => { setSelectedWalletId(walletId); setShowWallets(false) }} /></div></main>
+  if (route.kind === 'wallets') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => goBack('/')} onOpenSettings={() => navigate('/settings', { returnTo: '/wallets' })} wallets={wallets} selectedWalletId={selectedWallet.id} prices={walletPrices} onSelectWallet={(walletId) => { setSelectedWalletId(walletId); navigate('/') }} onCreateWallet={addNewWallet} onOpenWalletEditor={(walletId) => navigate(`/wallets/${encodeURIComponent(walletId)}/edit`, { returnTo: '/wallets' })} /></div></main>
+  }
+
+  if (route.kind === 'wallet-edit') {
+    const walletToEdit = wallets.find((wallet) => wallet.id === route.walletId)
+    if (walletToEdit) return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletEditScreen wallet={walletToEdit} onBack={() => goBack('/wallets')} onRename={renameWallet} /></div></main>
+  }
+
+  if (route.kind === 'search') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app search-wallet-app"><SearchScreen assets={searchableAssets} history={searchHistory} watchlist={watchlistAssets} watchedSymbols={watchedSymbols} onClose={() => goBack('/markets')} onSelect={(asset) => { recordSearchHistory(asset); openAssetDetail(asset) }} onToggleWatchlist={toggleWatchlist} onClearHistory={() => setSearchHistory([])} /></div></main>
+  }
+
+  if (route.kind === 'swap') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app swap-wallet-app"><SwapScreen onBack={() => goBack('/markets')} /></div></main>
   }
 
   if (transferFlow) {
-    return <main className="app-shell"><div className="wallet-app transfer-wallet-app"><TransferScreen mode={transferFlow.mode} asset={transferFlow.asset} onBack={() => setTransferFlow(null)} senderWallet={selectedWallet} wallets={wallets} onSendComplete={completeInternalTransfer} /></div></main>
+    return <main className="app-shell"><div className="wallet-app transfer-wallet-app"><TransferScreen mode={transferFlow.mode} asset={transferFlow.asset} onBack={() => goBack(`/asset/${transferFlow.asset.symbol.toLowerCase()}`)} senderWallet={selectedWallet} wallets={wallets} onSendComplete={completeInternalTransfer} /></div></main>
   }
 
   if (selectedMarket) {
-    return <main className="app-shell"><div className="wallet-app"><MarketDetail asset={selectedMarket} onBack={() => setSelectedMarket(null)} onTransfer={openTransfer} /></div></main>
+    return <main className="app-shell"><div className="wallet-app"><MarketDetail asset={selectedMarket} onBack={() => goBack('/')} onTransfer={openTransfer} /></div></main>
   }
 
   return (
     <main className="app-shell">
-      <div className="wallet-app">
-        {activeTab === 'markets' ? <MarketsScreen onSelect={openAssetDetail} /> : activeTab === 'perps' ? <PerpsScreen onOpenSettings={() => setShowSettings(true)} onOpenMarkets={() => setActiveTab('markets')} onSelect={openAssetDetail} /> : activeTab === 'discover' ? <DiscoverScreen /> : <>
+      <div className={`wallet-app${activeTab === 'markets' ? ' markets-wallet-app' : ''}`}>
+        {activeTab === 'markets' ? <MarketsScreen onSelect={openAssetDetail} onOpenSearch={() => navigate('/search', { returnTo: '/markets' })} onOpenSwap={() => navigate('/swap', { returnTo: '/markets' })} /> : activeTab === 'perps' ? <PerpsScreen onOpenSettings={() => navigate('/settings', { returnTo: '/perps' })} onOpenSearch={() => navigate('/search', { returnTo: '/perps' })} onSelect={openAssetDetail} /> : activeTab === 'discover' ? <DiscoverScreen onOpenSearch={() => navigate('/search', { returnTo: '/discover' })} /> : <>
         <header className="wallet-header">
-          <button className="wallet-chip" onClick={() => setShowWallets(true)} aria-label="Open wallets">
-            <WalletGlyph />
+          <button className="wallet-chip" onClick={() => navigate('/wallets', { returnTo: location.pathname })} aria-label="Open wallets">
+            <span className="wallet-header-wallet-icon" aria-hidden="true"><img src="/wallet_logo.png" alt="" /></span>
             <div className="wallet-chip-copy"><strong>{selectedWallet.name}</strong></div>
           </button>
           <div className="header-actions">
@@ -1459,12 +2245,12 @@ function App() {
           <h2>Perps <Icon name="chevron" size={25} /></h2>
           <div className="perps-card-row">
             <article className="perps-card">
-              <div className="perps-card-icon"><TokenMark token={bitcoinToken} /><PerpsVenueBadge /></div>
+              <div className="perps-card-icon"><TokenMark token={bitcoinToken} /></div>
               <div className="perps-card-title"><strong>BTC</strong><span>40x</span></div>
               <span className="perps-volume">$1.82B Vol</span>
             </article>
             <article className="perps-card">
-              <div className="perps-card-icon"><TokenMark token={ethereumToken} /><PerpsVenueBadge /></div>
+              <div className="perps-card-icon"><TokenMark token={ethereumToken} /></div>
               <div className="perps-card-title"><strong>ETH</strong><span>25x</span></div>
               <span className="perps-volume">$805.22M Vol</span>
             </article>
@@ -1484,25 +2270,25 @@ function App() {
         <section className="watchlist-section">
           <h2>Watchlist <Icon name="chevron" size={25} /></h2>
           <div className="watchlist-list">
-            {watchlistTokens.map((token) => (
-              <button type="button" className="watchlist-row" key={token.id} onClick={() => openWalletTokenDetail(token)} aria-label={`Open ${token.name}`}>
-                <TokenMark token={token} />
-                <div className="watchlist-name"><strong>{token.name}</strong></div>
-                <div className="watchlist-price"><strong>{formatUsd(walletPrices[token.symbol] ?? token.fallbackPrice)}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
+            {homeWatchlistAssets.length ? homeWatchlistAssets.map((asset) => (
+              <button type="button" className="watchlist-row" key={asset.symbol} onClick={() => openAssetDetail(asset)} aria-label={`Open ${asset.name}`}>
+                <CryptoMark asset={asset} />
+                <div className="watchlist-name"><strong>{asset.name}</strong></div>
+                <div className="watchlist-price"><strong>{formatUsd(asset.price)}</strong><span className={(asset.change24h ?? -1) >= 0 ? 'positive-text' : 'negative-text'}>{formatPercent(asset.change24h)}</span></div>
               </button>
-            ))}
+            )) : <p className="watchlist-empty-state">Star assets from Search to add them here.</p>}
           </div>
         </section>
 
         </>}
         <nav className="bottom-dock" aria-label="Main navigation">
           <div className="nav-pill">
-            <button className={`nav-item${activeTab === 'home' ? ' active' : ''}`} onClick={() => { setActiveTab('home'); setSelectedMarket(null) }}><Icon name="home" size={22} /></button>
-            <button className={`nav-item${activeTab === 'markets' ? ' active' : ''}`} onClick={() => { setActiveTab('markets'); setSelectedMarket(null) }}><Icon name="chart" size={22} /></button>
-            <button className={`nav-item perps-nav-item${activeTab === 'perps' ? ' active' : ''}`} onClick={() => { setActiveTab('perps'); setSelectedMarket(null) }} aria-label="Open Perps"><Icon name="infinity" size={21} /></button>
-            <button className={`nav-item${activeTab === 'discover' ? ' active' : ''}`} onClick={() => { setActiveTab('discover'); setSelectedMarket(null) }}><Icon name="compass" size={22} /></button>
+            <button className={`nav-item${activeTab === 'home' ? ' active' : ''}`} onClick={() => navigate('/')}><Icon name="home" size={22} /></button>
+            <button className={`nav-item${activeTab === 'markets' ? ' active' : ''}`} onClick={() => navigate('/markets')}><Icon name="chart" size={22} /></button>
+            <button className={`nav-item perps-nav-item${activeTab === 'perps' ? ' active' : ''}`} onClick={() => navigate('/perps')} aria-label="Open Perps"><Icon name="infinity" size={21} /></button>
+            <button className={`nav-item${activeTab === 'discover' ? ' active' : ''}`} onClick={() => navigate('/discover')}><Icon name="compass" size={22} /></button>
           </div>
-          <button className="nav-search" aria-label="Search" onClick={() => setActiveTab('markets')}><Icon name="search" size={27} /></button>
+          <button className="nav-search" aria-label="Search" onClick={() => navigate('/search', { returnTo: location.pathname })}><Icon name="search" size={27} /></button>
         </nav>
       </div>
     </main>
