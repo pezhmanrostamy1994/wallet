@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
-import { RiDownload2Line, RiFingerprint2Line, RiSparkling2Line } from 'react-icons/ri'
+import { RiDownload2Line, RiSparkling2Line } from 'react-icons/ri'
+import { walletDefinitions, walletTokenDefinitions, type WalletDefinition, type WalletTokenKind } from './wallet-data'
 
 type IconName =
   | 'activity'
@@ -9,14 +10,17 @@ type IconName =
   | 'clock'
   | 'close'
   | 'compass'
+  | 'copy'
   | 'fingerprint'
   | 'home'
   | 'infinity'
+  | 'info'
   | 'qr'
   | 'refresh'
   | 'search'
   | 'scan'
   | 'settings'
+  | 'share'
   | 'star'
   | 'swap'
   | 'wallet'
@@ -58,14 +62,17 @@ function Icon({ name, size = 'md' }: { name: IconName; size?: IconSize | number 
     clock: <><path d="M5 8.5A8 8 0 1 1 4.4 14" /><path d="M4.5 5.5v4h4" /><path d="M12 8v4l2.7 1.7" /></>,
     close: <><path d="m6 6 12 12M18 6 6 18" /></>,
     compass: <><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2Z" /></>,
+    copy: <><rect x="8.5" y="8.5" width="11" height="11" rx="1.5" /><path d="M15.5 8.5V6.2A1.7 1.7 0 0 0 13.8 4.5H6.2a1.7 1.7 0 0 0-1.7 1.7v7.6a1.7 1.7 0 0 0 1.7 1.7h2.3" /></>,
     fingerprint: <><path d="M12 3a9 9 0 0 0-9 9" /><path d="M12 3a9 9 0 0 1 9 9c0 3.2-.6 6.2-1.6 9" /><path d="M12 5.5A6.5 6.5 0 0 0 5.5 12c0 4-.7 7-2 9" /><path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5c0 3.5-.5 6.7-1.4 9" /><path d="M12 8a4 4 0 0 0-4 4c0 4.8-.5 7.6-1.5 10" /><path d="M12 8a4 4 0 0 1 4 4c0 2.9-.2 5.5-.7 7.8" /><path d="M12 10.5A1.5 1.5 0 0 0 10.5 12c0 3.4-.2 6.1-.8 8.5" /><path d="M12 10.5c.8 0 1.5.7 1.5 1.5 0 2.3.1 4.3.4 6.1" /></>,
     home: <><path fill="currentColor" stroke="none" d="m2.8 10.4 8.1-6.8a1.7 1.7 0 0 1 2.2 0l8.1 6.8a1.4 1.4 0 0 1 .5 1.1v7.3a2.2 2.2 0 0 1-2.2 2.2H4.5a2.2 2.2 0 0 1-2.2-2.2v-7.3a1.4 1.4 0 0 1 .5-1.1Z" /><path d="M10 20.8v-4.6h4v4.6" fill="#37383a" stroke="none" /><path d="M10.9 18.7h2.2" stroke="#fff" strokeWidth="1.05" strokeLinecap="round" /></>,
     infinity: <path d="M7.2 7.5c-2.2 0-3.7 1.7-3.7 4.5s1.5 4.5 3.7 4.5c3 0 6.6-9 9.6-9 2.2 0 3.7 1.7 3.7 4.5s-1.5 4.5-3.7 4.5c-3 0-6.6-9-9.6-9Z" />,
+    info: <><circle cx="12" cy="12" r="8.5" /><path d="M12 10.7v5" /><circle cx="12" cy="7.7" r=".55" fill="currentColor" stroke="none" /></>,
     qr: <><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" /><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" /></>,
     refresh: <><path d="M20 11a8 8 0 0 0-14.7-3L4 10" /><path d="M4 5v5h5" /><path d="M4 13a8 8 0 0 0 14.7 3L20 14" /><path d="M20 19v-5h-5" /></>,
     search: <><circle cx="10.7" cy="10.7" r="6.7" /><path d="m16 16 4.5 4.5" /></>,
     scan: <><path d="M5 9V5a1 1 0 0 1 1-1h4" /><path d="M15 4h3a2 2 0 0 1 2 2v3" /><path d="M20 15v3a2 2 0 0 1-2 2h-3" /><path d="M9 20H6a2 2 0 0 1-2-2v-3" /><path d="M6 12h12" /></>,
     settings: <path fill="currentColor" fillRule="evenodd" stroke="none" d="M19.43 12.98c.04-.32.06-.65.06-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42L9.13 5.07c-.61.25-1.18.59-1.69.98l-2.49-1c-.23-.08-.48 0-.6.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.49.42h4c.24 0 .45-.18.49-.42l.38-2.65c.61-.25 1.18-.59 1.69-.98l2.49 1c.23.08.48 0 .6-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.1-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z" />,
+    share: <><circle cx="18" cy="5.5" r="2" fill="currentColor" stroke="none" /><circle cx="6" cy="12" r="2" fill="currentColor" stroke="none" /><circle cx="18" cy="18.5" r="2" fill="currentColor" stroke="none" /><path d="m7.8 11 8.4-4.4M7.8 13l8.4 4.4" /></>,
     star: <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" fill="currentColor" stroke="none" />,
     swap: <><path d="M7 7h12l-3-3" /><path d="m17 17H5l3 3" /></>,
     wallet: <><path d="M5 8.2A2.2 2.2 0 0 1 7.2 6H19a1 1 0 0 1 1 1v11.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 4 17.5v-7.1a2.2 2.2 0 0 1 1-2.2Z" /><path d="M4.5 9H18a2 2 0 0 1 2 2v2.5h-4.4a2.5 2.5 0 0 1 0-5H20" /><circle cx="16" cy="11" r=".65" fill="currentColor" /></>,
@@ -216,10 +223,10 @@ type WalletToken = {
   id: string
   name: string
   symbol: string
-  cmcId?: number
-  balance: string
-  value: string
-  kind: 'bitcoin' | 'tether' | 'tron' | 'ethereum' | 'bnb'
+  cmcId: number
+  balance: number
+  fallbackPrice: number
+  kind: WalletTokenKind
 }
 
 function LegacyTokenMark({ token }: { token: WalletToken }) {
@@ -280,7 +287,7 @@ function AiSparkle() {
   return <span className="ai-sparkle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 2 1.7 5.3L15 9l-5.3 1.7L8 16l-1.7-5.3L1 9l5.3-1.7L8 2ZM18 11l.9 3.1L22 15l-3.1.9L18 19l-.9-3.1L14 15l3.1-.9L18 11Z" /></svg></span>
 }
 
-const walletTokens: WalletToken[] = [
+const legacyWalletTokens = [
   { id: 'tether', name: 'Tether', symbol: 'USDT', cmcId: 825, balance: '1,013,452.76', value: '$1,013,452.76', kind: 'tether' },
   { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', cmcId: 1, balance: '15.42', value: '$1,026,784.32', kind: 'bitcoin' },
   { id: 'tron', name: 'TRON', symbol: 'TRX', balance: '0.000002', value: '$0.0₆541', kind: 'tron' },
@@ -289,10 +296,28 @@ const walletTokens: WalletToken[] = [
 ]
 
 const screenshotWatchlist = [
-  { token: walletTokens[3], value: '$1,893.85' },
-  { token: walletTokens[1], value: '$63,701.45' },
-  { token: walletTokens[4], value: '$604.54' },
+  { token: legacyWalletTokens[3], value: '$1,893.85' },
+  { token: legacyWalletTokens[1], value: '$63,701.45' },
+  { token: legacyWalletTokens[4], value: '$604.54' },
 ]
+
+function getWalletTokens(wallet: WalletDefinition): WalletToken[] {
+  return walletTokenDefinitions.map((token) => ({ ...token, balance: wallet.balances[token.symbol] ?? 0 }))
+}
+
+function formatTokenBalance(value: number) {
+  if (value === 0) return '0'
+  if (value >= 1) return value.toLocaleString('en-US', { maximumFractionDigits: 4 })
+  return value.toLocaleString('en-US', { maximumFractionDigits: 8 })
+}
+
+function getWalletTokenValue(token: WalletToken, prices: Record<string, number>) {
+  return token.balance * (prices[token.symbol] ?? token.fallbackPrice)
+}
+
+function getWalletTotal(wallet: WalletDefinition, prices: Record<string, number>) {
+  return getWalletTokens(wallet).reduce((total, token) => total + getWalletTokenValue(token, prices), 0)
+}
 
 const promoSlides: Array<{ title: string; subtitle: string; icon: 'hyperliquid' | 'markets' }> = [
   { title: 'Explore Hyperliquid: 200+ markets live', subtitle: 'Explore now', icon: 'hyperliquid' },
@@ -310,11 +335,12 @@ type MarketAsset = {
   volume24h?: number | null
   logoUrl?: string
   points?: number[]
+  walletBalance?: number
 }
 
 const preferredSymbols = ['ETH', 'BNB', 'SOL', 'BTC', 'XRP', 'ADA', 'DOGE', 'TRX', 'AVAX', 'LINK']
 const symbolColors: Record<string, string> = {
-  ETH: '#7c8cff', BNB: '#f3bd24', SOL: '#6e6cff', BTC: '#f7931a', XRP: '#66717a',
+  USDT: '#26a17b', ETH: '#7c8cff', BNB: '#f3bd24', SOL: '#6e6cff', BTC: '#f7931a', XRP: '#66717a',
   ADA: '#3365d4', DOGE: '#c2a633', TRX: '#e84142', AVAX: '#e84142', LINK: '#2a5ada',
 }
 
@@ -333,7 +359,7 @@ const cmcMinuteRateLimit = 50
 const cmcResponseCacheTtl = 1_500
 
 type CmcQuote = { price?: number; percent_change_24h?: number; volume_24h?: number }
-type CmcListing = { id: number; name: string; symbol: string; quote?: { USD?: CmcQuote } }
+type CmcListing = { id: number; name: string; symbol: string; tags?: string[]; quote?: { USD?: CmcQuote } }
 type CmcHistoricalQuote = { quote?: { USD?: { price?: number } } }
 type CmcHistoricalAsset = { quotes?: CmcHistoricalQuote[] }
 type CmcLatestAsset = { quote?: { USD?: CmcQuote } }
@@ -408,17 +434,22 @@ function mapCmcListingsToAssets(listings: CmcListing[], previous: MarketAsset[] 
   const previousAssets = new Map(previous.map((asset) => [asset.symbol, asset]))
   const ordered = [...listings].sort((left, right) => (preferred.get(left.symbol) ?? 999) - (preferred.get(right.symbol) ?? 999))
 
-  return ordered.map((item) => ({
-    symbol: item.symbol,
-    base: item.symbol,
-    name: item.name,
-    cmcId: item.id,
-    color: symbolColors[item.symbol] ?? `hsl(${item.id % 360} 62% 52%)`,
-    price: item.quote?.USD?.price ?? previousAssets.get(item.symbol)?.price ?? null,
-    change24h: item.quote?.USD?.percent_change_24h ?? previousAssets.get(item.symbol)?.change24h ?? null,
-    volume24h: item.quote?.USD?.volume_24h ?? previousAssets.get(item.symbol)?.volume24h ?? null,
-    points: previousAssets.get(item.symbol)?.points ?? (includeCachedCharts ? readChartCache(item.symbol)?.points : undefined),
-  }))
+  return ordered.map((item) => {
+    const previousAsset = previousAssets.get(item.symbol)
+    const price = item.quote?.USD?.price ?? previousAsset?.price ?? null
+    const cachedPoints = includeCachedCharts ? readChartCache(item.symbol)?.points : undefined
+    return {
+      symbol: item.symbol,
+      base: item.symbol,
+      name: item.name,
+      cmcId: item.id,
+      color: symbolColors[item.symbol] ?? `hsl(${item.id % 360} 62% 52%)`,
+      price,
+      change24h: item.quote?.USD?.percent_change_24h ?? previousAsset?.change24h ?? null,
+      volume24h: item.quote?.USD?.volume_24h ?? previousAsset?.volume24h ?? null,
+      points: syncChartWithLatestPrice(previousAsset?.points ?? cachedPoints, price),
+    }
+  })
 }
 
 function readChartCache(id: string) {
@@ -477,6 +508,19 @@ function formatPercent(value: number | null) {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
 }
 
+function walletTokenToMarketAsset(token: WalletToken, prices: Record<string, number>, changes: Record<string, number | null>): MarketAsset {
+  return {
+    symbol: token.symbol,
+    base: token.symbol,
+    name: token.name,
+    cmcId: token.cmcId,
+    color: symbolColors[token.symbol] ?? '#77787d',
+    price: prices[token.symbol] ?? token.fallbackPrice,
+    change24h: changes[token.symbol] ?? null,
+    walletBalance: token.balance,
+  }
+}
+
 function Sparkline({ points, positive = false }: { points?: number[]; positive?: boolean }) {
   if (!points?.length) return <span className="sparkline-empty" aria-label="Chart loading" />
   const min = Math.min(...points)
@@ -488,6 +532,196 @@ function Sparkline({ points, positive = false }: { points?: number[]; positive?:
 
 function CryptoMark({ asset, large = false }: { asset: MarketAsset; large?: boolean }) {
   return <span className={`crypto-mark${large ? ' large' : ''}`} style={{ '--coin-color': asset.color } as CSSProperties}><img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${asset.cmcId}.png`} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><span>{asset.base === 'ETH' ? '◆' : asset.base === 'BTC' ? '₿' : asset.base.slice(0, 1)}</span></span>
+}
+
+type PerpsMarket = {
+  id: string
+  symbol: string
+  leverage: string
+  volume: string
+  price: string
+  change: string
+  positive?: boolean
+  mark: 'bitcoin' | 'ethereum' | 'spcx' | 'skhynix'
+  points: number[]
+}
+
+function syncChartWithLatestPrice(points: number[] | undefined, price: number | null) {
+  if (!points?.length || price === null || !Number.isFinite(price)) return points
+  const latest = points[points.length - 1]
+  const tolerance = Math.max(Math.abs(price) * 0.00000001, 0.00000001)
+  if (Math.abs(latest - price) <= tolerance) return points
+  return [...points.slice(-71), price]
+}
+
+const perpsMarkets: PerpsMarket[] = [
+  { id: 'btc-40', symbol: 'BTC', leverage: '40x', volume: '$1.52B Vol', price: '$63,629', change: '-0.74%', mark: 'bitcoin', points: [92, 38, 47, 36, 53, 38, 48, 43, 52, 40, 51, 63, 78, 70, 46, 61, 47] },
+  { id: 'eth-25', symbol: 'ETH', leverage: '25x', volume: '$596.75M Vol', price: '$1,887.8', change: '-1.22%', mark: 'ethereum', points: [91, 38, 49, 33, 41, 26, 37, 32, 27, 48, 63, 67, 49, 35, 50, 37] },
+  { id: 'btc-200', symbol: 'BTC', leverage: '200x', volume: '$569.36M Vol', price: '$63,618', change: '-0.60%', mark: 'bitcoin', points: [91, 26, 49, 31, 43, 27, 42, 51, 45, 61, 78, 64, 45, 58, 37, 48] },
+  { id: 'spcx-20', symbol: 'SPCX', leverage: '20x', volume: '$443.04M Vol', price: '$146.49', change: '+8.79%', positive: true, mark: 'spcx', points: [16, 31, 48, 69, 63, 78, 66, 67, 64, 70, 68, 72, 68, 65, 70, 64, 58] },
+  { id: 'skhynix-10', symbol: 'SKHYNIX', leverage: '10x', volume: '$435.63M Vol', price: '$1,110.9', change: '+1.87%', positive: true, mark: 'skhynix', points: [19, 36, 34, 50, 48, 64, 61, 89, 92, 74, 45, 49, 32, 38, 33, 38] },
+]
+
+const perpsCategorySeeds: Record<'crypto' | 'stocks' | 'commodities', MarketAsset[]> = {
+  crypto: [
+    { symbol: 'BTC', base: 'BTC', name: 'Bitcoin', cmcId: 1, color: '#f7931a', price: null, change24h: null },
+    { symbol: 'ETH', base: 'ETH', name: 'Ethereum', cmcId: 1027, color: '#7c8cff', price: null, change24h: null },
+    { symbol: 'BNB', base: 'BNB', name: 'BNB', cmcId: 1839, color: '#f3bd24', price: null, change24h: null },
+    { symbol: 'SOL', base: 'SOL', name: 'Solana', cmcId: 5426, color: '#6e6cff', price: null, change24h: null },
+    { symbol: 'XRP', base: 'XRP', name: 'XRP', cmcId: 52, color: '#66717a', price: null, change24h: null },
+    { symbol: 'ADA', base: 'ADA', name: 'Cardano', cmcId: 2010, color: '#3365d4', price: null, change24h: null },
+  ],
+  stocks: [
+    { symbol: 'AAPLX', base: 'AAPLx', name: 'Apple xStock', cmcId: 0, color: '#29313b', price: null, change24h: null },
+    { symbol: 'TSLAX', base: 'TSLAx', name: 'Tesla xStock', cmcId: 0, color: '#df2935', price: null, change24h: null },
+    { symbol: 'NVDAX', base: 'NVDAx', name: 'NVIDIA xStock', cmcId: 0, color: '#76b900', price: null, change24h: null },
+    { symbol: 'MSTRX', base: 'MSTRx', name: 'Strategy xStock', cmcId: 0, color: '#ff7f27', price: null, change24h: null },
+    { symbol: 'COINX', base: 'COINx', name: 'Coinbase xStock', cmcId: 0, color: '#145ee8', price: null, change24h: null },
+    { symbol: 'CRCLX', base: 'CRCLx', name: 'Circle xStock', cmcId: 0, color: '#1f6cff', price: null, change24h: null },
+  ],
+  commodities: [
+    { symbol: 'PAXG', base: 'PAXG', name: 'PAX Gold', cmcId: 3330, color: '#d7af4b', price: null, change24h: null },
+    { symbol: 'XAUT', base: 'XAUT', name: 'Tether Gold', cmcId: 5176, color: '#c79729', price: null, change24h: null },
+    { symbol: 'KAU', base: 'KAU', name: 'Kinesis Gold', cmcId: 0, color: '#d8b24b', price: null, change24h: null },
+    { symbol: 'KAG', base: 'KAG', name: 'Kinesis Silver', cmcId: 0, color: '#a8b2bb', price: null, change24h: null },
+    { symbol: 'CGO', base: 'CGO', name: 'Comtech Gold', cmcId: 0, color: '#c69e32', price: null, change24h: null },
+    { symbol: 'MCAU', base: 'MCAU', name: 'Meld Gold', cmcId: 0, color: '#d2a73e', price: null, change24h: null },
+  ],
+}
+
+function toPerpsCategoryAsset(item: CmcListing): MarketAsset {
+  return {
+    symbol: item.symbol,
+    base: item.symbol,
+    name: item.name,
+    cmcId: item.id,
+    color: symbolColors[item.symbol] ?? `hsl(${item.id % 360} 62% 52%)`,
+    price: item.quote?.USD?.price ?? null,
+    change24h: item.quote?.USD?.percent_change_24h ?? null,
+  }
+}
+
+function selectPerpsCategory(listings: CmcListing[], category: keyof typeof perpsCategorySeeds) {
+  const bySymbol = new Map(listings.map((item) => [item.symbol.toUpperCase(), item]))
+  const liveSeeds: MarketAsset[] = []
+  const fallbacks: MarketAsset[] = []
+  perpsCategorySeeds[category].forEach((seed) => {
+    const item = bySymbol.get(seed.symbol.toUpperCase())
+    if (item) liveSeeds.push(toPerpsCategoryAsset(item))
+    else fallbacks.push(seed)
+  })
+  const isMatch = (item: CmcListing) => {
+    const tags = (item.tags ?? []).join(' ').toLowerCase()
+    const name = item.name.toLowerCase()
+    if (category === 'stocks') return tags.includes('stock') || tags.includes('equity') || name.includes('xstock')
+    if (category === 'commodities') return tags.includes('commodity') || tags.includes('gold') || tags.includes('silver') || /gold|silver|oil/.test(name)
+    return false
+  }
+  const extras = listings.filter(isMatch).map(toPerpsCategoryAsset)
+  const unique = new Map<string, MarketAsset>()
+  ;[...liveSeeds, ...extras, ...fallbacks].forEach((asset) => unique.set(asset.symbol, asset))
+  return [...unique.values()].slice(0, 6)
+}
+
+type PerpsCategories = Record<keyof typeof perpsCategorySeeds, MarketAsset[]>
+
+function buildPerpsCategories(listings: CmcListing[], previous?: PerpsCategories): PerpsCategories {
+  const buildCategory = (category: keyof typeof perpsCategorySeeds) => {
+    const previousBySymbol = new Map((previous?.[category] ?? []).map((asset) => [asset.symbol, asset]))
+    return selectPerpsCategory(listings, category).map((asset) => ({
+      ...asset,
+      points: syncChartWithLatestPrice(previousBySymbol.get(asset.symbol)?.points, asset.price),
+    }))
+  }
+  return { crypto: buildCategory('crypto'), stocks: buildCategory('stocks'), commodities: buildCategory('commodities') }
+}
+
+function usePerpsCategoryAssets() {
+  const cachedListings = readPersistentCmc<{ data?: CmcListing[] }>(marketListingsPath)?.value.data ?? []
+  const [categories, setCategories] = useState<PerpsCategories>(() => buildPerpsCategories(cachedListings))
+  const requestedCharts = useRef(new Set<string>())
+
+  useEffect(() => {
+    let cancelled = false
+    const refresh = async () => {
+      try {
+        const body = await cmcFetch<{ data?: CmcListing[] }>(marketListingsPath)
+        if (!cancelled) setCategories((current) => buildPerpsCategories(body.data ?? [], current))
+      } catch { /* Keep the most recent live or cached prices visible. */ }
+    }
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), 10_000)
+    return () => { cancelled = true; window.clearInterval(timer) }
+  }, [])
+
+  const chartCandidates = Object.values(categories).flat().filter((asset) => asset.cmcId > 0 && asset.price !== null && !asset.points)
+  const chartKey = chartCandidates.map((asset) => asset.symbol).sort().join('|')
+  useEffect(() => {
+    let cancelled = false
+    const loadCharts = async () => {
+      await Promise.all(chartCandidates.filter((asset) => !requestedCharts.current.has(asset.symbol)).map(async (asset) => {
+        requestedCharts.current.add(asset.symbol)
+        try {
+          const points = await getChartPoints(asset.symbol)
+          if (cancelled) return
+          setCategories((current) => ({
+            crypto: current.crypto.map((item) => item.symbol === asset.symbol ? { ...item, points: syncChartWithLatestPrice(points, item.price) } : item),
+            stocks: current.stocks.map((item) => item.symbol === asset.symbol ? { ...item, points: syncChartWithLatestPrice(points, item.price) } : item),
+            commodities: current.commodities.map((item) => item.symbol === asset.symbol ? { ...item, points: syncChartWithLatestPrice(points, item.price) } : item),
+          }))
+        } catch { /* A row keeps its latest price when its historical chart is unavailable. */ }
+      }))
+    }
+    if (chartKey) void loadCharts()
+    return () => { cancelled = true }
+  }, [chartKey])
+
+  return categories
+}
+
+function PerpsHeroMark() {
+  return <span className="perps-hero-mark" aria-hidden="true"><svg viewBox="0 0 146 103" fill="none"><defs><linearGradient id="perps-hero-main" x1="18" y1="88" x2="123" y2="19" gradientUnits="userSpaceOnUse"><stop stopColor="#2111ff" /><stop offset=".44" stopColor="#20b9ff" /><stop offset="1" stopColor="#b5efff" /></linearGradient><linearGradient id="perps-hero-loop" x1="38" y1="24" x2="117" y2="84" gradientUnits="userSpaceOnUse"><stop stopColor="#8defff" /><stop offset=".54" stopColor="#316dff" /><stop offset="1" stopColor="#5c12ed" /></linearGradient></defs><path d="M17 71.6C30.6 47.1 43.5 33 58.6 33c17.5 0 27.2 27.3 43.4 27.3 12.2 0 19.3-13.5 26.1-30.8" stroke="url(#perps-hero-main)" strokeWidth="14" strokeLinecap="round" /><path d="M17 71.6C31.3 84.3 43.7 89.2 58.6 89.2c17.5 0 28.1-25.5 43.4-25.5 11.7 0 20.1 5.5 26.1 13.8" stroke="url(#perps-hero-loop)" strokeWidth="14" strokeLinecap="round" /><path d="M15.7 72.2C30.4 57.5 39.8 51.4 50.7 51.4c10.7 0 19.4 8.5 28.5 13.6M100 60.4c9.2-2.9 16-11.1 23.1-25.5" stroke="#1b0ed6" strokeOpacity=".55" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
+}
+
+function PerpsAssetMark({ mark }: { mark: PerpsMarket['mark'] }) {
+  if (mark === 'bitcoin') return <span className="perps-asset-mark perps-bitcoin-mark" aria-hidden="true">₿</span>
+  if (mark === 'ethereum') return <span className="perps-asset-mark perps-ethereum-mark" aria-hidden="true"><svg viewBox="0 0 28 38" fill="none"><path d="m14 1 13 20.4L14 28.5 1 21.4 14 1Z" fill="#273239" /><path d="m14 1-13 20.4L14 28.5V1Z" fill="#8d969b" /><path d="m14 30.8 13-7L14 38 1 23.8l13 7Z" fill="#253139" /><path d="m14 30.8-13-7L14 38V30.8Z" fill="#a5afb4" /></svg></span>
+  if (mark === 'spcx') return <span className="perps-asset-mark perps-spcx-mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M8 31.5 40 16.8M8 16.8 40 31.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /><path d="m19.1 19.8 10.1 8.4M19.1 28.2l10.1-8.4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg></span>
+  return <span className="perps-asset-mark perps-skhynix-mark" aria-hidden="true"><svg viewBox="0 0 52 38" fill="none"><path d="m3 6 20 9.4-8.1 7.4L3 6Z" fill="#e73834" /><path d="m5.2 29.8 9.7-7.4 8.1 9.9-17.8-2.5Z" fill="#f1ad18" /><path d="m24 15.4 14.9-9.8 9.2 13.1-12 8L24 15.4Z" fill="#f2ad19" /><path d="m23.2 31.9 12.5-5.2 10.9 4.9-23.4.3Z" fill="#e73834" /></svg></span>
+}
+
+function PerpsMiniChart({ points, positive = false, compact = false }: { points?: number[]; positive?: boolean; compact?: boolean }) {
+  if (!points?.length) return <span className={`perps-mini-chart perps-mini-chart-loading${compact ? ' compact' : ''}`} aria-label="Chart loading" />
+  const min = Math.min(...points)
+  const max = Math.max(...points)
+  const range = max - min || 1
+  const coords = points.map((point, index) => `${(index / Math.max(points.length - 1, 1)) * 112},${58 - ((point - min) / range) * 49}`).join(' ')
+  return <svg className={`perps-mini-chart${positive ? ' positive' : ''}${compact ? ' compact' : ''}`} viewBox="0 0 112 64" preserveAspectRatio="none" aria-hidden="true"><polygon points={`0,64 ${coords} 112,64`} /><polyline points={coords} /><circle cx={(points.length - 1) / Math.max(points.length - 1, 1) * 112} cy={58 - ((points[points.length - 1] - min) / range) * 49} r="3.4" /></svg>
+}
+
+function PerpsCategorySection({ title, assets, onSelect }: { title: string; assets: MarketAsset[]; onSelect: (asset: MarketAsset) => void }) {
+  return <section className="perps-category-section" aria-labelledby={`perps-${title.toLowerCase().replaceAll(' ', '-')}`}>
+    <h2 id={`perps-${title.toLowerCase().replaceAll(' ', '-')}`}>{title} <Icon name="chevron" size={21} /></h2>
+    <div className="perps-category-list">{assets.map((asset) => <button type="button" className="perps-category-row" key={`${title}-${asset.symbol}`} onClick={() => onSelect(asset)} aria-label={`View ${asset.name}`}><CryptoMark asset={asset} /><span className="perps-category-identity"><strong>{asset.base}</strong><small>{asset.name}</small></span><PerpsMiniChart points={asset.points} positive={(asset.change24h ?? -1) >= 0} compact /><span className={`perps-category-price${asset.change24h !== null && asset.change24h >= 0 ? ' positive' : ''}`}><strong>{formatUsd(asset.price)}</strong><small>{formatPercent(asset.change24h)}</small></span></button>)}</div>
+  </section>
+}
+
+function PerpsScreen({ onOpenSettings, onOpenMarkets, onSelect }: { onOpenSettings: () => void; onOpenMarkets: () => void; onSelect: (asset: MarketAsset) => void }) {
+  const categories = usePerpsCategoryAssets()
+
+  return <section className="perps-trading-screen" aria-labelledby="perps-title">
+    <header className="perps-header">
+      <div className="perps-header-actions"><button type="button" className="perps-header-button" aria-label="Perps activity"><Icon name="clock" size={22} /></button><button type="button" className="perps-header-button" onClick={onOpenSettings} aria-label="Open settings"><Icon name="settings" size={22} /></button></div>
+      <h1 id="perps-title">Perps</h1>
+      <button type="button" className="perps-header-button perps-search-button" onClick={onOpenMarkets} aria-label="Search markets"><Icon name="search" size={22} /></button>
+    </header>
+    <section className="perps-deposit-promo" aria-label="Fund your first perpetual position"><div><h2>Deposit to fund your<br />first position</h2><button type="button" className="perps-deposit-button">Deposit</button></div><PerpsHeroMark /></section>
+    <section className="perps-popular-section" aria-labelledby="popular-perps-title"><h2 id="popular-perps-title">Popular <Icon name="chevron" size={23} /></h2><div className="perps-market-list">{perpsMarkets.map((market) => <button type="button" className="perps-market-row" key={market.id} aria-label={`Trade ${market.symbol}`}><div className="perps-market-identity"><span className="perps-market-icon"><PerpsAssetMark mark={market.mark} /><PerpsVenueBadge /></span><span className="perps-market-copy"><span><strong>{market.symbol}</strong><em>{market.leverage}</em></span><small>{market.volume}</small></span></div><PerpsMiniChart points={market.points} positive={market.positive} /><span className={`perps-market-price${market.positive ? ' positive' : ''}`}><strong>{market.price}</strong><small>{market.change}</small></span></button>)}</div></section>
+    <PerpsCategorySection title="Crypto" assets={categories.crypto} onSelect={onSelect} />
+    <PerpsCategorySection title="Crypto Stocks" assets={categories.stocks} onSelect={onSelect} />
+    <PerpsCategorySection title="Commodities" assets={categories.commodities} onSelect={onSelect} />
+    <div className="perps-trade-actions" aria-label="Trade direction"><button type="button" className="perps-long-button">Long <span>↗</span></button><button type="button" className="perps-short-button">Short <span>↘</span></button></div>
+  </section>
 }
 
 function useMarketData() {
@@ -573,7 +807,162 @@ function MarketsScreen({ onSelect }: { onSelect: (asset: MarketAsset) => void })
   </section>
 }
 
-function MarketDetail({ asset, onBack }: { asset: MarketAsset; onBack: () => void }) {
+type TransferMode = 'send' | 'receive'
+
+const demoReceiveAddresses: Record<string, string> = {
+  USDT: '0x9b7D6e37D5F0A1c1B8e9F02F5A6dB4c37E9a1c52',
+  BTC: 'bc1q8t7kp5x2u5q5rmlhp4jmvw2auu8f6ah6as4yhs',
+  TRX: 'TQmQfLpxH9K4xNY8yLzUg5HBVRxAPnZ9QW',
+  ETH: '0x5eA21c4A0B7d9D2f53A7C9e4B4Ab8B7C0D9A7F61',
+  BNB: '0x6A84E2bD4C0f8e14A3d4B5f6e8A9c1D2e3F4a5B6',
+}
+
+function getReceiveAddress(asset: MarketAsset) {
+  return demoReceiveAddresses[asset.symbol] ?? '0x4C8f2E5a9B0d1F3e6A7b8C9D0e1F2a3B4c5D6E7F'
+}
+
+function QrFallback({ value }: { value: string }) {
+  const size = 29
+  const seed = Array.from(value).reduce((total, character, index) => (total + character.charCodeAt(0) * (index + 17)) >>> 0, 0)
+  const inFinder = (x: number, y: number, left: number, top: number) => {
+    if (x < left || x > left + 6 || y < top || y > top + 6) return false
+    const localX = x - left
+    const localY = y - top
+    return localX === 0 || localX === 6 || localY === 0 || localY === 6 || (localX >= 2 && localX <= 4 && localY >= 2 && localY <= 4)
+  }
+  const cells = Array.from({ length: size * size }, (_, index) => {
+    const x = index % size
+    const y = Math.floor(index / size)
+    const finder = inFinder(x, y, 0, 0) || inFinder(x, y, size - 7, 0) || inFinder(x, y, 0, size - 7)
+    const protectedArea = (x < 8 && y < 8) || (x > size - 9 && y < 8) || (x < 8 && y > size - 9)
+    const mixed = ((seed ^ (index * 1103515245) ^ ((x + 3) * (y + 5) * 2654435761)) >>> 0) % 7
+    return (finder || (!protectedArea && mixed < 3)) ? <rect key={index} x={x} y={y} width="1" height="1" rx=".12" /> : null
+  })
+  return <svg className="receive-qr-fallback" viewBox={`0 0 ${size} ${size}`} role="img" aria-label="QR code preview">{cells}</svg>
+}
+
+function ReceiveQrCode({ value }: { value: string }) {
+  const [failed, setFailed] = useState(false)
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&format=svg&margin=0&data=${encodeURIComponent(value)}`
+  if (failed) return <QrFallback value={value} />
+  return <img className="receive-qr-image" src={url} alt="QR code for wallet address" onError={() => setFailed(true)} />
+}
+
+function TransferHeader({ title, onBack, showInfo, onInfo }: { title: string; onBack: () => void; showInfo?: boolean; onInfo?: () => void }) {
+  return <header className="transfer-heading"><button type="button" className="transfer-back-button" onClick={onBack} aria-label="Back to asset"><BackArrowIcon /></button><h1>{title}</h1>{showInfo ? <button type="button" className="transfer-info-button" onClick={onInfo} aria-label="About this receiving address"><Icon name="info" size="md" /></button> : <span aria-hidden="true" />}</header>
+}
+
+function TransferAsset({ asset }: { asset: MarketAsset }) {
+  const assetType = asset.symbol === 'USDT' ? 'TOKEN' : 'COIN'
+  return <div className="transfer-asset"><CryptoMark asset={asset} /><strong>{asset.base}</strong><span>{assetType}</span></div>
+}
+
+function ReceiveScreen({ asset, onBack }: { asset: MarketAsset; onBack: () => void }) {
+  const address = getReceiveAddress(asset)
+  const [feedback, setFeedback] = useState('')
+  const [showAmount, setShowAmount] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [showInfo, setShowInfo] = useState(false)
+
+  const copyAddress = async () => {
+    try {
+      if (navigator.clipboard) await navigator.clipboard.writeText(address)
+      setFeedback('Address copied')
+    } catch {
+      setFeedback('Copy the address manually')
+    }
+    window.setTimeout(() => setFeedback(''), 2200)
+  }
+
+  const shareAddress = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `Receive ${asset.base}`, text: address })
+        return
+      }
+    } catch {
+      // Closing the native share sheet should not be treated as an error.
+      return
+    }
+    void copyAddress()
+  }
+
+  return <section className="transfer-screen receive-screen">
+    <TransferHeader title="Receive" onBack={onBack} showInfo onInfo={() => setShowInfo((current) => !current)} />
+    <div className="receive-warning" role="note"><Icon name="info" size="sm" /><p>Only send <strong>{asset.base}</strong> assets to this address. Other assets will be lost forever.</p></div>
+    {showInfo && <p className="transfer-info-note">This is a demo wallet address for the current prototype. Do not send real assets.</p>}
+    <TransferAsset asset={asset} />
+    <div className="receive-qr"><ReceiveQrCode value={amount ? `${address}?amount=${amount}` : address} /></div>
+    <p className="receive-address">{address}</p>
+    <p className="receive-memo">No memo required · Demo address</p>
+    <div className="receive-actions">
+      <button type="button" onClick={() => void copyAddress()}><span><Icon name="copy" size="lg" /></span><strong>Copy</strong></button>
+      <button type="button" onClick={() => setShowAmount((current) => !current)} aria-expanded={showAmount}><span className={showAmount ? 'selected' : ''}>#</span><strong>Set Amount</strong></button>
+      <button type="button" onClick={() => void shareAddress()}><span><Icon name="share" size="lg" /></span><strong>Share</strong></button>
+    </div>
+    {showAmount && <label className="receive-amount-field"><span>Requested amount</span><div><input value={amount} onChange={(event) => setAmount(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" placeholder="0" aria-label={`Requested ${asset.base} amount`} /><b>{asset.base}</b></div></label>}
+    <span className="transfer-feedback" aria-live="polite">{feedback}</span>
+  </section>
+}
+
+function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onComplete: (recipientWalletId: string, amount: number) => void }) {
+  const balance = asset.walletBalance ?? 0
+  const [recipient, setRecipient] = useState('')
+  const [amount, setAmount] = useState('')
+  const [message, setMessage] = useState('')
+  const amountValue = Number(amount)
+  const recipientWallet = wallets.find((wallet) => wallet.id.toLowerCase() === recipient.trim().toLowerCase())
+  const recipientError = recipient && !recipientWallet ? 'Wallet ID was not found.' : recipientWallet?.id === senderWallet.id ? 'Choose a different wallet ID.' : ''
+  const amountError = amount && (!Number.isFinite(amountValue) || amountValue <= 0) ? 'Enter an amount greater than zero.' : amountValue > balance ? 'Not enough balance' : ''
+  const error = recipientError || amountError
+  const canContinue = Boolean(recipientWallet) && recipientWallet?.id !== senderWallet.id && Number.isFinite(amountValue) && amountValue > 0 && amountValue <= balance
+  const amountInUsd = amountValue > 0 ? amountValue * (asset.price ?? 0) : 0
+  const pasteAddress = async () => {
+    try {
+      const value = await navigator.clipboard?.readText()
+      if (value) {
+        setRecipient(value.trim())
+        setMessage('')
+      }
+    } catch {
+      setMessage('Paste is unavailable in this browser.')
+    }
+  }
+  const copyRecipient = async () => {
+    if (!recipient) return
+    try {
+      if (navigator.clipboard) await navigator.clipboard.writeText(recipient)
+      setMessage('Wallet ID copied.')
+    } catch {
+      setMessage('Copy is unavailable in this browser.')
+    }
+  }
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!canContinue || !recipientWallet) {
+      setMessage(error || 'Enter a valid wallet ID and amount.')
+      return
+    }
+    onComplete(recipientWallet.id, amountValue)
+  }
+
+  return <section className="transfer-screen send-screen">
+    <TransferHeader title={`Send ${asset.base}`} onBack={onBack} />
+    <form className="send-form" onSubmit={submit}>
+      <label className="send-field"><span>Address or Domain Name</span><div className="send-address-input"><input value={recipient} onChange={(event) => { setRecipient(event.target.value); setMessage('') }} placeholder="Search or Enter" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label="Destination wallet ID" /><button type="button" className="send-paste-button" onClick={() => void pasteAddress()}>Paste</button><button type="button" className="send-inline-icon" onClick={() => void copyRecipient()} aria-label="Copy wallet ID"><Icon name="copy" size="lg" /></button><button type="button" className="send-inline-icon" onClick={() => setMessage('Use a wallet ID such as wallet-02.')} aria-label="Scan destination QR code"><Icon name="scan" size="lg" /></button></div>{recipientWallet && recipientWallet.id !== senderWallet.id && <small className="wallet-id-match">Destination: {recipientWallet.name}</small>}{recipientError && <em role="alert">{recipientError}</em>}</label>
+      <section className="destination-network"><h2>Destination network</h2><div><CryptoMark asset={asset} /><strong>{asset.name}</strong><Icon name="chevron" size="sm" /></div></section>
+      <label className="send-field send-amount-field"><span>Amount</span><div className="send-amount-input"><input value={amount} onChange={(event) => { setAmount(event.target.value.replace(/[^0-9.]/g, '')); setMessage('') }} inputMode="decimal" placeholder="0" aria-label={`Amount of ${asset.base}`} /><button type="button" className="send-clear-button" onClick={() => { setAmount(''); setMessage('') }} aria-label="Clear amount"><Icon name="close" size="xs" /></button><strong>{asset.base}</strong><button type="button" className="send-max-button" onClick={() => { setAmount(balance ? String(balance) : ''); setMessage('') }}>Max</button></div><small>≈ {formatUsd(amountInUsd)}</small>{amountError && <em role="alert">{amountError}</em>}</label>
+      <button type="submit" className="send-continue" disabled={!canContinue}>Next</button>
+      <p className="transfer-feedback send-feedback" aria-live="polite">{message}</p>
+    </form>
+  </section>
+}
+
+function TransferScreen({ mode, asset, onBack, senderWallet, wallets, onSendComplete }: { mode: TransferMode; asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onSendComplete: (recipientWalletId: string, amount: number) => void }) {
+  return mode === 'receive' ? <ReceiveScreen asset={asset} onBack={onBack} /> : <SendScreen asset={asset} onBack={onBack} senderWallet={senderWallet} wallets={wallets} onComplete={onSendComplete} />
+}
+
+function MarketDetail({ asset, onBack, onTransfer }: { asset: MarketAsset; onBack: () => void; onTransfer: (mode: TransferMode, asset: MarketAsset) => void }) {
   const [points, setPoints] = useState(asset.points)
   const [currentPrice, setCurrentPrice] = useState(asset.price)
   const [loading, setLoading] = useState(!asset.points)
@@ -585,7 +974,10 @@ function MarketDetail({ asset, onBack }: { asset: MarketAsset; onBack: () => voi
         const body = await cmcFetch<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(`/v2/cryptocurrency/quotes/latest?symbol=${encodeURIComponent(asset.symbol)}&convert=USD`)
         const quoteAsset = body.data?.[asset.symbol]
         const result = (Array.isArray(quoteAsset) ? quoteAsset[0] : quoteAsset)?.quote?.USD?.price
-        if (!cancelled && typeof result === 'number') setCurrentPrice(result)
+        if (!cancelled && typeof result === 'number') {
+          setCurrentPrice(result)
+          setPoints((current) => syncChartWithLatestPrice(current, result))
+        }
       } catch { /* Keep the latest known price while the network is unavailable. */ }
     }
     void refreshPrice()
@@ -602,7 +994,9 @@ function MarketDetail({ asset, onBack }: { asset: MarketAsset; onBack: () => voi
   const change = old && currentPrice ? ((currentPrice - old) / old) * 100 : asset.change24h
   const changeValue = old && currentPrice ? currentPrice - old : null
   const positive = (change ?? -1) >= 0
-  return <section className="detail-screen"><header className="detail-heading"><button className="back-circle" onClick={onBack} aria-label="Back">‹</button><button className="favorite-button" aria-label="Add to favorites"><Icon name="star" size="md" /></button></header><div className="detail-identity"><CryptoMark asset={asset} large /><div><strong>{asset.base}</strong><span>{asset.name}</span></div><div className="detail-price"><strong>{formatUsd(currentPrice)}</strong><span className={positive ? 'positive-text' : 'negative-text'}>{changeValue !== null ? `${changeValue >= 0 ? '+' : '-'}${formatUsd(Math.abs(changeValue))} ` : ''}({formatPercent(change)})</span></div></div><div className="detail-chart-wrap">{loading && !points ? <div className="detail-chart-loading">Loading live chart…</div> : <MarketChart points={points} positive={positive} />}</div><div className="range-tabs">{['LIVE', '1m', '1H', '1D', '1W', '1M'].map((item) => <button className={item === '1H' ? 'active' : ''} key={item}>{item}</button>)}<Icon name="activity" size="md" /></div>{chartError && <span className="chart-note">Chart temporarily unavailable · showing cached data when available</span>}<div className="balance-block"><div><strong>Your balance</strong><span>$0.00</span></div><small>0.00 {asset.base}</small></div><div className="detail-actions"><button><Icon name="scan" size="md" />Send</button><button><Icon name="qr" size="md" />Receive</button></div><section className="ai-summary"><h2>✦ AI Summary</h2><p>{asset.name} is a decentralised digital asset traded on global markets. Its price and chart above are updated from live market data.</p><button>Ask AI <span>›</span></button></section><div className="trade-ticker">0xb0...067d sold <b>$3.50 {asset.base}</b> ↘</div><button className="trade-cta"><Icon name="refresh" size="md" />Trade</button></section>
+  const tokenBalance = asset.walletBalance ?? 0
+  const balanceValue = tokenBalance * (currentPrice ?? asset.price ?? 0)
+  return <section className="detail-screen"><header className="detail-heading"><button className="back-circle" onClick={onBack} aria-label="Back">‹</button><button className="favorite-button" aria-label="Add to favorites"><Icon name="star" size="md" /></button></header><div className="detail-identity"><CryptoMark asset={asset} large /><div><strong>{asset.base}</strong><span>{asset.name}</span></div><div className="detail-price"><strong>{formatUsd(currentPrice)}</strong><span className={positive ? 'positive-text' : 'negative-text'}>{changeValue !== null ? `${changeValue >= 0 ? '+' : '-'}${formatUsd(Math.abs(changeValue))} ` : ''}({formatPercent(change)})</span></div></div><div className="detail-chart-wrap">{loading && !points ? <div className="detail-chart-loading">Loading live chart…</div> : <MarketChart points={points} positive={positive} />}</div><div className="range-tabs">{['LIVE', '1m', '1H', '1D', '1W', '1M'].map((item) => <button className={item === '1H' ? 'active' : ''} key={item}>{item}</button>)}<Icon name="activity" size="md" /></div>{chartError && <span className="chart-note">Chart temporarily unavailable · showing cached data when available</span>}<div className="balance-block"><div><strong>Your balance</strong><span>{formatUsd(balanceValue)}</span></div><small>{formatTokenBalance(tokenBalance)} {asset.base}</small></div><div className="detail-actions"><button type="button" onClick={() => onTransfer('send', asset)}><Icon name="scan" size="md" />Send</button><button type="button" onClick={() => onTransfer('receive', asset)}><Icon name="qr" size="md" />Receive</button></div><section className="ai-summary"><h2>✦ AI Summary</h2><p>{asset.name} is a decentralised digital asset traded on global markets. Its price and chart above are updated from live market data.</p><button>Ask AI <span>›</span></button></section><div className="trade-ticker">0xb0...067d sold <b>$3.50 {asset.base}</b> ↘</div><button className="trade-cta"><Icon name="refresh" size="md" />Trade</button></section>
 }
 
 function LegacyLockScreen({ onUnlock }: { onUnlock: () => void }) {
@@ -657,9 +1051,6 @@ function LegacyLockScreen({ onUnlock }: { onUnlock: () => void }) {
 
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const [passcode, setPasscode] = useState('')
-  const [isAuthenticating, setIsAuthenticating] = useState(false)
-  const [isBiometricHolding, setIsBiometricHolding] = useState(false)
-  const biometricHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
   const addDigit = (digit: string) => {
@@ -670,32 +1061,7 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
   const removeDigit = () => setPasscode((current) => current.slice(0, -1))
 
-  const beginBiometricHold = (event: PointerEvent<HTMLButtonElement>) => {
-    if (biometricHoldTimer.current !== null) return
-    event.currentTarget.setPointerCapture?.(event.pointerId)
-    setIsBiometricHolding(true)
-    biometricHoldTimer.current = window.setTimeout(() => {
-      biometricHoldTimer.current = null
-      onUnlock()
-    }, 330)
-  }
-
-  const cancelBiometricHold = () => {
-    if (biometricHoldTimer.current === null) return
-    window.clearTimeout(biometricHoldTimer.current)
-    biometricHoldTimer.current = null
-    setIsBiometricHolding(false)
-  }
-
-  useEffect(() => () => {
-    if (biometricHoldTimer.current !== null) window.clearTimeout(biometricHoldTimer.current)
-  }, [])
-
-  if (isAuthenticating) {
-    return <main className="lock-screen auth-lock-screen"><button type="button" className="auth-dismiss-backdrop" onClick={() => setIsAuthenticating(false)} aria-label="Use passcode instead" /><div className="auth-background-trust-mark"><TrustWalletGreenMark /></div><div className="auth-sheet"><button type="button" className="auth-passcode-zone" onClick={() => setIsAuthenticating(false)} aria-label="Use passcode instead" /><h1>Authentication required</h1><p>Trust Wallet</p><button type="button" className={`auth-touch-button${isBiometricHolding ? ' holding' : ''}`} onPointerDown={beginBiometricHold} onPointerUp={cancelBiometricHold} onPointerCancel={cancelBiometricHold} onPointerLeave={cancelBiometricHold} aria-label="Hold the fingerprint sensor for half a second"><span>Touch the fingerprint sensor</span><PasscodeFingerprintImage className="auth-fingerprint-image" /></button><button type="button" className="auth-cancel" onClick={() => setIsAuthenticating(false)}>PIN</button></div></main>
-  }
-
-  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className="passcode-inputs" aria-label="Passcode progress">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div><button type="button" className="touch-id-button" onClick={() => setIsAuthenticating(true)} aria-label="Use Touch ID"><span className="biometric-icon"><RiFingerprint2Line className="ri-fingerprint-2-line" aria-hidden="true" /></span>Use Touch ID</button></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" onClick={() => setIsAuthenticating(true)} aria-label="Use Touch ID"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><line x1="18" y1="9" x2="12" y2="15" /><line x1="12" y1="9" x2="18" y2="15" /></svg></span></button></div></div></main>
+  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className="passcode-inputs" aria-label="Passcode progress">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" disabled aria-disabled="true" aria-label="Fingerprint sign-in unavailable"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path className="backspace-shape" d="M21.5 3.5H7.7c-.62 0-1.2.31-1.53.82L1.58 11.6a.75.75 0 0 0 0 .8l4.59 7.28c.33.51.91.82 1.53.82h13.8c.83 0 1.5-.67 1.5-1.5V5c0-.83-.67-1.5-1.5-1.5Z" /><path className="backspace-close" d="m10.7 8.8 5.6 6.4m0-6.4-5.6 6.4" /></svg></span></button></div></div></main>
 }
 
 type DappItem = { name: string; description: string; className: string; mark: string }
@@ -906,12 +1272,11 @@ function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
   </section>
 }
 
-function WalletsScreen({ onClose, onOpenSettings }: { onClose: () => void; onOpenSettings: () => void }) {
+function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, prices, onSelectWallet }: { onClose: () => void; onOpenSettings: () => void; wallets: WalletDefinition[]; selectedWalletId: string; prices: Record<string, number>; onSelectWallet: (walletId: string) => void }) {
   const [showAddWallet, setShowAddWallet] = useState(false)
   const [isCreatingWallet, setIsCreatingWallet] = useState(false)
   const [showWalletCreated, setShowWalletCreated] = useState(false)
   const walletCreationTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
-  const walletNames = ['Main Wallet 1', 'Main Wallet 2', 'Main Wallet 3', 'Main Wallet 4']
   const closeAddWallet = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
     if (walletCreationTimer.current !== null) window.clearTimeout(walletCreationTimer.current)
@@ -937,21 +1302,54 @@ function WalletsScreen({ onClose, onOpenSettings }: { onClose: () => void; onOpe
 
   if (showWalletCreated) return <WalletReadyScreen onContinue={() => setShowWalletCreated(false)} />
 
-  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{walletNames.map((name, index) => <article className="main-wallet-card" key={name}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{name}</strong></div><b>⋮</b></div>{index === 3 && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{wallets.map((wallet) => <button type="button" className="main-wallet-card" key={wallet.id} onClick={() => onSelectWallet(wallet.id)} aria-pressed={wallet.id === selectedWalletId}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{wallet.name}</strong><span>{formatUsd(getWalletTotal(wallet, prices))}</span></div><b>⋮</b></div>{wallet.id === selectedWalletId && <span className="wallet-selected">✓</span>}</button>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
 }
 
 function App() {
   const [isLocked, setIsLocked] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState<'home' | 'markets' | 'discover'>('home')
+  const [activeTab, setActiveTab] = useState<'home' | 'markets' | 'perps' | 'discover'>('home')
   const [selectedMarket, setSelectedMarket] = useState<MarketAsset | null>(null)
+  const [transferFlow, setTransferFlow] = useState<{ mode: TransferMode; asset: MarketAsset } | null>(null)
   const [showWallets, setShowWallets] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [wallets, setWallets] = useState<WalletDefinition[]>(() => walletDefinitions.map((wallet) => ({ ...wallet, balances: { ...wallet.balances } })))
+  const [selectedWalletId, setSelectedWalletId] = useState(walletDefinitions[0].id)
   const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
+  const [walletPrices, setWalletPrices] = useState<Record<string, number>>(() => Object.fromEntries(walletTokenDefinitions.map((token) => [token.symbol, token.fallbackPrice])))
+  const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) ?? wallets[0]
+  const activeWalletTokens = getWalletTokens(selectedWallet)
+  const bitcoinToken = activeWalletTokens.find((token) => token.symbol === 'BTC') ?? activeWalletTokens[0]
+  const ethereumToken = activeWalletTokens.find((token) => token.symbol === 'ETH') ?? activeWalletTokens[0]
+  const receiveToken = activeWalletTokens.find((token) => token.symbol === 'USDT') ?? activeWalletTokens[0]
+  const watchlistTokens = activeWalletTokens.filter((token) => ['ETH', 'BTC', 'BNB'].includes(token.symbol))
+  const openAssetDetail = (asset: MarketAsset) => {
+    const heldToken = activeWalletTokens.find((token) => token.symbol === asset.symbol)
+    setSelectedMarket({ ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance })
+  }
+  const openWalletTokenDetail = (token: WalletToken) => setSelectedMarket(walletTokenToMarketAsset(token, walletPrices, walletChanges))
+  const openTransfer = (mode: TransferMode, asset: MarketAsset) => {
+    const heldToken = activeWalletTokens.find((token) => token.symbol === asset.symbol)
+    setTransferFlow({ mode, asset: { ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance ?? 0 } })
+  }
+  const completeInternalTransfer = (recipientWalletId: string, amount: number) => {
+    const transferSymbol = transferFlow && walletTokenDefinitions.find((token) => token.symbol === transferFlow.asset.symbol)?.symbol
+    if (!transferSymbol || !transferFlow) return
+    const senderWalletId = selectedWallet.id
+    setWallets((current) => current.map((wallet) => {
+      const currentBalance = wallet.balances[transferSymbol] ?? 0
+      if (wallet.id === senderWalletId) return { ...wallet, balances: { ...wallet.balances, [transferSymbol]: currentBalance - amount } }
+      if (wallet.id === recipientWalletId) return { ...wallet, balances: { ...wallet.balances, [transferSymbol]: currentBalance + amount } }
+      return wallet
+    }))
+    setSelectedWalletId(recipientWalletId)
+    setSelectedMarket(null)
+    setTransferFlow(null)
+  }
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [activeTab, selectedMarket, showWallets, showSettings])
+  }, [activeTab, selectedMarket, transferFlow, showWallets, showSettings])
 
   useEffect(() => {
     const promoTimer = window.setInterval(() => {
@@ -962,19 +1360,24 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (isLocked || activeTab !== 'home' || selectedMarket || showWallets) return
+    if (isLocked) return
     let cancelled = false
 
     const refreshWalletChanges = async () => {
       try {
         const body = await cmcFetch<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(walletTokenQuotesPath)
         const nextChanges: Record<string, number | null> = {}
-        walletTokens.forEach((token) => {
+        const nextPrices: Record<string, number> = {}
+        walletTokenDefinitions.forEach((token) => {
           const rawAsset = body.data?.[token.symbol]
           const asset = Array.isArray(rawAsset) ? rawAsset[0] : rawAsset
           nextChanges[token.symbol] = asset?.quote?.USD?.percent_change_24h ?? null
+          nextPrices[token.symbol] = asset?.quote?.USD?.price ?? token.fallbackPrice
         })
-        if (!cancelled) setWalletChanges(nextChanges)
+        if (!cancelled) {
+          setWalletChanges(nextChanges)
+          setWalletPrices(nextPrices)
+        }
       } catch {
         // Keep the latest real value; if none exists, the UI shows an em dash instead of fake data.
       }
@@ -986,7 +1389,7 @@ function App() {
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [activeTab, isLocked, selectedMarket, showWallets])
+  }, [isLocked])
 
   if (isLocked) return <LockScreen onUnlock={() => setIsLocked(false)} />
 
@@ -995,21 +1398,25 @@ function App() {
   }
 
   if (showWallets) {
-    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => setShowWallets(false)} onOpenSettings={() => setShowSettings(true)} /></div></main>
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletsScreen onClose={() => setShowWallets(false)} onOpenSettings={() => setShowSettings(true)} wallets={wallets} selectedWalletId={selectedWallet.id} prices={walletPrices} onSelectWallet={(walletId) => { setSelectedWalletId(walletId); setShowWallets(false) }} /></div></main>
+  }
+
+  if (transferFlow) {
+    return <main className="app-shell"><div className="wallet-app transfer-wallet-app"><TransferScreen mode={transferFlow.mode} asset={transferFlow.asset} onBack={() => setTransferFlow(null)} senderWallet={selectedWallet} wallets={wallets} onSendComplete={completeInternalTransfer} /></div></main>
   }
 
   if (selectedMarket) {
-    return <main className="app-shell"><div className="wallet-app"><MarketDetail asset={selectedMarket} onBack={() => setSelectedMarket(null)} /></div></main>
+    return <main className="app-shell"><div className="wallet-app"><MarketDetail asset={selectedMarket} onBack={() => setSelectedMarket(null)} onTransfer={openTransfer} /></div></main>
   }
 
   return (
     <main className="app-shell">
       <div className="wallet-app">
-        {activeTab === 'markets' ? <MarketsScreen onSelect={setSelectedMarket} /> : activeTab === 'discover' ? <DiscoverScreen /> : <>
+        {activeTab === 'markets' ? <MarketsScreen onSelect={openAssetDetail} /> : activeTab === 'perps' ? <PerpsScreen onOpenSettings={() => setShowSettings(true)} onOpenMarkets={() => setActiveTab('markets')} onSelect={openAssetDetail} /> : activeTab === 'discover' ? <DiscoverScreen /> : <>
         <header className="wallet-header">
           <button className="wallet-chip" onClick={() => setShowWallets(true)} aria-label="Open wallets">
             <WalletGlyph />
-            <div className="wallet-chip-copy"><strong>Morse</strong></div>
+            <div className="wallet-chip-copy"><strong>{selectedWallet.name}</strong></div>
           </button>
           <div className="header-actions">
             <button className="round-button" aria-label="Transaction history"><Icon name="clock" size={22} /></button>
@@ -1041,7 +1448,7 @@ function App() {
         <section className="start-section">
           <h1>Get started by adding some<br />crypto</h1>
           <div className="start-actions">
-            <button className="start-action"><QrBadge /><span>Receive<br />crypto</span></button>
+            <button type="button" className="start-action" onClick={() => openTransfer('receive', walletTokenToMarketAsset(receiveToken, walletPrices, walletChanges))}><QrBadge /><span>Receive<br />crypto</span></button>
             <button className="start-action"><McapBadge /><span>Deposit from<br />Binance</span></button>
             <button className="start-action"><CardBadge /><span>Buy with<br />Cards</span></button>
           </div>
@@ -1050,11 +1457,11 @@ function App() {
         <section className="token-section">
           <h2>Tokens <Icon name="chevron" size={25} /></h2>
           <div className="token-list">
-            {walletTokens.map((token) => (
-              <div className="token-row" key={token.id}>
-                <div className="token-leading"><TokenMark token={token} /><div className="token-copy"><strong>{token.name}</strong><span>{token.balance} {token.symbol}</span></div></div>
-                <div className="token-price"><strong>{token.value}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
-              </div>
+            {activeWalletTokens.map((token) => (
+              <button type="button" className="token-row" key={token.id} onClick={() => openWalletTokenDetail(token)} aria-label={`Open ${token.name}`}>
+                <div className="token-leading"><TokenMark token={token} /><div className="token-copy"><strong>{token.name}</strong><span>{formatTokenBalance(token.balance)} {token.symbol}</span></div></div>
+                <div className="token-price"><strong>{formatUsd(getWalletTokenValue(token, walletPrices))}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
+              </button>
             ))}
           </div>
           <button className="view-all-button">View all <Icon name="chevron" size={24} /></button>
@@ -1064,12 +1471,12 @@ function App() {
           <h2>Perps <Icon name="chevron" size={25} /></h2>
           <div className="perps-card-row">
             <article className="perps-card">
-              <div className="perps-card-icon"><TokenMark token={walletTokens[1]} /><PerpsVenueBadge /></div>
+              <div className="perps-card-icon"><TokenMark token={bitcoinToken} /><PerpsVenueBadge /></div>
               <div className="perps-card-title"><strong>BTC</strong><span>40x</span></div>
               <span className="perps-volume">$1.82B Vol</span>
             </article>
             <article className="perps-card">
-              <div className="perps-card-icon"><TokenMark token={walletTokens[3]} /><PerpsVenueBadge /></div>
+              <div className="perps-card-icon"><TokenMark token={ethereumToken} /><PerpsVenueBadge /></div>
               <div className="perps-card-title"><strong>ETH</strong><span>25x</span></div>
               <span className="perps-volume">$805.22M Vol</span>
             </article>
@@ -1089,12 +1496,12 @@ function App() {
         <section className="watchlist-section">
           <h2>Watchlist <Icon name="chevron" size={25} /></h2>
           <div className="watchlist-list">
-            {screenshotWatchlist.map(({ token, value }) => (
-              <div className="watchlist-row" key={token.id}>
+            {watchlistTokens.map((token) => (
+              <button type="button" className="watchlist-row" key={token.id} onClick={() => openWalletTokenDetail(token)} aria-label={`Open ${token.name}`}>
                 <TokenMark token={token} />
                 <div className="watchlist-name"><strong>{token.name}</strong></div>
-                <div className="watchlist-price"><strong>{value}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
-              </div>
+                <div className="watchlist-price"><strong>{formatUsd(walletPrices[token.symbol] ?? token.fallbackPrice)}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
+              </button>
             ))}
           </div>
         </section>
@@ -1104,7 +1511,7 @@ function App() {
           <div className="nav-pill">
             <button className={`nav-item${activeTab === 'home' ? ' active' : ''}`} onClick={() => { setActiveTab('home'); setSelectedMarket(null) }}><Icon name="home" size={22} /></button>
             <button className={`nav-item${activeTab === 'markets' ? ' active' : ''}`} onClick={() => { setActiveTab('markets'); setSelectedMarket(null) }}><Icon name="chart" size={22} /></button>
-            <button className="nav-item"><Icon name="infinity" size={23} /></button>
+            <button className={`nav-item perps-nav-item${activeTab === 'perps' ? ' active' : ''}`} onClick={() => { setActiveTab('perps'); setSelectedMarket(null) }} aria-label="Open Perps"><Icon name="infinity" size={21} /></button>
             <button className={`nav-item${activeTab === 'discover' ? ' active' : ''}`} onClick={() => { setActiveTab('discover'); setSelectedMarket(null) }}><Icon name="compass" size={22} /></button>
           </div>
           <button className="nav-search" aria-label="Search" onClick={() => setActiveTab('markets')}><Icon name="search" size={27} /></button>
