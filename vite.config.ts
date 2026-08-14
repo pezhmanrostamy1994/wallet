@@ -5,10 +5,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
   const serverFetch = (globalThis as unknown as { fetch?: (input: string, init?: { headers?: Record<string, string> }) => Promise<any> }).fetch?.bind(globalThis)
   const cmcHost = 'pro-api.coinmarketcap.com'
-  const cmcIp = env.CMC_API_IP
+  const cmcIp = env.94.130.70.160
 
   const requestViaIp = async (path: string) => {
-    if (!cmcIp) throw new Error('CMC_API_IP is not configured')
+    if (!cmcIp) throw new Error('94.130.70.160 is not configured')
     // @ts-expect-error Node runtime module; the Vite config tsconfig does not include node typings.
     const https = await import('node:https')
     return new Promise<{ status: number; contentType: string; body: string }>((resolve, reject) => {
