@@ -5,10 +5,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
   const serverFetch = (globalThis as unknown as { fetch?: (input: string, init?: { headers?: Record<string, string> }) => Promise<any> }).fetch?.bind(globalThis)
   const cmcHost = 'pro-api.coinmarketcap.com'
-  const cmcIp = env.94.130.70.160
+  const cmcIp = env.CMC_API_IP
 
   const requestViaIp = async (path: string) => {
-    if (!cmcIp) throw new Error('94.130.70.160 is not configured')
+    if (!cmcIp) throw new Error('CMC_API_IP is not configured')
     // @ts-expect-error Node runtime module; the Vite config tsconfig does not include node typings.
     const https = await import('node:https')
     return new Promise<{ status: number; contentType: string; body: string }>((resolve, reject) => {
@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           Accept: 'application/json',
           Host: cmcHost,
           'User-Agent': 'orbit-wallet-cmc-proxy/1.0',
-          'X-CMC_PRO_API_KEY': env.f3b1c3741850428a97e5017885cf0834,
+          'X-CMC_PRO_API_KEY': env.CMC_API_KEY,
         },
       }, (upstream: any) => {
         let body = ''
@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'orbit-wallet-cmc-proxy/1.0',
-        'X-CMC_PRO_API_KEY': env.f3b1c3741850428a97e5017885cf0834,
+        'X-CMC_PRO_API_KEY': env.CMC_API_KEY,
       },
     })
     return {
@@ -59,9 +59,9 @@ export default defineConfig(({ mode }) => {
 
   const coinMarketCapHandler = async (request: any, response: any, next: () => void) => {
     if (!request.url) return next()
-    if (!env.f3b1c3741850428a97e5017885cf0834 || !serverFetch) {
+    if (!env.CMC_API_KEY || !serverFetch) {
       response.statusCode = 500
-      response.end(JSON.stringify({ status: { error_message: 'f3b1c3741850428a97e5017885cf0834 is not configured' } }))
+      response.end(JSON.stringify({ status: { error_message: 'CMC_API_KEY is not configured' } }))
       return
     }
 

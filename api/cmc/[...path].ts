@@ -11,6 +11,11 @@ const internalEndpointAliases: Record<string, string> = {
   '/wallet-quotes': '/v2/cryptocurrency/quotes/latest',
 }
 
+type PublicListing = {
+  symbol?: string
+  quote?: { USD?: Record<string, unknown> }
+}
+
 type VercelRequestLike = {
   method?: string
   url?: string
@@ -33,7 +38,7 @@ function json(response: VercelResponseLike, body: unknown, status: number, heade
 /**
  * Server-side CoinMarketCap proxy for the Vercel deployment.
  *
- * The browser only ever calls /api/cmc/..., so an optional f3b1c3741850428a97e5017885cf0834 stays
+ * The browser only ever calls /api/cmc/..., so an optional CMC_API_KEY stays
  * in Vercel's environment variables and is never included in the client
  * bundle. The supported V3 listings endpoint also falls back to CMC's keyless
  * public API when no key has been configured.
@@ -45,7 +50,7 @@ export default async function handler(request: VercelRequestLike, response: Verc
     }
 
     const runtime = globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
-    const apiKey = runtime.process?.env?.f3b1c3741850428a97e5017885cf0834
+    const apiKey = runtime.process?.env?.CMC_API_KEY
     const requestUrl = new URL(request.url ?? '/', `https://${request.headers?.host ?? 'localhost'}`)
     const requestedPath = requestUrl.pathname.replace(/^\/api\/cmc/, '')
     const upstreamPath = internalEndpointAliases[requestedPath] ?? requestedPath
@@ -58,12 +63,19 @@ export default async function handler(request: VercelRequestLike, response: Verc
     }
 
     try {
-      const canUseKeylessPublicApi = upstreamPath === '/v3/cryptocurrency/listings/latest'
+      const canUseKeylessPublicApi = upstreamPath === '/v1/cryptocurrency/listings/latest'
+        || upstreamPath === '/v3/cryptocurrency/listings/latest'
+        || requestedPath === '/wallet-quotes'
       if (!apiKey && !canUseKeylessPublicApi) {
         json(response, { status: { error_message: 'CoinMarketCap proxy is not configured' } }, 500)
         return
       }
 
+      const usePublicListingsFallback = !apiKey && (upstreamPath === '/v1/cryptocurrency/listings/latest' || upstreamPath === '/v3/cryptocurrency/listings/latest' || requestedPath === '/wallet-quotes')
+      const requestPath = usePublicListingsFallback ? '/v3/cryptocurrency/listings/latest' : upstreamPath
+      const requestSearch = requestedPath === '/wallet-quotes' && !apiKey
+        ? '?start=1&limit=500&convert=USD'
+        : requestUrl.search
       const upstreamOrigin = apiKey ? coinMarketCapOrigin : `${coinMarketCapOrigin}/public-api`
       const headers: Record<string, string> = {
           Accept: 'application/json',
@@ -71,17 +83,27 @@ export default async function handler(request: VercelRequestLike, response: Verc
       }
       if (apiKey) headers['X-CMC_PRO_API_KEY'] = apiKey
 
-      const upstream = await fetch(`${upstreamOrigin}${upstreamPath}${requestUrl.search}`, {
+      const upstream = await fetch(`${upstreamOrigin}${requestPath}${requestSearch}`, {
         headers,
         signal: AbortSignal.timeout(10_000),
       })
       const body = await upstream.text()
 
+      let responseBody = body
+      if (requestedPath === '/wallet-quotes' && !apiKey && upstream.ok) {
+        const listings = JSON.parse(body) as { data?: PublicListing[] }
+        const requestedSymbols = new Set((requestUrl.searchParams.get('symbol') ?? '').split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean))
+        const quotes = Object.fromEntries((listings.data ?? [])
+          .filter((listing) => Boolean(listing.symbol) && (!requestedSymbols.size || requestedSymbols.has(listing.symbol!.toUpperCase())))
+          .map((listing) => [listing.symbol!.toUpperCase(), { symbol: listing.symbol, quote: { USD: listing.quote?.USD ?? {} } }]))
+        responseBody = JSON.stringify({ data: quotes })
+      }
+
       response.statusCode = upstream.status
       response.setHeader('content-type', upstream.headers.get('content-type') ?? 'application/json; charset=utf-8')
       response.setHeader('cache-control', 'no-store, max-age=0')
       response.setHeader('x-cmc-proxy', 'vercel')
-      response.end(body)
+      response.end(responseBody)
     } catch (error) {
       console.error('CoinMarketCap proxy request failed', error)
       json(response, { status: { error_message: 'CoinMarketCap proxy request failed' } }, 502)
