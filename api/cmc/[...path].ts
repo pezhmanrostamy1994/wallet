@@ -72,14 +72,10 @@ export default async function handler(request: VercelRequestLike, response: Verc
       })
       const body = await upstream.text()
 
-      const listingCache = upstreamPath.endsWith('/cryptocurrency/listings/latest')
-
       response.statusCode = upstream.status
       response.setHeader('content-type', upstream.headers.get('content-type') ?? 'application/json; charset=utf-8')
-      // CMC refreshes listings every minute; cache the expensive 500-asset
-      // response for that interval and serve it stale briefly while Vercel
-      // refreshes in the background.
-      response.setHeader('cache-control', listingCache ? 'public, s-maxage=60, stale-while-revalidate=120' : 'public, s-maxage=20, stale-while-revalidate=40')
+      response.setHeader('cache-control', 'no-store, max-age=0')
+      response.setHeader('x-cmc-proxy', 'vercel')
       response.end(body)
     } catch (error) {
       console.error('CoinMarketCap proxy request failed', error)
