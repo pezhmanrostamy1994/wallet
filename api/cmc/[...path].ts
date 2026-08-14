@@ -9,6 +9,7 @@ const allowedEndpoints = new Set([
 
 const internalEndpointAliases: Record<string, string> = {
   '/wallet-quotes': '/v2/cryptocurrency/quotes/latest',
+  '/wallet-history': '/v2/cryptocurrency/quotes/historical',
 }
 
 type PublicListing = {
@@ -66,6 +67,17 @@ export default async function handler(request: VercelRequestLike, response: Verc
       const canUseKeylessPublicApi = upstreamPath === '/v1/cryptocurrency/listings/latest'
         || upstreamPath === '/v3/cryptocurrency/listings/latest'
         || requestedPath === '/wallet-quotes'
+      const isHistoricalQuotes = upstreamPath === '/v2/cryptocurrency/quotes/historical'
+      if (!apiKey && isHistoricalQuotes) {
+        // CMC does not expose historical quotes through its keyless public
+        // endpoint. Return a valid JSON response so the client can use its
+        // local fallback chart instead of surfacing a proxy error.
+        json(response, {
+          data: {},
+          status: { error_message: 'Historical quotes require CMC_API_KEY; fallback chart is active.' },
+        }, 200, { 'cache-control': 'no-store, max-age=0', 'x-cmc-proxy': 'vercel' })
+        return
+      }
       if (!apiKey && !canUseKeylessPublicApi) {
         json(response, { status: { error_message: 'CoinMarketCap proxy is not configured' } }, 500)
         return

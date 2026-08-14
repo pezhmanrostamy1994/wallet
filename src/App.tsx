@@ -814,7 +814,7 @@ async function getChartPoints(symbol: string) {
   if (cached && Date.now() - cached.savedAt < chartCacheTtl) return cached.points
   const pending = chartRequests.get(symbol)
   if (pending) return pending
-  const request = cmcFetch<{ data?: Record<string, CmcHistoricalAsset | CmcHistoricalAsset[]> }>(`/v2/cryptocurrency/quotes/historical?symbol=${encodeURIComponent(symbol)}&convert=USD&interval=1h&count=168`)
+  const request = cmcFetch<{ data?: Record<string, CmcHistoricalAsset | CmcHistoricalAsset[]> }>(`/wallet-history?symbol=${encodeURIComponent(symbol)}&convert=USD&interval=1h&count=168`)
     .then((body) => {
       const rawRecords = body.data?.[symbol]
       const records = Array.isArray(rawRecords) ? rawRecords : rawRecords ? [rawRecords] : []
