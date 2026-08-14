@@ -925,6 +925,22 @@ function createSparklinePoints(points: number[], maximumPoints = 26) {
   return result
 }
 
+function getChartDisplayPoints(points?: number[], fallbackPoints?: number[]) {
+  const candidate = points?.length ? points : fallbackPoints
+  if (!candidate?.length) return undefined
+  if (candidate.length < 2) return candidate
+
+  const minimum = Math.min(...candidate)
+  const maximum = Math.max(...candidate)
+  const variation = maximum - minimum
+  const scale = Math.max(Math.abs(maximum), Math.abs(minimum), 1)
+  if (variation > scale * 0.0000001 || !fallbackPoints?.length) return candidate
+
+  // A stale/partial cache can contain identical points. Use the deterministic
+  // local fallback until a real historical series arrives from the API.
+  return fallbackPoints
+}
+
 function formatCompactUsd(value: number | null | undefined) {
   if (value === null || value === undefined || !Number.isFinite(value)) return '—'
   if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(value >= 10_000_000_000 ? 0 : 1)}B`
@@ -944,6 +960,25 @@ function walletTokenToMarketAsset(token: WalletToken, prices: Record<string, num
     change24h: changes[token.symbol] ?? null,
     walletBalance: token.balance,
   }
+}
+
+function readCachedWalletQuoteValues() {
+  const cachedQuotes = readPersistentCmc<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(walletTokenQuotesPath)?.value.data ?? {}
+  const cachedListings = readPersistentCmc<{ data?: CmcListing[] }>(topTrendingListingsPath)?.value.data ?? []
+  const cachedAssets = mapCmcListingsToAssets(cachedListings)
+  const cachedAssetsBySymbol = new Map(cachedAssets.map((asset) => [asset.symbol.toUpperCase(), asset]))
+  const changes: Record<string, number | null> = {}
+  const prices: Record<string, number> = {}
+
+  walletTokenDefinitions.forEach((token) => {
+    const rawAsset = cachedQuotes[token.symbol] ?? cachedQuotes[token.symbol.toUpperCase()]
+    const quoteAsset = Array.isArray(rawAsset) ? rawAsset[0] : rawAsset
+    const fallbackAsset = cachedAssetsBySymbol.get(token.symbol)
+    changes[token.symbol] = quoteAsset?.quote?.USD?.percent_change_24h ?? fallbackAsset?.change24h ?? null
+    prices[token.symbol] = quoteAsset?.quote?.USD?.price ?? fallbackAsset?.price ?? token.fallbackPrice
+  })
+
+  return { changes, prices }
 }
 
 type AppRouteKind = 'home' | 'markets' | 'perps' | 'discover' | 'tokens' | 'history' | 'wallets' | 'wallet-edit' | 'settings' | 'search' | 'swap' | 'asset' | 'send' | 'receive' | 'unlock'
@@ -1049,7 +1084,7 @@ function createRouteAsset(symbol: string, navigationState: AppNavigationState | 
 }
 
 function Sparkline({ points, positive = false, fallbackPoints }: { points?: number[]; positive?: boolean; fallbackPoints?: number[] }) {
-  const displayPoints = points?.length ? points : fallbackPoints
+  const displayPoints = getChartDisplayPoints(points, fallbackPoints)
   if (!displayPoints?.length) return <span className="sparkline-empty" aria-label="Chart loading" />
   const chartPoints = createSparklinePoints(displayPoints)
   const min = Math.min(...chartPoints)
@@ -1275,7 +1310,7 @@ function PerpsAssetMark({ mark }: { mark: PerpsMarket['mark'] }) {
 }
 
 function PerpsMiniChart({ points, positive = false, compact = false, fallbackPoints }: { points?: number[]; positive?: boolean; compact?: boolean; fallbackPoints?: number[] }) {
-  const displayPoints = points?.length ? points : fallbackPoints
+  const displayPoints = getChartDisplayPoints(points, fallbackPoints)
   if (!displayPoints?.length) return <span className={`perps-mini-chart perps-mini-chart-loading${compact ? ' compact' : ''}`} aria-label="Chart loading" />
   const chartPoints = createSparklinePoints(displayPoints)
   const min = Math.min(...chartPoints)
@@ -1406,6 +1441,14 @@ function MarketChart({ points, positive }: { points?: number[]; positive: boolea
   return <svg className={`detail-chart ${positive ? 'positive' : ''}`} viewBox="0 0 100 280" preserveAspectRatio="none" aria-label="7 day price chart"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={chartColor} stopOpacity=".38" /><stop offset="1" stopColor={chartColor} stopOpacity="0" /></linearGradient></defs><polygon points={`0,280 ${coords} 100,280`} /><polyline points={coords} /></svg>
 }
 
+function MarketTopCardSkeleton() {
+  return <div className="top-card top-card-skeleton" aria-hidden="true"><span className="market-skeleton-line top-skeleton-name" /><span className="market-skeleton-line top-skeleton-price" /><span className="market-skeleton-line top-skeleton-change" /><span className="top-skeleton-chart" /></div>
+}
+
+function MarketRowSkeleton() {
+  return <div className="market-row market-row-skeleton" aria-hidden="true"><div className="market-row-main"><span className="market-skeleton-avatar" /><span className="market-skeleton-copy"><i className="market-skeleton-line" /><i className="market-skeleton-line" /></span></div><span className="market-skeleton-chart" /><span className="market-skeleton-price"><i className="market-skeleton-line" /><i className="market-skeleton-line" /></span></div>
+}
+
 function MarketsScreen({ onSelect, onOpenSearch, onOpenSwap }: { onSelect: (asset: MarketAsset) => void; onOpenSearch: () => void; onOpenSwap: () => void }) {
   const { assets, setAssets, isLoading, error, refresh } = useMarketData()
   const topTrendingAssets = useTopTrendingAssets()
@@ -1434,18 +1477,20 @@ function MarketsScreen({ onSelect, onOpenSearch, onOpenSwap }: { onSelect: (asse
 
   const visibleAssets = assets
   const topAssets = topTrendingAssets.length ? topTrendingAssets : assets.slice(0, 10)
+  const showTopSkeleton = !topTrendingAssets.length && isLoading
+  const showMarketSkeleton = !visibleAssets.length && isLoading
 
-  return <section className="markets-screen">
+  return <section className="markets-screen" aria-busy={isLoading || showTopSkeleton}>
     <header className="markets-heading"><h1>Markets</h1><button className="search-circle" onClick={onOpenSearch} aria-label="Search assets"><Icon name="search" size="md" /></button></header>
     <div className="market-promos"><button><span className="promo-icon market-promo-predictions" aria-hidden="true" />Predictions</button><button><span className="promo-icon market-promo-meme-rush" aria-hidden="true" />Meme Rush</button></div>
     <h2 className="market-section-title">Top Trending</h2>
-    <div className="top-traded-row">{topAssets.map((asset) => <button className="top-card" key={asset.base} onClick={() => onSelect(asset)}><div className="top-card-name"><span>{asset.name}</span><CryptoMark asset={asset} /></div><strong>{formatUsd(asset.price)}</strong><span className={`market-change ${asset.change24h !== null && asset.change24h >= 0 ? 'positive-text' : ''}`}>{formatPercent(asset.change24h)}</span><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></button>)}</div>
+    <div className="top-traded-row">{showTopSkeleton ? Array.from({ length: 4 }, (_, index) => <MarketTopCardSkeleton key={index} />) : topAssets.map((asset) => <button className="top-card" key={asset.base} onClick={() => onSelect(asset)}><div className="top-card-name"><span>{asset.name}</span><CryptoMark asset={asset} /></div><strong>{formatUsd(asset.price)}</strong><span className={`market-change ${asset.change24h !== null && asset.change24h >= 0 ? 'positive-text' : ''}`}>{formatPercent(asset.change24h)}</span><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></button>)}</div>
     <div className="market-filter-panel">
       <div className="market-filters"><button className="filter-star"><Icon name="star" size="sm" /></button>{['Trending', 'bStocks', 'Ondo', 'Stock Meme', 'Popular'].map((item) => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div>
       <div className="market-sort"><button>Network <Icon name="chevron" size="xs" /></button><button>Volume (24h) <span>↓</span></button><button>24h <Icon name="chevron" size="xs" /></button></div>
     </div>
     {error && <button className="market-error" onClick={() => void refresh()}>{error} · Retry</button>}
-    <div className="market-list">{isLoading && assets.every((asset) => asset.price === null) ? Array.from({ length: 5 }).map((_, index) => <div className="market-row skeleton-row" key={index} />) : visibleAssets.map((asset) => <button className="market-row" key={asset.base} onClick={() => onSelect(asset)}><div className="market-row-main"><CryptoMark asset={asset} /><div><strong>{asset.name}</strong><span>{asset.base}/USDT · MCap</span></div></div><span className="market-row-chart"><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></span><div className="market-row-price"><strong>{formatUsd(asset.price)}</strong><span className={(asset.change24h ?? -1) >= 0 ? 'positive-text' : ''}>{formatPercent(asset.change24h)}</span></div></button>)}</div>
+    <div className="market-list">{showMarketSkeleton ? Array.from({ length: 8 }, (_, index) => <MarketRowSkeleton key={index} />) : visibleAssets.map((asset) => <button className="market-row" key={asset.base} onClick={() => onSelect(asset)}><div className="market-row-main"><CryptoMark asset={asset} /><div><strong>{asset.name}</strong><span>{asset.base}/USDT · MCap</span></div></div><span className="market-row-chart"><Sparkline points={asset.points} fallbackPoints={createFallbackChartPoints(asset.symbol, asset.price, asset.change24h)} positive={(asset.change24h ?? -1) >= 0} /></span><div className="market-row-price"><strong>{formatUsd(asset.price)}</strong><span className={(asset.change24h ?? -1) >= 0 ? 'positive-text' : ''}>{formatPercent(asset.change24h)}</span></div></button>)}</div>
     <button type="button" className="swap-cta" onClick={onOpenSwap}><Icon name="swap" size="md" />Swap</button>
   </section>
 }
@@ -2478,8 +2523,8 @@ function App() {
   const [wallets, setWallets] = useState<WalletDefinition[]>(() => readWalletsWithHistory())
   const [selectedWalletId, setSelectedWalletId] = useState(() => readSelectedWalletId(readWalletsWithHistory()))
   const [walletHistory, setWalletHistory] = useState<WalletHistoryEntry[]>(() => readWalletHistory(readPersistedWallets()))
-  const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
-  const [walletPrices, setWalletPrices] = useState<Record<string, number>>(() => Object.fromEntries(walletTokenDefinitions.map((token) => [token.symbol, token.fallbackPrice])))
+  const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>(() => readCachedWalletQuoteValues().changes)
+  const [walletPrices, setWalletPrices] = useState<Record<string, number>>(() => readCachedWalletQuoteValues().prices)
   const searchableAssets = useSearchAssetCache()
   const [searchHistory, setSearchHistory] = useState<MarketAsset[]>(() => readSavedSearchAssets(searchHistoryStorageKey))
   const [watchlistAssets, setWatchlistAssets] = useState<MarketAsset[]>(() => readSavedSearchAssets(searchWatchlistStorageKey))
