@@ -13,7 +13,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-icons": "^5.7.0",
-    "typescript": "latest",
+    "typescript": "5.9.3",
     "vite": "latest"
   },
   "devDependencies": {
