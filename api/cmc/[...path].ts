@@ -7,14 +7,23 @@ const allowedEndpoints = new Set([
   '/v2/cryptocurrency/quotes/historical',
 ])
 
-function json(body: unknown, status: number, headers: HeadersInit = {}) {
-  const responseHeaders = new Headers(headers)
-  responseHeaders.set('content-type', 'application/json; charset=utf-8')
+type VercelRequestLike = {
+  method?: string
+  url?: string
+  headers?: Record<string, string | string[] | undefined>
+}
 
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: responseHeaders,
-  })
+type VercelResponseLike = {
+  statusCode: number
+  setHeader: (name: string, value: string) => void
+  end: (body?: string) => void
+}
+
+function json(response: VercelResponseLike, body: unknown, status: number, headers: Record<string, string> = {}) {
+  response.statusCode = status
+  response.setHeader('content-type', 'application/json; charset=utf-8')
+  Object.entries(headers).forEach(([name, value]) => response.setHeader(name, value))
+  response.end(JSON.stringify(body))
 }
 
 /**
@@ -25,27 +34,29 @@ function json(body: unknown, status: number, headers: HeadersInit = {}) {
  * bundle. The supported V3 listings endpoint also falls back to CMC's keyless
  * public API when no key has been configured.
  */
-export default {
-  async fetch(request: Request) {
+export default async function handler(request: VercelRequestLike, response: VercelResponseLike) {
     if (request.method !== 'GET') {
-      return json({ status: { error_message: 'Method not allowed' } }, 405, { Allow: 'GET' })
+      json(response, { status: { error_message: 'Method not allowed' } }, 405, { Allow: 'GET' })
+      return
     }
 
     const runtime = globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
     const apiKey = runtime.process?.env?.CMC_API_KEY
-    const requestUrl = new URL(request.url)
+    const requestUrl = new URL(request.url ?? '/', `https://${request.headers?.host ?? 'localhost'}`)
     const upstreamPath = requestUrl.pathname.replace(/^\/api\/cmc/, '')
 
     // Keep this a narrowly-scoped proxy instead of exposing the CMC key through
     // an arbitrary upstream URL.
     if (!allowedEndpoints.has(upstreamPath)) {
-      return json({ status: { error_message: 'CoinMarketCap endpoint not found' } }, 404)
+      json(response, { status: { error_message: 'CoinMarketCap endpoint not found' } }, 404)
+      return
     }
 
     try {
       const canUseKeylessPublicApi = upstreamPath === '/v3/cryptocurrency/listings/latest'
       if (!apiKey && !canUseKeylessPublicApi) {
-        return json({ status: { error_message: 'CoinMarketCap proxy is not configured' } }, 500)
+        json(response, { status: { error_message: 'CoinMarketCap proxy is not configured' } }, 500)
+        return
       }
 
       const upstreamOrigin = apiKey ? coinMarketCapOrigin : `${coinMarketCapOrigin}/public-api`
@@ -59,22 +70,19 @@ export default {
         headers,
         signal: AbortSignal.timeout(10_000),
       })
+      const body = await upstream.text()
 
       const listingCache = upstreamPath.endsWith('/cryptocurrency/listings/latest')
 
-      return new Response(upstream.body, {
-        status: upstream.status,
-        headers: {
-          'content-type': upstream.headers.get('content-type') ?? 'application/json; charset=utf-8',
-          // CMC refreshes listings every minute; cache the expensive 500-asset
-          // response for that interval and serve it stale briefly while Vercel
-          // refreshes in the background.
-          'cache-control': listingCache ? 'public, s-maxage=60, stale-while-revalidate=120' : 'public, s-maxage=20, stale-while-revalidate=40',
-        },
-      })
+      response.statusCode = upstream.status
+      response.setHeader('content-type', upstream.headers.get('content-type') ?? 'application/json; charset=utf-8')
+      // CMC refreshes listings every minute; cache the expensive 500-asset
+      // response for that interval and serve it stale briefly while Vercel
+      // refreshes in the background.
+      response.setHeader('cache-control', listingCache ? 'public, s-maxage=60, stale-while-revalidate=120' : 'public, s-maxage=20, stale-while-revalidate=40')
+      response.end(body)
     } catch (error) {
       console.error('CoinMarketCap proxy request failed', error)
-      return json({ status: { error_message: 'CoinMarketCap proxy request failed' } }, 502)
+      json(response, { status: { error_message: 'CoinMarketCap proxy request failed' } }, 502)
     }
-  },
 }
