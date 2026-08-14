@@ -608,7 +608,7 @@ const chartCachePrefix = 'orbit-cmc-chart-v2:'
 const cmcPersistentCachePrefix = 'orbit-cmc-response-v1:'
 const marketListingsPath = '/v1/cryptocurrency/listings/latest?start=1&limit=250&convert=USD'
 const topTrendingListingsPath = '/v3/cryptocurrency/listings/latest?start=1&limit=500&convert=USD'
-const walletTokenQuotesPath = '/v2/cryptocurrency/quotes/latest?symbol=USDT,BTC,TRX,ETH,BNB&convert=USD'
+const walletTokenQuotesPath = '/wallet-quotes?symbol=USDT,BTC,TRX,ETH,BNB&convert=USD'
 const chartCacheTtl = 5 * 60 * 1000
 const chartRequests = new Map<string, Promise<number[]>>()
 const cmcRequestCache = new Map<string, { expiresAt: number; value: unknown }>()
@@ -646,7 +646,7 @@ function writePersistentCmc<T>(path: string, value: T) {
 }
 
 function shouldPersistCmc(path: string) {
-  return path.includes('/cryptocurrency/listings/latest') || path.startsWith('/v2/cryptocurrency/quotes/latest')
+  return path.includes('/cryptocurrency/listings/latest') || path.startsWith('/v2/cryptocurrency/quotes/latest') || path.startsWith('/wallet-quotes')
 }
 
 function getCmcResponseCacheTtl(path: string) {
@@ -1906,7 +1906,7 @@ function MarketDetail({ asset, onBack, onTransfer }: { asset: MarketAsset; onBac
     let cancelled = false
     const refreshPrice = async () => {
       try {
-        const body = await cmcFetch<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(`/v2/cryptocurrency/quotes/latest?symbol=${encodeURIComponent(asset.symbol)}&convert=USD`)
+        const body = await cmcFetch<{ data?: Record<string, CmcLatestAsset | CmcLatestAsset[]> }>(`/wallet-quotes?symbol=${encodeURIComponent(asset.symbol)}&convert=USD`)
         const quoteAsset = body.data?.[asset.symbol]
         const result = (Array.isArray(quoteAsset) ? quoteAsset[0] : quoteAsset)?.quote?.USD?.price
         if (!cancelled && typeof result === 'number') {

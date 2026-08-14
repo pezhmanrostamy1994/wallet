@@ -7,6 +7,10 @@ const allowedEndpoints = new Set([
   '/v2/cryptocurrency/quotes/historical',
 ])
 
+const internalEndpointAliases: Record<string, string> = {
+  '/wallet-quotes': '/v2/cryptocurrency/quotes/latest',
+}
+
 type VercelRequestLike = {
   method?: string
   url?: string
@@ -43,7 +47,8 @@ export default async function handler(request: VercelRequestLike, response: Verc
     const runtime = globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
     const apiKey = runtime.process?.env?.CMC_API_KEY
     const requestUrl = new URL(request.url ?? '/', `https://${request.headers?.host ?? 'localhost'}`)
-    const upstreamPath = requestUrl.pathname.replace(/^\/api\/cmc/, '')
+    const requestedPath = requestUrl.pathname.replace(/^\/api\/cmc/, '')
+    const upstreamPath = internalEndpointAliases[requestedPath] ?? requestedPath
 
     // Keep this a narrowly-scoped proxy instead of exposing the CMC key through
     // an arbitrary upstream URL.
