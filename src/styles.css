@@ -2394,6 +2394,7 @@ body, .app-shell { color: var(--light-ink); background: #fff; }
 .history-filter-button:active { background: var(--ref-surface); }
 .history-filter-button .app-icon { color: #6e6f74; }
 .history-list { margin-top: 32px; }
+.history-day-group + .history-day-group { margin-top: 28px; }
 .history-day-heading { margin: 0 0 10px; color: #77787d; font-size: 15px; font-weight: 650; letter-spacing: -.015em; }
 .history-entry { display: grid; min-height: 83px; grid-template-columns: 42px 46px minmax(0, 1fr) auto; align-items: center; gap: 10px; border-bottom: 1px solid #f0f0f2; }
 .history-entry-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; }

@@ -464,17 +464,58 @@ function persistWalletBalances(wallets: WalletDefinition[]) {
 }
 
 function createInitialWalletHistory(wallets: WalletDefinition[]) {
-  return wallets
-    .filter((wallet) => (wallet.balances.USDT ?? 0) > 0)
-    .map((wallet) => ({
-      id: `initial-${wallet.id}`,
-      walletId: wallet.id,
-      direction: 'receive' as const,
+  const sourceWallet = walletDefinitions[0]
+  if (!sourceWallet) return []
+
+  const availableWalletIds = new Set(wallets.map((wallet) => wallet.id))
+  const totalInitialBalance = walletDefinitions.reduce((total, wallet) => total + (wallet.balances.USDT ?? 0), 0)
+  const initialTimestamp = getPreviousHistoryDayStart(Date.now())
+  const entries: WalletHistoryEntry[] = []
+
+  // Wallet 1 is the source wallet: it receives the complete initial pool and
+  // distributes the configured balance of every other wallet from there.
+  if (availableWalletIds.has(sourceWallet.id) && totalInitialBalance > 0) {
+    entries.push({
+      id: `initial-funding-${sourceWallet.id}`,
+      walletId: sourceWallet.id,
+      direction: 'receive',
       symbol: 'USDT',
-      amount: wallet.balances.USDT ?? 0,
-      counterparty: 'Initial wallet balance',
-      createdAt: 0,
-    }))
+      amount: totalInitialBalance,
+      counterparty: 'Initial funding',
+      createdAt: initialTimestamp,
+    })
+  }
+
+  walletDefinitions.slice(1).forEach((recipientWallet) => {
+    const amount = recipientWallet.balances.USDT ?? 0
+    if (amount <= 0) return
+
+    if (availableWalletIds.has(sourceWallet.id)) {
+      entries.push({
+        id: `initial-distribution-send-${recipientWallet.id}`,
+        walletId: sourceWallet.id,
+        direction: 'send',
+        symbol: 'USDT',
+        amount,
+        counterparty: recipientWallet.address,
+        createdAt: initialTimestamp,
+      })
+    }
+
+    if (availableWalletIds.has(recipientWallet.id)) {
+      entries.push({
+        id: `initial-distribution-receive-${recipientWallet.id}`,
+        walletId: recipientWallet.id,
+        direction: 'receive',
+        symbol: 'USDT',
+        amount,
+        counterparty: sourceWallet.address,
+        createdAt: initialTimestamp,
+      })
+    }
+  })
+
+  return entries
 }
 
 function readWalletHistory(wallets: WalletDefinition[]) {
@@ -487,12 +528,10 @@ function readWalletHistory(wallets: WalletDefinition[]) {
       return typeof entry.id === 'string' && typeof entry.walletId === 'string' && (entry.direction === 'send' || entry.direction === 'receive') && typeof entry.symbol === 'string' && typeof entry.amount === 'number' && Number.isFinite(entry.amount) && entry.amount > 0 && typeof entry.counterparty === 'string' && typeof entry.createdAt === 'number'
     }) : []
     const initialEntries = createInitialWalletHistory(wallets)
-    const storedById = new Map(stored.map((entry) => [entry.id, entry]))
-    initialEntries.forEach((entry) => {
-      const existing = storedById.get(entry.id)
-      storedById.set(entry.id, existing ? { ...existing, amount: entry.amount, symbol: entry.symbol } : entry)
-    })
-    return [...storedById.values()].sort((left, right) => right.createdAt - left.createdAt)
+    // Replace the old per-wallet initial records with the source-wallet
+    // distribution model, while keeping all user-created transfer records.
+    const userEntries = stored.filter((entry) => !entry.id.startsWith('initial-'))
+    return [...userEntries, ...initialEntries].sort((left, right) => right.createdAt - left.createdAt)
   } catch {
     return createInitialWalletHistory(wallets)
   }
@@ -512,7 +551,7 @@ function applyWalletHistoryToBalances(wallets: WalletDefinition[], entries: Wall
     // Configured wallet balances stay defined in wallet-data.ts. Transfer
     // history is the durable delta applied on top of those starting values.
     // Custom wallet balances are already persisted with the wallet itself.
-    if (entry.createdAt <= 0 || !configuredWalletIds.has(entry.walletId)) return
+    if (entry.id.startsWith('initial-') || !configuredWalletIds.has(entry.walletId)) return
     const walletBalances = balancesByWallet.get(entry.walletId)
     if (!walletBalances) return
     const currentBalance = walletBalances[entry.symbol as keyof typeof walletBalances] ?? 0
@@ -1254,12 +1293,12 @@ function PerpsCategorySection({ title, assets, onSelect }: { title: string; asse
   </section>
 }
 
-function PerpsScreen({ onOpenSettings, onOpenSearch, onSelect }: { onOpenSettings: () => void; onOpenSearch: () => void; onSelect: (asset: MarketAsset) => void }) {
+function PerpsScreen({ onOpenSettings, onOpenSearch, onOpenHistory, onSelect }: { onOpenSettings: () => void; onOpenSearch: () => void; onOpenHistory: () => void; onSelect: (asset: MarketAsset) => void }) {
   const categories = usePerpsCategoryAssets()
 
   return <section className="perps-trading-screen" aria-labelledby="perps-title">
     <header className="perps-header">
-      <div className="perps-header-actions"><button type="button" className="perps-header-button" aria-label="Perps activity"><Icon name="clock" size={22} /></button><button type="button" className="perps-header-button" onClick={onOpenSettings} aria-label="Open settings"><Icon name="settings" size={22} /></button></div>
+      <div className="perps-header-actions"><button type="button" className="perps-header-button" onClick={onOpenHistory} aria-label="Open Perps history"><Icon name="clock" size={22} /></button><button type="button" className="perps-header-button" onClick={onOpenSettings} aria-label="Open settings"><Icon name="settings" size={22} /></button></div>
       <h1 id="perps-title">Perps</h1>
       <button type="button" className="perps-header-button perps-search-button" onClick={onOpenSearch} aria-label="Search assets"><Icon name="search" size={22} /></button>
     </header>
@@ -1532,6 +1571,31 @@ function shortenWalletAddress(value: string) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`
 }
 
+function getHistoryDayStart(timestamp: number) {
+  const date = new Date(timestamp)
+  date.setHours(0, 0, 0, 0)
+  return date.getTime()
+}
+
+function getPreviousHistoryDayStart(timestamp: number) {
+  const date = new Date(timestamp)
+  date.setHours(0, 0, 0, 0)
+  date.setDate(date.getDate() - 1)
+  return date.getTime()
+}
+
+function formatHistoryDay(timestamp: number) {
+  const dayStart = getHistoryDayStart(timestamp)
+  const todayStart = getHistoryDayStart(Date.now())
+  if (dayStart === todayStart) return 'Today'
+  if (dayStart === getPreviousHistoryDayStart(Date.now())) return 'Yesterday'
+  return new Date(timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+function formatHistoryTime(timestamp: number) {
+  return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
 function HistoryDirectionIcon({ direction }: { direction: WalletHistoryDirection }) {
   const isSent = direction === 'send'
   return <svg className={`history-direction-arrow ${isSent ? 'sent' : 'received'}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1547,6 +1611,13 @@ function HistoryTokenIcon({ symbol }: { symbol: string }) {
 
 function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletDefinition; entries: WalletHistoryEntry[]; usdtPrice: number; onBack: () => void }) {
   const walletEntries = entries.filter((entry) => entry.walletId === wallet.id).sort((left, right) => right.createdAt - left.createdAt)
+  const historyGroups = walletEntries.reduce((groups, entry) => {
+    const dayKey = new Date(entry.createdAt).toDateString()
+    const group = groups.get(dayKey)
+    if (group) group.push(entry)
+    else groups.set(dayKey, [entry])
+    return groups
+  }, new Map<string, WalletHistoryEntry[]>())
 
   return <section className="history-screen" aria-labelledby="history-title">
     <header className="history-header">
@@ -1567,18 +1638,20 @@ function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletD
     </div>
 
     <div className="history-list">
-      <h2 className="history-day-heading">Today</h2>
-      {walletEntries.length ? walletEntries.map((entry) => {
-        const isSent = entry.direction === 'send'
-        const amount = `${isSent ? '-' : '+'}${formatTokenBalance(entry.amount)} ${entry.symbol}`
-        const usdValue = entry.symbol === 'USDT' ? entry.amount * usdtPrice : entry.amount * (walletTokenDefinitions.find((token) => token.symbol === entry.symbol)?.fallbackPrice ?? 0)
-        return <article className="history-entry" key={entry.id}>
-          <div className={`history-entry-icon ${isSent ? 'sent' : 'received'}`}><HistoryDirectionIcon direction={entry.direction} /></div>
-          <HistoryTokenIcon symbol={entry.symbol} />
-          <div className="history-entry-copy"><strong>{isSent ? 'Sent' : 'Received'}</strong><span>{isSent ? 'To: ' : 'From: '}{shortenWalletAddress(entry.counterparty)}</span></div>
-          <div className={`history-entry-value ${isSent ? 'sent' : 'received'}`}><strong>{amount}</strong><small>{formatUsd(usdValue)}</small></div>
-        </article>
-      }) : <p className="history-empty-state">No transactions yet.</p>}
+      {walletEntries.length ? Array.from(historyGroups.values()).map((group) => <section className="history-day-group" key={group[0].createdAt}>
+        <h2 className="history-day-heading">{formatHistoryDay(group[0].createdAt)}</h2>
+        {group.map((entry) => {
+          const isSent = entry.direction === 'send'
+          const amount = `${isSent ? '-' : '+'}${formatTokenBalance(entry.amount)} ${entry.symbol}`
+          const usdValue = entry.symbol === 'USDT' ? entry.amount * usdtPrice : entry.amount * (walletTokenDefinitions.find((token) => token.symbol === entry.symbol)?.fallbackPrice ?? 0)
+          return <article className="history-entry" key={entry.id}>
+            <div className={`history-entry-icon ${isSent ? 'sent' : 'received'}`}><HistoryDirectionIcon direction={entry.direction} /></div>
+            <HistoryTokenIcon symbol={entry.symbol} />
+            <div className="history-entry-copy"><strong>{isSent ? 'Sent' : 'Received'}</strong><span>{isSent ? 'To: ' : 'From: '}{shortenWalletAddress(entry.counterparty)} · {formatHistoryTime(entry.createdAt)}</span></div>
+            <div className={`history-entry-value ${isSent ? 'sent' : 'received'}`}><strong>{amount}</strong><small>{formatUsd(usdValue)}</small></div>
+          </article>
+        })}
+      </section>) : <p className="history-empty-state">No transactions yet.</p>}
     </div>
   </section>
 }
@@ -2581,6 +2654,21 @@ function App() {
   useEffect(() => {
     if (isLocked) return
     let cancelled = false
+    const fallbackAssets = new Map(searchableAssets.map((asset) => [asset.symbol.toUpperCase(), asset]))
+
+    const applyFallbackWalletQuotes = () => {
+      const nextChanges: Record<string, number | null> = {}
+      const nextPrices: Record<string, number> = {}
+      walletTokenDefinitions.forEach((token) => {
+        const fallbackAsset = fallbackAssets.get(token.symbol)
+        nextChanges[token.symbol] = fallbackAsset?.change24h ?? null
+        nextPrices[token.symbol] = fallbackAsset?.price ?? token.fallbackPrice
+      })
+      if (!cancelled) {
+        setWalletChanges(nextChanges)
+        setWalletPrices(nextPrices)
+      }
+    }
 
     const refreshWalletChanges = async () => {
       try {
@@ -2588,17 +2676,19 @@ function App() {
         const nextChanges: Record<string, number | null> = {}
         const nextPrices: Record<string, number> = {}
         walletTokenDefinitions.forEach((token) => {
-          const rawAsset = body.data?.[token.symbol]
+          const rawAsset = body.data?.[token.symbol] ?? body.data?.[token.symbol.toUpperCase()]
           const asset = Array.isArray(rawAsset) ? rawAsset[0] : rawAsset
-          nextChanges[token.symbol] = asset?.quote?.USD?.percent_change_24h ?? null
-          nextPrices[token.symbol] = asset?.quote?.USD?.price ?? token.fallbackPrice
+          const fallbackAsset = fallbackAssets.get(token.symbol)
+          nextChanges[token.symbol] = asset?.quote?.USD?.percent_change_24h ?? fallbackAsset?.change24h ?? null
+          nextPrices[token.symbol] = asset?.quote?.USD?.price ?? fallbackAsset?.price ?? token.fallbackPrice
         })
         if (!cancelled) {
           setWalletChanges(nextChanges)
           setWalletPrices(nextPrices)
         }
       } catch {
-        // Keep the latest real value; if none exists, the UI shows an em dash instead of fake data.
+        // The market listing cache has the same live 24h values as wallet quotes.
+        applyFallbackWalletQuotes()
       }
     }
 
@@ -2608,7 +2698,7 @@ function App() {
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [isLocked])
+  }, [isLocked, searchableAssets])
 
   if (isLocked) return <LockScreen onUnlock={() => { persistUnlockedSession(); setIsLocked(false); if (route.kind === 'unlock') navigate('/') }} />
 
@@ -2652,7 +2742,7 @@ function App() {
   return (
     <main className="app-shell">
       <div className={`wallet-app${activeTab === 'markets' ? ' markets-wallet-app' : ''}`}>
-        {activeTab === 'markets' ? <MarketsScreen onSelect={openAssetDetail} onOpenSearch={() => navigate('/search', { returnTo: '/markets' })} onOpenSwap={() => navigate('/swap', { returnTo: '/markets' })} /> : activeTab === 'perps' ? <PerpsScreen onOpenSettings={() => navigate('/settings', { returnTo: '/perps' })} onOpenSearch={() => navigate('/search', { returnTo: '/perps' })} onSelect={openAssetDetail} /> : activeTab === 'discover' ? <DiscoverScreen onOpenSearch={() => navigate('/search', { returnTo: '/discover' })} /> : <>
+        {activeTab === 'markets' ? <MarketsScreen onSelect={openAssetDetail} onOpenSearch={() => navigate('/search', { returnTo: '/markets' })} onOpenSwap={() => navigate('/swap', { returnTo: '/markets' })} /> : activeTab === 'perps' ? <PerpsScreen onOpenSettings={() => navigate('/settings', { returnTo: '/perps' })} onOpenSearch={() => navigate('/search', { returnTo: '/perps' })} onOpenHistory={() => navigate('/history', { returnTo: '/perps' })} onSelect={openAssetDetail} /> : activeTab === 'discover' ? <DiscoverScreen onOpenSearch={() => navigate('/search', { returnTo: '/discover' })} /> : <>
         <header className="wallet-header">
           <button className="wallet-chip" onClick={() => navigate('/wallets', { returnTo: location.pathname })} aria-label="Open wallets">
             <span className="wallet-header-wallet-icon" aria-hidden="true"><img src="/wallet_logo.png" alt="" /></span>
