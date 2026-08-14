@@ -33,7 +33,7 @@ function json(response: VercelResponseLike, body: unknown, status: number, heade
 /**
  * Server-side CoinMarketCap proxy for the Vercel deployment.
  *
- * The browser only ever calls /api/cmc/..., so an optional CMC_API_KEY stays
+ * The browser only ever calls /api/cmc/..., so an optional f3b1c3741850428a97e5017885cf0834 stays
  * in Vercel's environment variables and is never included in the client
  * bundle. The supported V3 listings endpoint also falls back to CMC's keyless
  * public API when no key has been configured.
@@ -45,7 +45,7 @@ export default async function handler(request: VercelRequestLike, response: Verc
     }
 
     const runtime = globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
-    const apiKey = runtime.process?.env?.CMC_API_KEY
+    const apiKey = runtime.process?.env?.f3b1c3741850428a97e5017885cf0834
     const requestUrl = new URL(request.url ?? '/', `https://${request.headers?.host ?? 'localhost'}`)
     const requestedPath = requestUrl.pathname.replace(/^\/api\/cmc/, '')
     const upstreamPath = internalEndpointAliases[requestedPath] ?? requestedPath

@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           Accept: 'application/json',
           Host: cmcHost,
           'User-Agent': 'orbit-wallet-cmc-proxy/1.0',
-          'X-CMC_PRO_API_KEY': env.CMC_API_KEY,
+          'X-CMC_PRO_API_KEY': env.f3b1c3741850428a97e5017885cf0834,
         },
       }, (upstream: any) => {
         let body = ''
@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'orbit-wallet-cmc-proxy/1.0',
-        'X-CMC_PRO_API_KEY': env.CMC_API_KEY,
+        'X-CMC_PRO_API_KEY': env.f3b1c3741850428a97e5017885cf0834,
       },
     })
     return {
@@ -59,9 +59,9 @@ export default defineConfig(({ mode }) => {
 
   const coinMarketCapHandler = async (request: any, response: any, next: () => void) => {
     if (!request.url) return next()
-    if (!env.CMC_API_KEY || !serverFetch) {
+    if (!env.f3b1c3741850428a97e5017885cf0834 || !serverFetch) {
       response.statusCode = 500
-      response.end(JSON.stringify({ status: { error_message: 'CMC_API_KEY is not configured' } }))
+      response.end(JSON.stringify({ status: { error_message: 'f3b1c3741850428a97e5017885cf0834 is not configured' } }))
       return
     }
 
