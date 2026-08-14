@@ -1,14 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 84" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="trust-wallet-blue" x1="65" y1="-6" x2="37" y2="83" gradientUnits="userSpaceOnUse">
-      <stop offset=".02" stop-color="#0000ff"/>
-      <stop offset=".08" stop-color="#0094ff"/>
-      <stop offset=".16" stop-color="#48ff91"/>
-      <stop offset=".42" stop-color="#0094ff"/>
-      <stop offset=".68" stop-color="#0038ff"/>
-      <stop offset=".9" stop-color="#0500ff"/>
+    <linearGradient id="trust-wallet-shield-right" x1="386" y1="102" x2="256" y2="422" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#42ef91"/>
+      <stop offset=".38" stop-color="#16b9e7"/>
+      <stop offset="1" stop-color="#1164f4"/>
     </linearGradient>
+    <clipPath id="trust-wallet-shield-clip">
+      <path d="M256 82 126 126v133c0 88 51 145 130 175 79-30 130-87 130-175V126L256 82Z" transform="translate(128 128) scale(.5)"/>
+    </clipPath>
   </defs>
-  <path d="M0 12.134 37.497 0v84C10.713 72.799 0 51.333 0 39.201V12.134Z" fill="#0500ff"/>
-  <path d="M74.996 12.134 37.5 0v84c26.783-11.201 37.496-32.667 37.496-44.799V12.134Z" fill="url(#trust-wallet-blue)"/>
+  <rect width="512" height="512" rx="116" fill="#fff"/>
+  <g clip-path="url(#trust-wallet-shield-clip)">
+    <rect x="180" y="160" width="76" height="210" fill="#0808f5"/>
+    <rect x="256" y="160" width="76" height="210" fill="url(#trust-wallet-shield-right)"/>
+  </g>
 </svg>

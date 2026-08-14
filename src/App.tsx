@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { RiDownload2Line, RiSparkling2Line } from 'react-icons/ri'
+import { uiFeatureConfig } from './feature-config'
 import { walletDefinitions, walletTokenDefinitions, type WalletDefinition, type WalletTokenKind } from './wallet-data'
 
 type IconName =
@@ -185,6 +186,19 @@ function CardBadge() {
   </span>
 }
 
+function HomeTransferArrow({ direction }: { direction: 'send' | 'receive' }) {
+  return <svg className="home-balance-action-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d={direction === 'send' ? 'M8 24 24 8M12 8h12v12' : 'M16 7v18M10 19l6 6 6-6'} stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function HomeSwapIcon() {
+  return <svg className="home-balance-action-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M25 13a10 10 0 0 0-18-4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" /><path d="M7 6v4h4M7 19a10 10 0 0 0 18 4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" /><path d="M25 26v-4h-4" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+
+function HomeBuyIcon() {
+  return <svg className="home-balance-action-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 7v18M7 16h18" stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" />
+  </svg>
+}
+
 function HyperliquidGlyph() {
   return <span className="hyperliquid-glyph" aria-hidden="true"><img src="/binahat.png" alt="" /></span>
 }
@@ -259,10 +273,23 @@ function LegacyTokenMark({ token }: { token: WalletToken }) {
   )
 }
 
+function TetherLogo() {
+  return <svg className="tether-logo" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M14 10h20v5.5h-6.8v17.8c0 1.8-1.4 3.2-3.2 3.2s-3.2-1.4-3.2-3.2V15.5H14V10Z" fill="currentColor" /><path d="M11.5 17.3c3.2 1.5 7.5 2.3 12.5 2.3s9.3-.8 12.5-2.3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
+}
+
+function TronLogo() {
+  return <svg className="tron-logo" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="m9.2 11.1 29.7 4.2-9.1 23.1L9.2 11.1Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="m9.2 11.1 14.2 8.2 15.5-4M23.4 19.3l6.4 19.1M9.2 11.1l20.6 27.3" stroke="currentColor" strokeWidth="1.55" strokeLinejoin="round" /></svg>
+}
+
+function TetherTronMark() {
+  return <><TetherLogo /><span className="tether-network-badge"><TronLogo /></span></>
+}
+
 const walletTokenCmcIds: Record<string, number> = { USDT: 825, BTC: 1, TRX: 1958, ETH: 1027, BNB: 1839 }
 
 function TokenMark({ token }: { token: WalletToken }) {
   const cmcId = token.cmcId ?? walletTokenCmcIds[token.symbol]
+  if (token.symbol === 'USDT') return <span className="token-mark tether-mark tether-network-mark" aria-hidden="true"><TetherTronMark /></span>
   return <span className={`token-mark ${token.kind}-mark`} aria-hidden="true"><img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${cmcId}.png`} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><strong>{token.symbol === 'BTC' ? '₿' : token.symbol === 'ETH' ? '◆' : token.symbol.slice(0, 1)}</strong></span>
 }
 
@@ -315,9 +342,23 @@ function getWalletTotal(wallet: WalletDefinition, prices: Record<string, number>
 }
 
 const persistedWalletBalancesKey = 'trust-wallet-dashboard:wallet-balances:v1'
+const persistedWalletsKey = 'trust-wallet-dashboard:wallets:v2'
+const persistedDeletedWalletsKey = 'trust-wallet-dashboard:deleted-wallets:v1'
 const selectedWalletStorageKey = 'trust-wallet-dashboard:selected-wallet:v1'
 const unlockedSessionKey = 'trust-wallet-dashboard:unlocked-session:v1'
+const walletHistoryStorageKey = 'trust-wallet-dashboard:history:v1'
 const configuredWalletIds = new Set(walletDefinitions.map((wallet) => wallet.id))
+
+type WalletHistoryDirection = 'send' | 'receive'
+type WalletHistoryEntry = {
+  id: string
+  walletId: string
+  direction: WalletHistoryDirection
+  symbol: string
+  amount: number
+  counterparty: string
+  createdAt: number
+}
 
 function cloneConfiguredWallets() {
   return walletDefinitions.map((wallet) => ({ ...wallet, balances: { ...wallet.balances } }))
@@ -350,15 +391,44 @@ function readCustomWallet(value: unknown): WalletDefinition | null {
   return { id, name, address, balances: sanitizeWalletBalances(wallet.balances) }
 }
 
+function sanitizeWalletIdList(value: unknown) {
+  if (!Array.isArray(value)) return [] as string[]
+  return value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim())).map((item) => item.trim())
+}
+
+function readPersistedDeletedWalletIds() {
+  try {
+    const raw = window.localStorage.getItem(persistedDeletedWalletsKey)
+    return raw ? sanitizeWalletIdList(JSON.parse(raw)) : []
+  } catch {
+    return [] as string[]
+  }
+}
+
+function markWalletDeleted(walletId: string) {
+  const deletedWalletIds = new Set(readPersistedDeletedWalletIds())
+  deletedWalletIds.add(walletId)
+  try {
+    window.localStorage.setItem(persistedDeletedWalletsKey, JSON.stringify([...deletedWalletIds]))
+  } catch {
+    // The wallet can still be removed from the current session.
+  }
+}
+
 function readPersistedWallets() {
   const configuredWallets = cloneConfiguredWallets()
   try {
-    const raw = window.localStorage.getItem(persistedWalletBalancesKey)
+    // Keep the legacy key as a migration fallback. The dedicated key makes the
+    // complete wallet list durable independently from balance-only data.
+    const raw = window.localStorage.getItem(persistedWalletsKey) ?? window.localStorage.getItem(persistedWalletBalancesKey)
     if (!raw) return configuredWallets
-    const stored = JSON.parse(raw) as { balances?: Record<string, unknown>; names?: Record<string, unknown>; wallets?: unknown }
+    const stored = JSON.parse(raw) as { balances?: Record<string, unknown>; names?: Record<string, unknown>; wallets?: unknown; deletedWalletIds?: unknown }
+    const deletedWalletIds = new Set([...readPersistedDeletedWalletIds(), ...sanitizeWalletIdList(stored.deletedWalletIds)])
     const storedBalances = stored.balances && typeof stored.balances === 'object' ? stored.balances : {}
     const storedNames = stored.names && typeof stored.names === 'object' ? stored.names : {}
-    const savedWallets = configuredWallets.map((wallet) => restoreWallet(wallet, storedBalances[wallet.id], storedNames[wallet.id]))
+    // Configured wallets always use the source-of-truth balances from
+    // wallet-data.ts, so every browser starts with the same portfolio totals.
+    const savedWallets = configuredWallets.map((wallet) => restoreWallet(wallet, undefined, storedNames[wallet.id])).filter((wallet) => !deletedWalletIds.has(wallet.id))
     if (!Array.isArray(stored.wallets)) return savedWallets
 
     const existingIds = new Set(savedWallets.map((wallet) => wallet.id))
@@ -369,7 +439,7 @@ function readPersistedWallets() {
       existingIds.add(wallet.id)
       customWallets.push(restoreWallet(wallet, storedBalances[wallet.id], storedNames[wallet.id]))
     })
-    return [...savedWallets, ...customWallets]
+    return [...savedWallets, ...customWallets].filter((wallet) => !deletedWalletIds.has(wallet.id))
   } catch {
     return configuredWallets
   }
@@ -377,13 +447,84 @@ function readPersistedWallets() {
 
 function persistWalletBalances(wallets: WalletDefinition[]) {
   try {
-    const balances = Object.fromEntries(wallets.map((wallet) => [wallet.id, wallet.balances]))
+    // Do not persist balances for the 11 configured wallets. Local storage is
+    // reserved for deletion/name state and custom wallets.
+    const balances = Object.fromEntries(wallets.filter((wallet) => !configuredWalletIds.has(wallet.id)).map((wallet) => [wallet.id, wallet.balances]))
     const names = Object.fromEntries(wallets.map((wallet) => [wallet.id, wallet.name]))
     const customWallets = wallets.filter((wallet) => !configuredWalletIds.has(wallet.id))
-    window.localStorage.setItem(persistedWalletBalancesKey, JSON.stringify({ version: 2, balances, names, wallets: customWallets }))
+    const deletedWalletIds = readPersistedDeletedWalletIds()
+    const payload = JSON.stringify({ version: 4, balances, names, wallets: customWallets, deletedWalletIds })
+    window.localStorage.setItem(persistedWalletsKey, payload)
+    // Keep existing installs compatible with the previous storage key.
+    window.localStorage.setItem(persistedWalletBalancesKey, payload)
+    window.localStorage.setItem(persistedDeletedWalletsKey, JSON.stringify(deletedWalletIds))
   } catch {
     // The app remains usable when browser storage is unavailable.
   }
+}
+
+function createInitialWalletHistory(wallets: WalletDefinition[]) {
+  return wallets
+    .filter((wallet) => (wallet.balances.USDT ?? 0) > 0)
+    .map((wallet) => ({
+      id: `initial-${wallet.id}`,
+      walletId: wallet.id,
+      direction: 'receive' as const,
+      symbol: 'USDT',
+      amount: wallet.balances.USDT ?? 0,
+      counterparty: 'Initial wallet balance',
+      createdAt: 0,
+    }))
+}
+
+function readWalletHistory(wallets: WalletDefinition[]) {
+  try {
+    const raw = window.localStorage.getItem(walletHistoryStorageKey)
+    const parsed: unknown = raw ? JSON.parse(raw) : []
+    const stored = Array.isArray(parsed) ? parsed.filter((item): item is WalletHistoryEntry => {
+      if (!item || typeof item !== 'object') return false
+      const entry = item as Partial<WalletHistoryEntry>
+      return typeof entry.id === 'string' && typeof entry.walletId === 'string' && (entry.direction === 'send' || entry.direction === 'receive') && typeof entry.symbol === 'string' && typeof entry.amount === 'number' && Number.isFinite(entry.amount) && entry.amount > 0 && typeof entry.counterparty === 'string' && typeof entry.createdAt === 'number'
+    }) : []
+    const initialEntries = createInitialWalletHistory(wallets)
+    const storedById = new Map(stored.map((entry) => [entry.id, entry]))
+    initialEntries.forEach((entry) => {
+      const existing = storedById.get(entry.id)
+      storedById.set(entry.id, existing ? { ...existing, amount: entry.amount, symbol: entry.symbol } : entry)
+    })
+    return [...storedById.values()].sort((left, right) => right.createdAt - left.createdAt)
+  } catch {
+    return createInitialWalletHistory(wallets)
+  }
+}
+
+function writeWalletHistory(entries: WalletHistoryEntry[]) {
+  try {
+    window.localStorage.setItem(walletHistoryStorageKey, JSON.stringify(entries))
+  } catch {
+    // History remains available in memory when storage is unavailable.
+  }
+}
+
+function applyWalletHistoryToBalances(wallets: WalletDefinition[], entries: WalletHistoryEntry[]) {
+  const balancesByWallet = new Map(wallets.map((wallet) => [wallet.id, { ...wallet.balances }]))
+  entries.forEach((entry) => {
+    // Configured wallet balances stay defined in wallet-data.ts. Transfer
+    // history is the durable delta applied on top of those starting values.
+    // Custom wallet balances are already persisted with the wallet itself.
+    if (entry.createdAt <= 0 || !configuredWalletIds.has(entry.walletId)) return
+    const walletBalances = balancesByWallet.get(entry.walletId)
+    if (!walletBalances) return
+    const currentBalance = walletBalances[entry.symbol as keyof typeof walletBalances] ?? 0
+    const nextBalance = entry.direction === 'send' ? currentBalance - entry.amount : currentBalance + entry.amount
+    walletBalances[entry.symbol as keyof typeof walletBalances] = Math.max(0, nextBalance)
+  })
+  return wallets.map((wallet) => ({ ...wallet, balances: balancesByWallet.get(wallet.id) ?? { ...wallet.balances } }))
+}
+
+function readWalletsWithHistory() {
+  const wallets = readPersistedWallets()
+  return applyWalletHistoryToBalances(wallets, readWalletHistory(wallets))
 }
 
 function createWalletAddress() {
@@ -766,10 +907,11 @@ function walletTokenToMarketAsset(token: WalletToken, prices: Record<string, num
   }
 }
 
-type AppRouteKind = 'home' | 'markets' | 'perps' | 'discover' | 'wallets' | 'wallet-edit' | 'settings' | 'search' | 'swap' | 'asset' | 'send' | 'receive' | 'unlock'
+type AppRouteKind = 'home' | 'markets' | 'perps' | 'discover' | 'tokens' | 'history' | 'wallets' | 'wallet-edit' | 'settings' | 'search' | 'swap' | 'asset' | 'send' | 'receive' | 'unlock'
 type AppRoute = { kind: AppRouteKind; symbol?: string; walletId?: string }
 type AppNavigationState = { asset?: MarketAsset; returnTo?: string; appRoute?: true }
 type AppLocation = { pathname: string; state: AppNavigationState | null }
+type AppNavigate = (pathname: string, state?: Omit<AppNavigationState, 'appRoute'>) => void
 
 const searchHistoryStorageKey = 'orbit-search-history-v1'
 const searchWatchlistStorageKey = 'orbit-search-watchlist-v1'
@@ -833,6 +975,8 @@ function parseAppRoute(pathname: string): AppRoute {
   if (segments[0] === 'markets') return { kind: 'markets' }
   if (segments[0] === 'perps') return { kind: 'perps' }
   if (segments[0] === 'discover') return { kind: 'discover' }
+  if (segments[0] === 'tokens') return { kind: 'tokens' }
+  if (segments[0] === 'history') return { kind: 'history' }
   if (segments[0] === 'wallets' && segments[1] && segments[2] === 'edit') return { kind: 'wallet-edit', walletId: decodeURIComponent(segments[1]) }
   if (segments[0] === 'wallets') return { kind: 'wallets' }
   if (segments[0] === 'settings') return { kind: 'settings' }
@@ -877,6 +1021,7 @@ function Sparkline({ points, positive = false, fallbackPoints }: { points?: numb
 }
 
 function CryptoMark({ asset, large = false }: { asset: MarketAsset; large?: boolean }) {
+  if (asset.base === 'USDT') return <span className={`crypto-mark${large ? ' large' : ''} tether-network-mark`} style={{ '--coin-color': '#26a17b' } as CSSProperties}><TetherTronMark /></span>
   return <span className={`crypto-mark${large ? ' large' : ''}`} style={{ '--coin-color': asset.color } as CSSProperties}><img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${asset.cmcId}.png`} alt="" onError={(event) => { event.currentTarget.style.display = 'none' }} /><span>{asset.base === 'ETH' ? '◆' : asset.base === 'BTC' ? '₿' : asset.base.slice(0, 1)}</span></span>
 }
 
@@ -1340,6 +1485,104 @@ function SearchScreen({ assets, history, watchlist, watchedSymbols, onClose, onS
   </section>
 }
 
+function TokenFilterIcon() {
+  return <svg className="tokens-filter-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M4 8h20M4 20h20M11 8a3 3 0 1 0-6 0 3 3 0 0 0 6 0ZM23 20a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg>
+}
+
+function MainBottomDock({ activeTab, onNavigate }: { activeTab: 'home' | 'markets' | 'perps' | 'discover'; onNavigate: AppNavigate }) {
+  return <nav className="bottom-dock" aria-label="Main navigation">
+    <div className="nav-pill">
+      <button className={`nav-item${activeTab === 'home' ? ' active' : ''}`} onClick={() => onNavigate('/')} aria-label="Home"><Icon name="home" size={22} /></button>
+      <button className={`nav-item${activeTab === 'markets' ? ' active' : ''}`} onClick={() => onNavigate('/markets')} aria-label="Markets"><Icon name="chart" size={22} /></button>
+      <button className={`nav-item perps-nav-item${activeTab === 'perps' ? ' active' : ''}`} onClick={() => onNavigate('/perps')} aria-label="Open Perps"><Icon name="infinity" size={21} /></button>
+      <button className={`nav-item${activeTab === 'discover' ? ' active' : ''}`} onClick={() => onNavigate('/discover')} aria-label="Discover"><Icon name="compass" size={22} /></button>
+    </div>
+    <button className="nav-search" aria-label="Search" onClick={() => onNavigate('/search', { returnTo: window.location.pathname })}><Icon name="search" size={27} /></button>
+  </nav>
+}
+
+function TokensScreen({ tokens, prices, onBack, onSelect, onNavigate }: { tokens: WalletToken[]; prices: Record<string, number>; onBack: () => void; onSelect: (token: WalletToken) => void; onNavigate: AppNavigate }) {
+  const [query, setQuery] = useState('')
+  const normalizedQuery = query.trim().toLowerCase()
+  const visibleTokens = tokens.filter((token) => !normalizedQuery || `${token.name} ${token.symbol}`.toLowerCase().includes(normalizedQuery))
+
+  return <section className="tokens-screen" aria-labelledby="tokens-title">
+    <header className="tokens-screen-header">
+      <button type="button" className="tokens-back-button" onClick={onBack} aria-label="Back to home"><BackArrowIcon /></button>
+      <h1 id="tokens-title">Tokens</h1>
+      <button type="button" className="tokens-filter-button" aria-label="Token filters"><TokenFilterIcon /></button>
+    </header>
+    <label className="tokens-search-field"><Icon name="search" size={25} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search" aria-label="Search tokens" /></label>
+    <div className="tokens-screen-list">
+      {visibleTokens.length ? visibleTokens.map((token) => {
+        const value = getWalletTokenValue(token, prices)
+        return <button type="button" className="tokens-screen-row" key={token.id} onClick={() => onSelect(token)} aria-label={`Open ${token.name}`}>
+          <TokenMark token={token} />
+          <span className="tokens-screen-copy"><strong>{token.name}</strong><small>{formatTokenBalance(token.balance)} {token.symbol}</small></span>
+          <span className="tokens-screen-value"><strong>{formatUsd(value)}</strong><small>{formatUsd(value)}</small></span>
+        </button>
+      }) : <p className="tokens-empty-state">No tokens found.</p>}
+    </div>
+    <MainBottomDock activeTab="home" onNavigate={onNavigate} />
+  </section>
+}
+
+function shortenWalletAddress(value: string) {
+  if (value === 'Initial wallet balance' || value.length <= 14) return value
+  return `${value.slice(0, 6)}...${value.slice(-4)}`
+}
+
+function HistoryDirectionIcon({ direction }: { direction: WalletHistoryDirection }) {
+  const isSent = direction === 'send'
+  return <svg className={`history-direction-arrow ${isSent ? 'sent' : 'received'}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d={isSent ? 'M12 19V5M6.5 10.5 12 5l5.5 5.5' : 'M12 5v14M6.5 13.5 12 19l5.5-5.5'} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+}
+
+function HistoryTokenIcon({ symbol }: { symbol: string }) {
+  const definition = walletTokenDefinitions.find((token) => token.symbol === symbol)
+  if (definition) return <TokenMark token={{ ...definition, balance: 0 }} />
+  return <span className="history-token-fallback" aria-hidden="true">{symbol.slice(0, 1)}</span>
+}
+
+function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletDefinition; entries: WalletHistoryEntry[]; usdtPrice: number; onBack: () => void }) {
+  const walletEntries = entries.filter((entry) => entry.walletId === wallet.id).sort((left, right) => right.createdAt - left.createdAt)
+
+  return <section className="history-screen" aria-labelledby="history-title">
+    <header className="history-header">
+      <button type="button" className="history-back-button" onClick={onBack} aria-label="Back to home"><BackArrowIcon /></button>
+      <h1 id="history-title">History</h1>
+      <span className="history-header-spacer" aria-hidden="true" />
+    </header>
+
+    <div className="history-tabs" role="tablist" aria-label="History sections">
+      <button type="button" className="history-tab active" role="tab" aria-selected="true">Transaction History</button>
+      <button type="button" className="history-tab" role="tab" aria-selected="false">Orders</button>
+      <button type="button" className="history-tab" role="tab" aria-selected="false">Order History</button>
+    </div>
+
+    <div className="history-filters">
+      <button type="button" className="history-filter-button">Filters <Icon name="chevron" size={17} /></button>
+      <button type="button" className="history-filter-button">All Networks <Icon name="chevron" size={17} /></button>
+    </div>
+
+    <div className="history-list">
+      <h2 className="history-day-heading">Today</h2>
+      {walletEntries.length ? walletEntries.map((entry) => {
+        const isSent = entry.direction === 'send'
+        const amount = `${isSent ? '-' : '+'}${formatTokenBalance(entry.amount)} ${entry.symbol}`
+        const usdValue = entry.symbol === 'USDT' ? entry.amount * usdtPrice : entry.amount * (walletTokenDefinitions.find((token) => token.symbol === entry.symbol)?.fallbackPrice ?? 0)
+        return <article className="history-entry" key={entry.id}>
+          <div className={`history-entry-icon ${isSent ? 'sent' : 'received'}`}><HistoryDirectionIcon direction={entry.direction} /></div>
+          <HistoryTokenIcon symbol={entry.symbol} />
+          <div className="history-entry-copy"><strong>{isSent ? 'Sent' : 'Received'}</strong><span>{isSent ? 'To: ' : 'From: '}{shortenWalletAddress(entry.counterparty)}</span></div>
+          <div className={`history-entry-value ${isSent ? 'sent' : 'received'}`}><strong>{amount}</strong><small>{formatUsd(usdValue)}</small></div>
+        </article>
+      }) : <p className="history-empty-state">No transactions yet.</p>}
+    </div>
+  </section>
+}
+
 type SwapCurrency = 'hype' | 'whale'
 
 const swapCurrencies: Record<SwapCurrency, { symbol: string; label: string; usdPrice: number }> = {
@@ -1488,6 +1731,43 @@ function TransferAsset({ asset }: { asset: MarketAsset }) {
   return <div className="transfer-asset"><CryptoMark asset={asset} /><strong>{asset.base}</strong><span>{assetType}</span></div>
 }
 
+function fallbackCopyText(value: string) {
+  const textarea = document.createElement('textarea')
+  textarea.value = value
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'fixed'
+  textarea.style.top = '0'
+  textarea.style.left = '-9999px'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+  textarea.setSelectionRange(0, value.length)
+  let copied = false
+  try {
+    copied = document.execCommand('copy')
+  } finally {
+    textarea.remove()
+  }
+  return copied
+}
+
+async function copyTextToClipboard(value: string) {
+  try {
+    if (typeof navigator.clipboard?.writeText === 'function') {
+      await navigator.clipboard.writeText(value)
+      return true
+    }
+  } catch {
+    // Continue with the legacy browser fallback below.
+  }
+  try {
+    return fallbackCopyText(value)
+  } catch {
+    return false
+  }
+}
+
 function ReceiveScreen({ asset, wallet, onBack }: { asset: MarketAsset; wallet: WalletDefinition; onBack: () => void }) {
   const address = wallet.address
   const [feedback, setFeedback] = useState('')
@@ -1496,12 +1776,8 @@ function ReceiveScreen({ asset, wallet, onBack }: { asset: MarketAsset; wallet: 
   const [showInfo, setShowInfo] = useState(false)
 
   const copyAddress = async () => {
-    try {
-      if (navigator.clipboard) await navigator.clipboard.writeText(address)
-      setFeedback('Address copied')
-    } catch {
-      setFeedback('Copy the address manually')
-    }
+    const copied = await copyTextToClipboard(address)
+    setFeedback(copied ? 'Address copied' : 'Copy the address manually')
     window.setTimeout(() => setFeedback(''), 2200)
   }
 
@@ -1536,7 +1812,7 @@ function ReceiveScreen({ asset, wallet, onBack }: { asset: MarketAsset; wallet: 
   </section>
 }
 
-function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onComplete: (recipientWalletId: string, amount: number) => void }) {
+function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onComplete: (recipientWalletId: string, amount: number, senderWalletId: string) => void }) {
   const balance = asset.walletBalance ?? 0
   const [recipient, setRecipient] = useState('')
   const [amount, setAmount] = useState('')
@@ -1548,12 +1824,40 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
   const error = recipientError || amountError
   const canContinue = Boolean(recipientWallet) && recipientWallet?.id !== senderWallet.id && Number.isFinite(amountValue) && amountValue > 0 && amountValue <= balance
   const amountInUsd = amountValue > 0 ? amountValue * (asset.price ?? 0) : 0
-  const pasteAddress = async () => {
+  const readClipboardText = async () => {
     try {
       const value = await navigator.clipboard?.readText()
+      if (value) return value
+    } catch {
+      // Some browsers reject clipboard reads even when the button was clicked.
+    }
+
+    // Legacy fallback for browsers that expose paste through execCommand.
+    const textarea = document.createElement('textarea')
+    textarea.value = ''
+    textarea.setAttribute('readonly', '')
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    try {
+      document.execCommand('paste')
+      return textarea.value
+    } catch {
+      return ''
+    } finally {
+      textarea.remove()
+    }
+  }
+
+  const pasteAddress = async () => {
+    try {
+      const value = await readClipboardText()
       if (value) {
         setRecipient(value.trim())
         setMessage('')
+      } else {
+        setMessage('Clipboard is empty or paste permission is blocked.')
       }
     } catch {
       setMessage('Paste is unavailable in this browser.')
@@ -1574,13 +1878,13 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
       setMessage(error || 'Enter a valid wallet ID and amount.')
       return
     }
-    onComplete(recipientWallet.id, amountValue)
+    onComplete(recipientWallet.id, amountValue, senderWallet.id)
   }
 
   return <section className="transfer-screen send-screen">
     <TransferHeader title={`Send ${asset.base}`} onBack={onBack} />
     <form className="send-form" onSubmit={submit}>
-      <label className="send-field"><span>Address or Domain Name</span><div className="send-address-input"><input value={recipient} onChange={(event) => { setRecipient(event.target.value); setMessage('') }} placeholder="Search or Enter" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label="Destination wallet identifier" /><button type="button" className="send-paste-button" onClick={() => void pasteAddress()}>Paste</button><button type="button" className="send-inline-icon" onClick={() => void copyRecipient()} aria-label="Copy wallet identifier"><Icon name="copy" size="lg" /></button><button type="button" className="send-inline-icon" onClick={() => setMessage('Use the recipient wallet identifier.')} aria-label="Scan destination QR code"><Icon name="scan" size="lg" /></button></div>{recipientWallet && recipientWallet.id !== senderWallet.id && <small className="wallet-id-match">Destination: {recipientWallet.name}</small>}{recipientError && <em role="alert">{recipientError}</em>}</label>
+      <label className="send-field"><span>Address or Domain Name</span><div className="send-address-input"><input value={recipient} onChange={(event) => { setRecipient(event.target.value); setMessage('') }} onPaste={(event) => { const value = event.clipboardData.getData('text'); if (value) { event.preventDefault(); setRecipient(value.trim()); setMessage('') } }} placeholder="Search or Enter" autoCapitalize="off" autoCorrect="off" spellCheck="false" aria-label="Destination wallet identifier" /><button type="button" className="send-paste-button" onClick={() => void pasteAddress()}>Paste</button><button type="button" className="send-inline-icon" onClick={() => void copyRecipient()} aria-label="Copy wallet identifier"><Icon name="copy" size="lg" /></button><button type="button" className="send-inline-icon" onClick={() => setMessage('Use the recipient wallet identifier.')} aria-label="Scan destination QR code"><Icon name="scan" size="lg" /></button></div>{recipientWallet && recipientWallet.id !== senderWallet.id && <small className="wallet-id-match">Destination: {recipientWallet.name}</small>}{recipientError && <em role="alert">{recipientError}</em>}</label>
       <section className="destination-network"><h2>Destination network</h2><div><CryptoMark asset={asset} /><strong>{asset.name}</strong><Icon name="chevron" size="sm" /></div></section>
       <label className="send-field send-amount-field"><span>Amount</span><div className="send-amount-input"><input value={amount} onChange={(event) => { setAmount(event.target.value.replace(/[^0-9.]/g, '')); setMessage('') }} inputMode="decimal" placeholder="0" aria-label={`Amount of ${asset.base}`} /><button type="button" className="send-clear-button" onClick={() => { setAmount(''); setMessage('') }} aria-label="Clear amount"><Icon name="close" size="xs" /></button><strong>{asset.base}</strong><button type="button" className="send-max-button" onClick={() => { setAmount(balance ? String(balance) : ''); setMessage('') }}>Max</button></div><small>≈ {formatUsd(amountInUsd)}</small>{amountError && <em role="alert">{amountError}</em>}</label>
       <button type="submit" className="send-continue" disabled={!canContinue}>Next</button>
@@ -1589,7 +1893,7 @@ function SendScreen({ asset, onBack, senderWallet, wallets, onComplete }: { asse
   </section>
 }
 
-function TransferScreen({ mode, asset, onBack, senderWallet, wallets, onSendComplete }: { mode: TransferMode; asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onSendComplete: (recipientWalletId: string, amount: number) => void }) {
+function TransferScreen({ mode, asset, onBack, senderWallet, wallets, onSendComplete }: { mode: TransferMode; asset: MarketAsset; onBack: () => void; senderWallet: WalletDefinition; wallets: WalletDefinition[]; onSendComplete: (recipientWalletId: string, amount: number, senderWalletId: string) => void }) {
   return mode === 'receive' ? <ReceiveScreen asset={asset} wallet={senderWallet} onBack={onBack} /> : <SendScreen asset={asset} onBack={onBack} senderWallet={senderWallet} wallets={wallets} onComplete={onSendComplete} />
 }
 
@@ -1687,18 +1991,38 @@ function LegacyLockScreen({ onUnlock }: { onUnlock: () => void }) {
 
 function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const [passcode, setPasscode] = useState('')
+  const [hasPasscodeError, setHasPasscodeError] = useState(false)
+  const resetTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
   const isVerified = passcode.length === 6
 
+  useEffect(() => () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current)
+  }, [])
+
   const addDigit = (digit: string) => {
+    if (hasPasscodeError) return
     const next = `${passcode}${digit}`.slice(0, 6)
     setPasscode(next)
-    if (next.length === 6) window.setTimeout(onUnlock, 240)
+    if (next.length !== 6) return
+    if (next === '351213') {
+      window.setTimeout(onUnlock, 240)
+      return
+    }
+    setHasPasscodeError(true)
+    resetTimer.current = window.setTimeout(() => {
+      resetTimer.current = null
+      setPasscode('')
+      setHasPasscodeError(false)
+    }, 320)
   }
 
-  const removeDigit = () => setPasscode((current) => current.slice(0, -1))
+  const removeDigit = () => {
+    if (hasPasscodeError) return
+    setPasscode((current) => current.slice(0, -1))
+  }
 
-  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className={`passcode-inputs${isVerified ? ' verified' : ''}`} aria-label={isVerified ? 'Passcode accepted' : 'Passcode progress'}>{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" disabled aria-disabled="true" aria-label="Fingerprint sign-in unavailable"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path className="backspace-shape" d="M21.5 3.5H7.7c-.62 0-1.2.31-1.53.82L1.58 11.6a.75.75 0 0 0 0 .8l4.59 7.28c.33.51.91.82 1.53.82h13.8c.83 0 1.5-.67 1.5-1.5V5c0-.83-.67-1.5-1.5-1.5Z" /><path className="backspace-close" d="m10.7 8.8 5.6 6.4m0-6.4-5.6 6.4" /></svg></span></button></div></div></main>
+  return <main className="lock-screen passcode-lock-screen"><div className="passcode-container"><div className="main-content"><h2>Enter passcode</h2><div className={`passcode-inputs${isVerified ? ' verified' : ''}${hasPasscodeError ? ' error shake' : ''}`} aria-label={hasPasscodeError ? 'Incorrect passcode' : isVerified ? 'Passcode accepted' : 'Passcode progress'} aria-live="polite">{Array.from({ length: 6 }).map((_, index) => <span className={`input-box${index < passcode.length ? ' filled' : ''}`} key={index}>{index < passcode.length && <span className="passcode-dot" aria-hidden="true" />}</span>)}</div></div><div className="keypad-container">{digits.map((digit) => <button type="button" className="key" key={digit} onClick={() => addDigit(digit)} aria-label={`Number ${digit}`}>{digit}</button>)}<button type="button" className="key key-action fingerprint-key" disabled aria-disabled="true" aria-label="Fingerprint sign-in unavailable"><span className="fingerprint-icon"><PasscodeFingerprintImage className="passcode-keypad-fingerprint-image" /></span></button><button type="button" className="key" onClick={() => addDigit('0')} aria-label="Number 0">0</button><button type="button" className="key key-action" onClick={removeDigit} aria-label="Delete passcode"><span className="backspace-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path className="backspace-shape" d="M21.5 3.5H7.7c-.62 0-1.2.31-1.53.82L1.58 11.6a.75.75 0 0 0 0 .8l4.59 7.28c.33.51.91.82 1.53.82h13.8c.83 0 1.5-.67 1.5-1.5V5c0-.83-.67-1.5-1.5-1.5Z" /><path className="backspace-close" d="m10.7 8.8 5.6 6.4m0-6.4-5.6 6.4" /></svg></span></button></div></div></main>
 }
 
 type DappItem = { name: string; description: string; className: string; mark: string }
@@ -1909,8 +2233,11 @@ function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
   </section>
 }
 
-function WalletEditScreen({ wallet, onBack, onRename }: { wallet: WalletDefinition; onBack: () => void; onRename: (walletId: string, name: string) => void }) {
+type WalletDeleteStep = 'closed' | 'confirm' | 'backup'
+
+function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: WalletDefinition; onBack: () => void; onRename: (walletId: string, name: string) => void; onDelete: (walletId: string) => void }) {
   const [draftName, setDraftName] = useState(wallet.name)
+  const [deleteStep, setDeleteStep] = useState<WalletDeleteStep>('closed')
 
   useEffect(() => {
     setDraftName(wallet.name)
@@ -1930,11 +2257,13 @@ function WalletEditScreen({ wallet, onBack, onRename }: { wallet: WalletDefiniti
     onBack()
   }
 
+  const closeDeleteFlow = () => setDeleteStep('closed')
+
   return <section className="wallet-edit-screen" aria-labelledby="wallet-edit-title">
     <header className="wallet-edit-header">
       <button type="button" className="wallet-edit-back" onClick={closeEditor} aria-label="Back to wallets"><BackArrowIcon /></button>
       <h1 id="wallet-edit-title">{draftName.trim() || wallet.name}</h1>
-      <span className="wallet-edit-delete" aria-hidden="true"><WalletTrashIcon /></span>
+      <button type="button" className="wallet-edit-delete" onClick={() => setDeleteStep('confirm')} aria-label={`Delete ${wallet.name}`}><WalletTrashIcon /></button>
     </header>
     <form className="wallet-edit-form" onSubmit={(event) => { event.preventDefault(); saveName() }}>
       <label className="wallet-name-label" htmlFor="wallet-name-input">Name</label>
@@ -1949,6 +2278,21 @@ function WalletEditScreen({ wallet, onBack, onRename }: { wallet: WalletDefiniti
       <div className="wallet-backup-row"><GoogleDriveBackupIcon /><strong>Google Drive</strong><span>Back up now</span></div>
       <div className="wallet-backup-row"><ManualBackupIcon /><strong>Manual</strong><span>Back up now</span></div>
     </section>
+    {deleteStep !== 'closed' && <div className={`wallet-delete-overlay ${deleteStep === 'backup' ? 'backup-open' : 'confirm-open'}`} onClick={closeDeleteFlow}>
+      {deleteStep === 'confirm' ? <section className="wallet-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-wallet-title" onClick={(event) => event.stopPropagation()}>
+        <h2 id="delete-wallet-title">Are you sure you would like to<br />delete this wallet?</h2>
+        <p>Make sure you have backup of your<br />wallet.</p>
+        <div className="wallet-delete-dialog-actions"><button type="button" className="wallet-delete-cancel" onClick={closeDeleteFlow}>Cancel</button><button type="button" className="wallet-delete-confirm" onClick={() => setDeleteStep('backup')}>Delete</button></div>
+      </section> : <section className="wallet-backup-sheet" role="dialog" aria-modal="true" aria-labelledby="backup-wallet-title" onClick={(event) => event.stopPropagation()}>
+        <button type="button" className="wallet-backup-close" onClick={closeDeleteFlow} aria-label="Close backup reminder"><Icon name="close" size={28} /></button>
+        <div className="wallet-backup-art"><img src="/delete_part.png" alt="" /></div>
+        <h2 id="backup-wallet-title">Back up your seed phrase</h2>
+        <p>Protect your assets by backing up your seed<br />phrase now.</p>
+        <button type="button" className="wallet-backup-primary" onClick={closeDeleteFlow}>Back up manually</button>
+        <button type="button" className="wallet-backup-secondary" onClick={closeDeleteFlow}>Back up to Google Drive</button>
+        <button type="button" className="wallet-proceed-anyway" onClick={() => onDelete(wallet.id)}>Proceed anyway</button>
+      </section>}
+    </div>}
   </section>
 }
 
@@ -1983,15 +2327,84 @@ function WalletsScreen({ onClose, onOpenSettings, wallets, selectedWalletId, pri
 
   if (showWalletCreated) return <WalletReadyScreen onContinue={() => setShowWalletCreated(false)} />
 
-  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{wallets.map((wallet) => <article className="main-wallet-card" key={wallet.id}><button type="button" className="wallet-card-select" onClick={() => onSelectWallet(wallet.id)} aria-pressed={wallet.id === selectedWalletId} aria-label={`Select ${wallet.name}`}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{wallet.name}</strong><span>{formatUsd(getWalletTotal(wallet, prices))}</span></div></div></button><button type="button" className="wallet-card-menu" onClick={() => onOpenWalletEditor(wallet.id)} aria-label={`Edit ${wallet.name}`}><WalletMoreIcon /></button>{wallet.id === selectedWalletId && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+  return <section className="wallets-screen"><header className="wallets-screen-header"><button type="button" className="wallet-back-button" onClick={onClose} aria-label="Close wallet manager"><BackArrowIcon /></button><h1>Wallets</h1><button type="button" className="wallet-settings-button" onClick={onOpenSettings} aria-label="Open settings"><WalletSettingsIcon /></button></header><h2>Multi-coin wallets</h2><div className="wallet-card-list">{wallets.map((wallet) => <article className="main-wallet-card" key={wallet.id}><button type="button" className="wallet-card-select" onClick={() => onSelectWallet(wallet.id)} aria-pressed={wallet.id === selectedWalletId} aria-label={`Select ${wallet.name}`}><div className="main-wallet-title"><span className="wallet-shield"><TrustWalletBadge /></span><div><strong>{wallet.name}</strong><span>{formatUsd(wallet.balances.USDT ?? 0)}</span></div></div></button><button type="button" className="wallet-card-menu" onClick={() => onOpenWalletEditor(wallet.id)} aria-label={`Edit ${wallet.name}`}><WalletMoreIcon /></button>{wallet.id === selectedWalletId && <span className="wallet-selected">✓</span>}</article>)}</div><div className="wallets-bottom-actions"><button type="button" onClick={() => setShowAddWallet(true)}>Add wallet</button><button type="button"><ExtensionQrIcon />Sync to Extension</button></div>{showAddWallet && <div className="add-wallet-overlay" onClick={() => !isCreatingWallet && setShowAddWallet(false)}><section className="add-wallet-sheet" onClick={(event) => event.stopPropagation()}><button type="button" className="add-wallet-close" onClick={closeAddWallet} aria-label="Close add wallet"><Icon name="close" size={26} /></button><div className="wallet-illustration"><img src="/illustration-3-wallet-coins.svg" alt="" /></div><button type="button" className={`add-wallet-option${isCreatingWallet ? ' creating' : ''}`} onClick={createWallet} disabled={isCreatingWallet}><span className="add-option-icon create-icon"><RiSparkling2Line aria-hidden="true" /></span><span><strong>{isCreatingWallet ? 'Creating wallet…' : 'Create new wallet'}</strong><small>Secret phrase</small></span><b>›</b></button><button type="button" className="add-wallet-option" disabled={isCreatingWallet}><span className="add-option-icon import-icon"><RiDownload2Line aria-hidden="true" /></span><span><strong>Add existing wallet</strong><small>Import, restore or view-only</small></span><b>›</b></button></section></div>}</section>
+}
+
+type BarcodeDetectorLike = new (options?: { formats?: string[] }) => { detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue?: string }>> }
+
+function DeviceScanner({ onClose }: { onClose: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const fallbackInputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState('')
+  const [result, setResult] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    let stream: MediaStream | null = null
+    let scanTimer: number | null = null
+
+    const startCamera = async () => {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera access is unavailable in this browser.')
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+        if (cancelled || !videoRef.current) return
+        videoRef.current.srcObject = stream
+        await videoRef.current.play()
+
+        const BarcodeDetector = (globalThis as typeof globalThis & { BarcodeDetector?: BarcodeDetectorLike }).BarcodeDetector
+        if (!BarcodeDetector) return
+        const detector = new BarcodeDetector({ formats: ['qr_code'] })
+        const detectQr = async () => {
+          if (cancelled || !videoRef.current || videoRef.current.readyState < 2) return
+          try {
+            const codes = await detector.detect(videoRef.current)
+            const rawValue = codes[0]?.rawValue?.trim()
+            if (rawValue) {
+              setResult(rawValue)
+              return
+            }
+          } catch {
+            // Keep the camera open while the QR frame is not readable yet.
+          }
+          if (!cancelled) scanTimer = window.setTimeout(() => void detectQr(), 250)
+        }
+        void detectQr()
+      } catch (cameraError) {
+        if (!cancelled) setError(cameraError instanceof Error ? cameraError.message : 'Camera access was blocked.')
+      }
+    }
+
+    void startCamera()
+    return () => {
+      cancelled = true
+      if (scanTimer !== null) window.clearTimeout(scanTimer)
+      stream?.getTracks().forEach((track) => track.stop())
+    }
+  }, [])
+
+  return <div className="scanner-overlay" role="dialog" aria-modal="true" aria-label="Scan QR code">
+    <div className="scanner-panel">
+      <header className="scanner-header"><h2>Scan</h2><button type="button" onClick={onClose} aria-label="Close scanner"><Icon name="close" size={24} /></button></header>
+      <div className="scanner-camera-frame">
+        <video ref={videoRef} autoPlay muted playsInline aria-label="Camera preview" />
+        <span className="scanner-corner top-left" /><span className="scanner-corner top-right" /><span className="scanner-corner bottom-left" /><span className="scanner-corner bottom-right" />
+        {!error && !result && <p>Point your camera at a QR code</p>}
+      </div>
+      {error && <div className="scanner-error"><p>{error}</p><button type="button" onClick={() => fallbackInputRef.current?.click()}>Open device camera</button></div>}
+      {result && <div className="scanner-result"><strong>QR code detected</strong><span>{result}</span><button type="button" onClick={onClose}>Done</button></div>}
+      <input ref={fallbackInputRef} className="scanner-fallback-input" type="file" accept="image/*" capture="environment" aria-label="Capture QR code" onChange={() => setError('Image captured. Close the scanner to continue.')} />
+    </div>
+  </div>
 }
 
 function App() {
   const [isLocked, setIsLocked] = useState(() => !isSessionUnlocked())
   const [promoIndex, setPromoIndex] = useState(0)
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [location, setLocation] = useState<AppLocation>(() => readAppLocation())
-  const [wallets, setWallets] = useState<WalletDefinition[]>(() => readPersistedWallets())
-  const [selectedWalletId, setSelectedWalletId] = useState(() => readSelectedWalletId(readPersistedWallets()))
+  const [wallets, setWallets] = useState<WalletDefinition[]>(() => readWalletsWithHistory())
+  const [selectedWalletId, setSelectedWalletId] = useState(() => readSelectedWalletId(readWalletsWithHistory()))
+  const [walletHistory, setWalletHistory] = useState<WalletHistoryEntry[]>(() => readWalletHistory(readPersistedWallets()))
   const [walletChanges, setWalletChanges] = useState<Record<string, number | null>>({})
   const [walletPrices, setWalletPrices] = useState<Record<string, number>>(() => Object.fromEntries(walletTokenDefinitions.map((token) => [token.symbol, token.fallbackPrice])))
   const searchableAssets = useSearchAssetCache()
@@ -2008,9 +2421,13 @@ function App() {
   const goBack = (fallbackPathname: string) => navigate(navigationState?.returnTo ?? fallbackPathname)
   const selectedWallet = wallets.find((wallet) => wallet.id === selectedWalletId) ?? wallets[0]
   const activeWalletTokens = getWalletTokens(selectedWallet)
+  const walletPortfolioTokens = activeWalletTokens
   const bitcoinToken = activeWalletTokens.find((token) => token.symbol === 'BTC') ?? activeWalletTokens[0]
   const ethereumToken = activeWalletTokens.find((token) => token.symbol === 'ETH') ?? activeWalletTokens[0]
   const receiveToken = activeWalletTokens.find((token) => token.symbol === 'USDT') ?? activeWalletTokens[0]
+  const usdtValue = getWalletTokenValue(receiveToken, walletPrices)
+  const usdtChange = walletChanges.USDT ?? 0
+  const usdtChangeValue = usdtValue * (usdtChange / 100)
   const latestSearchAssetBySymbol = new Map(searchableAssets.map((asset) => [asset.symbol, asset]))
   const homeWatchlistAssets = watchlistAssets.map((asset) => latestSearchAssetBySymbol.get(asset.symbol) ?? asset)
   const routeAsset = route.symbol ? createRouteAsset(route.symbol, navigationState, activeWalletTokens, walletPrices, walletChanges) : null
@@ -2037,10 +2454,14 @@ function App() {
     const routeAsset = { ...asset, walletBalance: heldToken?.balance ?? asset.walletBalance ?? 0 }
     navigate(`/${mode}/${encodeURIComponent(asset.symbol.toLowerCase())}`, { asset: routeAsset, returnTo: location.pathname })
   }
-  const completeInternalTransfer = (recipientWalletId: string, amount: number) => {
+  const completeInternalTransfer = (recipientWalletId: string, amount: number, senderWalletId: string) => {
     const transferSymbol = transferFlow && walletTokenDefinitions.find((token) => token.symbol === transferFlow.asset.symbol)?.symbol
     if (!transferSymbol || !transferFlow) return
-    const senderWalletId = selectedWallet.id
+    const senderWallet = wallets.find((wallet) => wallet.id === senderWalletId)
+    const recipientWallet = wallets.find((wallet) => wallet.id === recipientWalletId)
+    if (!senderWallet || !recipientWallet || senderWallet.id === recipientWallet.id) return
+    const createdAt = Date.now()
+    const transferId = `transfer-${createdAt}-${senderWalletId}-${recipientWalletId}`
     const nextWallets = wallets.map((wallet) => {
       const currentBalance = wallet.balances[transferSymbol] ?? 0
       if (wallet.id === senderWalletId) return { ...wallet, balances: { ...wallet.balances, [transferSymbol]: currentBalance - amount } }
@@ -2049,7 +2470,30 @@ function App() {
     })
     persistWalletBalances(nextWallets)
     setWallets(nextWallets)
-    setSelectedWalletId(recipientWalletId)
+    setWalletHistory((current) => [
+      {
+        id: `${transferId}-send`,
+        walletId: senderWallet.id,
+        direction: 'send',
+        symbol: transferSymbol,
+        amount,
+        counterparty: recipientWallet.address,
+        createdAt,
+      },
+      {
+        id: `${transferId}-receive`,
+        walletId: recipientWallet.id,
+        direction: 'receive',
+        symbol: transferSymbol,
+        amount,
+        counterparty: senderWallet.address,
+        createdAt,
+      },
+      ...current,
+    ])
+    // Keep the wallet that opened the send flow active. The recipient is only
+    // the destination and must never become the selected wallet.
+    setSelectedWalletId(senderWalletId)
     navigate('/')
   }
 
@@ -2069,6 +2513,16 @@ function App() {
     setWallets(nextWallets)
   }
 
+  const deleteWallet = (walletId: string) => {
+    if (wallets.length <= 1 || !wallets.some((wallet) => wallet.id === walletId)) return
+    const nextWallets = wallets.filter((wallet) => wallet.id !== walletId)
+    markWalletDeleted(walletId)
+    persistWalletBalances(nextWallets)
+    setWallets(nextWallets)
+    if (selectedWalletId === walletId) setSelectedWalletId(nextWallets[0].id)
+    navigate('/wallets')
+  }
+
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [location.pathname])
@@ -2082,6 +2536,10 @@ function App() {
   useEffect(() => {
     persistWalletBalances(wallets)
   }, [wallets])
+
+  useEffect(() => {
+    writeWalletHistory(walletHistory)
+  }, [walletHistory])
 
   useEffect(() => {
     try {
@@ -2164,7 +2622,15 @@ function App() {
 
   if (route.kind === 'wallet-edit') {
     const walletToEdit = wallets.find((wallet) => wallet.id === route.walletId)
-    if (walletToEdit) return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletEditScreen wallet={walletToEdit} onBack={() => goBack('/wallets')} onRename={renameWallet} /></div></main>
+    if (walletToEdit) return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app"><WalletEditScreen wallet={walletToEdit} onBack={() => goBack('/wallets')} onRename={renameWallet} onDelete={deleteWallet} /></div></main>
+  }
+
+  if (route.kind === 'tokens') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app tokens-wallet-app"><TokensScreen tokens={walletPortfolioTokens} prices={walletPrices} onBack={() => goBack('/')} onSelect={openWalletTokenDetail} onNavigate={navigate} /></div></main>
+  }
+
+  if (route.kind === 'history') {
+    return <main className="app-shell light-app-shell"><div className="wallet-app light-wallet-app history-wallet-app"><HistoryScreen wallet={selectedWallet} entries={walletHistory} usdtPrice={walletPrices.USDT ?? 1} onBack={() => goBack('/')} /></div></main>
   }
 
   if (route.kind === 'search') {
@@ -2193,8 +2659,8 @@ function App() {
             <div className="wallet-chip-copy"><strong>{selectedWallet.name}</strong></div>
           </button>
           <div className="header-actions">
-            <button className="round-button" aria-label="Transaction history"><Icon name="clock" size={22} /></button>
-            <button className="round-button" aria-label="Scan QR code"><Icon name="scan" size={22} /></button>
+            <button className="round-button" aria-label="Transaction history" onClick={() => navigate('/history', { returnTo: location.pathname })}><Icon name="clock" size={22} /></button>
+            <button className="round-button" aria-label="Scan QR code" onClick={() => setIsScannerOpen(true)}><Icon name="scan" size={22} /></button>
           </div>
         </header>
 
@@ -2219,30 +2685,32 @@ function App() {
           </div>
         </section>
 
-        <section className="start-section">
-          <h1>Get started by adding some<br />crypto</h1>
-          <div className="start-actions">
-            <button type="button" className="start-action" onClick={() => openTransfer('receive', walletTokenToMarketAsset(receiveToken, walletPrices, walletChanges))}><QrBadge /><span>Receive<br />crypto</span></button>
-            <button className="start-action"><McapBadge /><span>Deposit from<br />Binance</span></button>
-            <button className="start-action"><CardBadge /><span>Buy with<br />Cards</span></button>
+        {uiFeatureConfig.showHomeBalanceActions && <section className="home-balance-section" aria-labelledby="home-balance-title">
+          <h1 id="home-balance-title">{formatUsd(usdtValue)}</h1>
+          <p>{formatUsd(Math.abs(usdtChangeValue))} ({formatPercent(usdtChange)})</p>
+          <div className="home-balance-actions">
+            <button type="button" className="home-balance-action" onClick={() => openTransfer('send', walletTokenToMarketAsset(receiveToken, walletPrices, walletChanges))}><span className="home-balance-action-icon-wrap"><HomeTransferArrow direction="send" /></span><strong>Send</strong></button>
+            <button type="button" className="home-balance-action" onClick={() => openTransfer('receive', walletTokenToMarketAsset(receiveToken, walletPrices, walletChanges))}><span className="home-balance-action-icon-wrap"><HomeTransferArrow direction="receive" /></span><strong>Receive</strong></button>
+            <button type="button" className="home-balance-action swap" onClick={() => navigate('/swap', { returnTo: '/' })}><span className="home-balance-action-icon-wrap"><HomeSwapIcon /></span><strong>Swap</strong></button>
+            <button type="button" className="home-balance-action" onClick={() => navigate('/markets', { returnTo: '/' })}><span className="home-balance-action-icon-wrap"><HomeBuyIcon /></span><strong>Buy</strong></button>
           </div>
-        </section>
+        </section>}
 
         <section className="token-section">
           <h2>Tokens <Icon name="chevron" size={25} /></h2>
           <div className="token-list">
-            {activeWalletTokens.map((token) => (
+            {walletPortfolioTokens.map((token) => (
               <button type="button" className="token-row" key={token.id} onClick={() => openWalletTokenDetail(token)} aria-label={`Open ${token.name}`}>
                 <div className="token-leading"><TokenMark token={token} /><div className="token-copy"><strong>{token.name}</strong><span>{formatTokenBalance(token.balance)} {token.symbol}</span></div></div>
                 <div className="token-price"><strong>{formatUsd(getWalletTokenValue(token, walletPrices))}</strong>{(() => { const change = walletChanges[token.symbol] ?? null; return <span className={change !== null && change >= 0 ? 'positive-text' : change !== null ? 'negative-text' : ''}>{formatPercent(change)}</span> })()}</div>
               </button>
             ))}
           </div>
-          <button className="view-all-button">View all <Icon name="chevron" size={24} /></button>
+          <button type="button" className="view-all-button" onClick={() => navigate('/tokens', { returnTo: '/' })}>View all <Icon name="chevron" size={24} /></button>
         </section>
 
         <section className="perps-section">
-          <h2>Perps <Icon name="chevron" size={25} /></h2>
+          <button type="button" className="home-section-heading" onClick={() => navigate('/perps')} aria-label="Open Perps"><span>Perps</span><Icon name="chevron" size={25} /></button>
           <div className="perps-card-row">
             <article className="perps-card">
               <div className="perps-card-icon"><TokenMark token={bitcoinToken} /></div>
@@ -2279,6 +2747,8 @@ function App() {
             )) : <p className="watchlist-empty-state">Star assets from Search to add them here.</p>}
           </div>
         </section>
+
+        {isScannerOpen && <DeviceScanner onClose={() => setIsScannerOpen(false)} />}
 
         </>}
         <nav className="bottom-dock" aria-label="Main navigation">
