@@ -107,11 +107,11 @@ function WalletTrashIcon() {
 }
 
 function GoogleDriveBackupIcon() {
-  return <svg className="wallet-backup-icon" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="m12.5 4 5.1 8.7-3.7 6.3H3.7L12.5 4Z" /><path d="m17.6 12.7 5.1 8.7H12.5l-3.7-6.3 3.7-6.4h5.1Z" opacity=".84" /><path d="m8.8 15.1 3.7 6.3h10.2L27 28H6.2l-5.1-8.6 3.7-6.3h4Z" opacity=".67" /></svg>
+  return <img className="wallet-backup-icon wallet-google-drive-icon" src="/googledrive.png" alt="" />
 }
 
 function ManualBackupIcon() {
-  return <svg className="wallet-backup-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.3 27.3 8.7 20V9.2a1.7 1.7 0 1 1 3.4 0v6.1" /><path d="M12.1 15.3v-7a1.7 1.7 0 1 1 3.4 0v6.2" /><path d="M15.5 14.5V9.6a1.7 1.7 0 1 1 3.4 0v5.6" /><path d="M18.9 15.3v-3.6a1.7 1.7 0 1 1 3.4 0v6.1l1.4-1.4a1.8 1.8 0 0 1 2.6 2.5l-4.5 5.2a5.2 5.2 0 0 1-4 1.8h-3.5a4.2 4.2 0 0 1-4-2.6Z" /></svg>
+  return <img className="wallet-backup-icon wallet-manual-icon" src="/manuel.png" alt="" />
 }
 
 function PasscodeFingerprintIcon() {
@@ -347,6 +347,8 @@ const persistedDeletedWalletsKey = 'trust-wallet-dashboard:deleted-wallets:v1'
 const selectedWalletStorageKey = 'trust-wallet-dashboard:selected-wallet:v1'
 const unlockedSessionKey = 'trust-wallet-dashboard:unlocked-session:v1'
 const walletHistoryStorageKey = 'trust-wallet-dashboard:history:v1'
+const manualBackupStatusStorageKey = 'trust-wallet-dashboard:manual-backup-status:v1'
+const manualBackupVerificationStorageKey = 'trust-wallet-dashboard:manual-backup-verification:v1'
 const configuredWalletIds = new Set(walletDefinitions.map((wallet) => wallet.id))
 
 type WalletHistoryDirection = 'send' | 'receive'
@@ -358,6 +360,77 @@ type WalletHistoryEntry = {
   amount: number
   counterparty: string
   createdAt: number
+}
+
+const secretPhraseWordBank = [
+  'wolf', 'include', 'relax', 'behind', 'need', 'air', 'three', 'lazy', 'food', 'define', 'shell', 'ugly',
+  'bright', 'river', 'orange', 'planet', 'garden', 'copper', 'future', 'honest', 'velvet', 'window', 'yellow', 'forest',
+  'anchor', 'bridge', 'cactus', 'dawn', 'ember', 'feather', 'globe', 'harbor', 'island', 'jungle', 'kitten', 'lemon',
+  'maple', 'novel', 'ocean', 'pencil', 'quiet', 'rocket', 'silver', 'thunder', 'urban', 'violet', 'whisper', 'zebra',
+]
+
+function getWalletSecretPhrase(wallet: WalletDefinition) {
+  const seed = Array.from(`${wallet.id}:${wallet.address}`).reduce((total, character, index) => total + character.charCodeAt(0) * (index + 17), 0)
+  const phrase: string[] = []
+  let offset = 0
+  while (phrase.length < 12) {
+    const index = (seed + offset * 19 + phrase.length * 7) % secretPhraseWordBank.length
+    const word = secretPhraseWordBank[index]
+    if (!phrase.includes(word)) phrase.push(word)
+    offset += 1
+  }
+  return phrase
+}
+
+function readManualBackupStatuses() {
+  try {
+    const raw = window.localStorage.getItem(manualBackupStatusStorageKey)
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {} as Record<string, boolean>
+    return Object.fromEntries(Object.entries(parsed).filter(([, value]) => value === true)) as Record<string, boolean>
+  } catch {
+    return {} as Record<string, boolean>
+  }
+}
+
+function isManualBackupCompleted(walletId: string) {
+  return readManualBackupStatuses()[walletId] === true
+}
+
+function markManualBackupCompleted(walletId: string) {
+  const statuses = readManualBackupStatuses()
+  statuses[walletId] = true
+  try {
+    window.localStorage.setItem(manualBackupStatusStorageKey, JSON.stringify(statuses))
+  } catch {
+    // The completed state remains available in the current session.
+  }
+}
+
+function readManualBackupVerification(walletId: string, phraseLength: number) {
+  try {
+    const raw = window.localStorage.getItem(manualBackupVerificationStorageKey)
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    const value = (parsed as Record<string, unknown>)[walletId]
+    if (!Array.isArray(value)) return null
+    const indexes = value.filter((item): item is number => typeof item === 'number' && Number.isInteger(item) && item >= 0 && item < phraseLength)
+    return indexes.length === 4 && new Set(indexes).size === 4 ? indexes : null
+  } catch {
+    return null
+  }
+}
+
+function saveManualBackupVerification(walletId: string, indexes: number[]) {
+  try {
+    const raw = window.localStorage.getItem(manualBackupVerificationStorageKey)
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    const values = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {}
+    values[walletId] = indexes
+    window.localStorage.setItem(manualBackupVerificationStorageKey, JSON.stringify(values))
+  } catch {
+    // The current flow still keeps its verification order in memory.
+  }
 }
 
 function cloneConfiguredWallets() {
@@ -469,7 +542,7 @@ function createInitialWalletHistory(wallets: WalletDefinition[]) {
 
   const availableWalletIds = new Set(wallets.map((wallet) => wallet.id))
   const totalInitialBalance = walletDefinitions.reduce((total, wallet) => total + (wallet.balances.USDT ?? 0), 0)
-  const initialTimestamp = getPreviousHistoryDayStart(Date.now())
+  const initialDayStart = getPreviousHistoryDayStart(Date.now())
   const entries: WalletHistoryEntry[] = []
 
   // Wallet 1 is the source wallet: it receives the complete initial pool and
@@ -482,13 +555,14 @@ function createInitialWalletHistory(wallets: WalletDefinition[]) {
       symbol: 'USDT',
       amount: totalInitialBalance,
       counterparty: 'Initial funding',
-      createdAt: initialTimestamp,
+      createdAt: getHistoryTimestamp(initialDayStart, 9, 12),
     })
   }
 
-  walletDefinitions.slice(1).forEach((recipientWallet) => {
+  walletDefinitions.slice(1).forEach((recipientWallet, index) => {
     const amount = recipientWallet.balances.USDT ?? 0
     if (amount <= 0) return
+    const transferMinute = 20 + index * 4
 
     if (availableWalletIds.has(sourceWallet.id)) {
       entries.push({
@@ -498,7 +572,7 @@ function createInitialWalletHistory(wallets: WalletDefinition[]) {
         symbol: 'USDT',
         amount,
         counterparty: recipientWallet.address,
-        createdAt: initialTimestamp,
+        createdAt: getHistoryTimestamp(initialDayStart, 9, transferMinute),
       })
     }
 
@@ -510,7 +584,7 @@ function createInitialWalletHistory(wallets: WalletDefinition[]) {
         symbol: 'USDT',
         amount,
         counterparty: sourceWallet.address,
-        createdAt: initialTimestamp,
+        createdAt: getHistoryTimestamp(initialDayStart, 9, transferMinute + 1),
       })
     }
   })
@@ -525,8 +599,8 @@ function readWalletHistory(wallets: WalletDefinition[]) {
     const stored = Array.isArray(parsed) ? parsed.filter((item): item is WalletHistoryEntry => {
       if (!item || typeof item !== 'object') return false
       const entry = item as Partial<WalletHistoryEntry>
-      return typeof entry.id === 'string' && typeof entry.walletId === 'string' && (entry.direction === 'send' || entry.direction === 'receive') && typeof entry.symbol === 'string' && typeof entry.amount === 'number' && Number.isFinite(entry.amount) && entry.amount > 0 && typeof entry.counterparty === 'string' && typeof entry.createdAt === 'number'
-    }) : []
+      return typeof entry.id === 'string' && typeof entry.walletId === 'string' && (entry.direction === 'send' || entry.direction === 'receive') && typeof entry.symbol === 'string' && typeof entry.amount === 'number' && Number.isFinite(entry.amount) && entry.amount > 0 && typeof entry.counterparty === 'string' && typeof entry.createdAt === 'number' && Number.isFinite(entry.createdAt) && entry.createdAt > 0
+    }).map((entry) => ({ ...entry, createdAt: normalizeHistoryTimestamp(entry.createdAt) })) : []
     const initialEntries = createInitialWalletHistory(wallets)
     // Replace the old per-wallet initial records with the source-wallet
     // distribution model, while keeping all user-created transfer records.
@@ -1629,6 +1703,17 @@ function getPreviousHistoryDayStart(timestamp: number) {
   return date.getTime()
 }
 
+function getHistoryTimestamp(dayStart: number, hour: number, minute: number) {
+  const date = new Date(dayStart)
+  date.setHours(hour, minute, 0, 0)
+  return date.getTime()
+}
+
+function normalizeHistoryTimestamp(timestamp: number) {
+  // A few older builds stored Unix seconds instead of milliseconds.
+  return timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp
+}
+
 function formatHistoryDay(timestamp: number) {
   const dayStart = getHistoryDayStart(timestamp)
   const todayStart = getHistoryDayStart(Date.now())
@@ -1639,6 +1724,11 @@ function formatHistoryDay(timestamp: number) {
 
 function formatHistoryTime(timestamp: number) {
   return new Date(timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function formatHistoryDateTime(timestamp: number) {
+  const date = new Date(timestamp)
+  return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${formatHistoryTime(timestamp)}`
 }
 
 function HistoryDirectionIcon({ direction }: { direction: WalletHistoryDirection }) {
@@ -1654,7 +1744,54 @@ function HistoryTokenIcon({ symbol }: { symbol: string }) {
   return <span className="history-token-fallback" aria-hidden="true">{symbol.slice(0, 1)}</span>
 }
 
+function getHistoryNetworkDetails(entry: WalletHistoryEntry) {
+  const hashSeed = Array.from(entry.id).reduce((total, character, index) => total + character.charCodeAt(0) * (index + 11), 0)
+  const isSent = entry.direction === 'send'
+  const fee = isSent ? 0 : 0.00000568
+  return {
+    fee,
+    feeUsd: fee * 600,
+    nonce: isSent ? 4 + (hashSeed % 8) : 638790 + (hashSeed % 120),
+  }
+}
+
+function HistoryDetailsSheet({ entry, usdtPrice, onClose }: { entry: WalletHistoryEntry; usdtPrice: number; onClose: () => void }) {
+  const isSent = entry.direction === 'send'
+  const usdValue = entry.symbol === 'USDT' ? entry.amount * usdtPrice : entry.amount * (walletTokenDefinitions.find((token) => token.symbol === entry.symbol)?.fallbackPrice ?? 0)
+  const network = getHistoryNetworkDetails(entry)
+  const partyLabel = isSent ? 'Recipient' : 'Sender'
+
+  return <div className="history-detail-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
+    <section className="history-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="history-detail-title">
+      <header className="history-detail-header">
+        <button type="button" className="history-detail-icon-button" onClick={() => undefined} aria-label="Share transaction"><Icon name="share" size={24} /></button>
+        <h2 id="history-detail-title">{isSent ? 'Sent' : 'Received'}</h2>
+        <button type="button" className="history-detail-icon-button" onClick={onClose} aria-label="Close transaction details"><Icon name="close" size={27} /></button>
+      </header>
+
+      <div className="history-detail-summary">
+        <strong>≈ {formatUsd(usdValue)}</strong>
+        <span>{isSent ? '-' : '+'}{formatTokenBalance(entry.amount)} {entry.symbol}</span>
+      </div>
+
+      <div className="history-detail-card">
+        <div className="history-detail-row"><span>Date</span><strong>{formatHistoryDateTime(entry.createdAt)}</strong></div>
+        <div className="history-detail-row"><span>Status <Icon name="info" size={18} /></span><strong className="history-detail-success">Completed</strong></div>
+        <div className="history-detail-row"><span>{partyLabel}</span><strong>{shortenWalletAddress(entry.counterparty)}</strong></div>
+      </div>
+
+      <div className="history-detail-card history-detail-network-card">
+        <div className="history-detail-row"><span>Network fee <Icon name="info" size={18} /></span><div className="history-detail-value"><strong>{network.fee === 0 ? '0 BNB' : `${network.fee.toFixed(8)} BNB`}</strong>{network.fee > 0 && <small>≈ {formatUsd(network.feeUsd)}</small>}</div></div>
+        <div className="history-detail-row"><span>Nonce</span><strong>{network.nonce.toLocaleString('en-US')}</strong></div>
+      </div>
+
+      <button type="button" className="history-detail-explorer" onClick={() => undefined}>View on block explorer</button>
+    </section>
+  </div>
+}
+
 function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletDefinition; entries: WalletHistoryEntry[]; usdtPrice: number; onBack: () => void }) {
+  const [selectedEntry, setSelectedEntry] = useState<WalletHistoryEntry | null>(null)
   const walletEntries = entries.filter((entry) => entry.walletId === wallet.id).sort((left, right) => right.createdAt - left.createdAt)
   const historyGroups = walletEntries.reduce((groups, entry) => {
     const dayKey = new Date(entry.createdAt).toDateString()
@@ -1663,6 +1800,20 @@ function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletD
     else groups.set(dayKey, [entry])
     return groups
   }, new Map<string, WalletHistoryEntry[]>())
+
+  useEffect(() => {
+    if (!selectedEntry) return
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedEntry(null)
+    }
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [selectedEntry])
 
   return <section className="history-screen" aria-labelledby="history-title">
     <header className="history-header">
@@ -1689,15 +1840,16 @@ function HistoryScreen({ wallet, entries, usdtPrice, onBack }: { wallet: WalletD
           const isSent = entry.direction === 'send'
           const amount = `${isSent ? '-' : '+'}${formatTokenBalance(entry.amount)} ${entry.symbol}`
           const usdValue = entry.symbol === 'USDT' ? entry.amount * usdtPrice : entry.amount * (walletTokenDefinitions.find((token) => token.symbol === entry.symbol)?.fallbackPrice ?? 0)
-          return <article className="history-entry" key={entry.id}>
+          return <button type="button" className="history-entry" key={entry.id} onClick={() => setSelectedEntry(entry)} aria-label={`View ${isSent ? 'sent' : 'received'} transaction details`}>
             <div className={`history-entry-icon ${isSent ? 'sent' : 'received'}`}><HistoryDirectionIcon direction={entry.direction} /></div>
             <HistoryTokenIcon symbol={entry.symbol} />
             <div className="history-entry-copy"><strong>{isSent ? 'Sent' : 'Received'}</strong><span>{isSent ? 'To: ' : 'From: '}{shortenWalletAddress(entry.counterparty)} · {formatHistoryTime(entry.createdAt)}</span></div>
             <div className={`history-entry-value ${isSent ? 'sent' : 'received'}`}><strong>{amount}</strong><small>{formatUsd(usdValue)}</small></div>
-          </article>
+          </button>
         })}
       </section>) : <p className="history-empty-state">No transactions yet.</p>}
     </div>
+    {selectedEntry && <HistoryDetailsSheet entry={selectedEntry} usdtPrice={usdtPrice} onClose={() => setSelectedEntry(null)} />}
   </section>
 }
 
@@ -2352,13 +2504,113 @@ function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
 }
 
 type WalletDeleteStep = 'closed' | 'confirm' | 'backup'
+type WalletManualBackupStep = 'closed' | 'warning' | 'phrase' | 'verify'
+
+function ManualBackupCheck({ checked }: { checked: boolean }) {
+  return <span className={`manual-backup-check${checked ? ' checked' : ''}`} aria-hidden="true">{checked ? '✓' : ''}</span>
+}
+
+function getVerificationOptions(phrase: string[], index: number) {
+  const options = [phrase[index]]
+  let offset = index + 3
+  while (options.length < 3) {
+    const word = secretPhraseWordBank[(index * 11 + offset * 7) % secretPhraseWordBank.length]
+    if (!options.includes(word)) options.push(word)
+    offset += 1
+  }
+  return options.sort((left, right) => left.localeCompare(right))
+}
+
+function WalletManualBackupFlow({ wallet, onClose, onComplete }: { wallet: WalletDefinition; onClose: () => void; onComplete: () => void }) {
+  const [step, setStep] = useState<WalletManualBackupStep>('warning')
+  const [acknowledgements, setAcknowledgements] = useState([false, false])
+  const [verificationIndexes, setVerificationIndexes] = useState<number[]>([])
+  const [selectedWords, setSelectedWords] = useState<Record<number, string>>({})
+  const [verificationError, setVerificationError] = useState(false)
+  const phrase = getWalletSecretPhrase(wallet)
+
+  const toggleAcknowledgement = (index: number) => {
+    setAcknowledgements((current) => current.map((value, itemIndex) => itemIndex === index ? !value : value))
+  }
+
+  const openVerification = () => {
+    const savedIndexes = readManualBackupVerification(wallet.id, phrase.length)
+    let nextIndexes = savedIndexes
+    if (!nextIndexes) {
+      const candidates = Array.from({ length: phrase.length }, (_, index) => index)
+      const randomIndexes: number[] = []
+      while (randomIndexes.length < 4) {
+        const candidate = candidates[Math.floor(Math.random() * candidates.length)]
+        if (!randomIndexes.includes(candidate)) randomIndexes.push(candidate)
+      }
+      nextIndexes = randomIndexes.sort((left, right) => left - right)
+      saveManualBackupVerification(wallet.id, nextIndexes)
+    }
+    setVerificationIndexes(nextIndexes)
+    setSelectedWords({})
+    setVerificationError(false)
+    setStep('verify')
+  }
+
+  const completeVerification = () => {
+    const isCorrect = verificationIndexes.every((index) => selectedWords[index] === phrase[index])
+    if (!isCorrect) {
+      setVerificationError(true)
+      return
+    }
+    markManualBackupCompleted(wallet.id)
+    onComplete()
+    onClose()
+  }
+
+  if (step === 'warning') return <div className="wallet-manual-backup-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
+    <section className="wallet-manual-warning-sheet" role="dialog" aria-modal="true" aria-labelledby="manual-backup-title" onMouseDown={(event) => event.stopPropagation()}>
+      <button type="button" className="wallet-backup-close" onClick={onClose} aria-label="Close manual backup"><Icon name="close" size={28} /></button>
+      <div className="wallet-backup-art"><img src="/delete_part.png" alt="" /></div>
+      <p className="wallet-manual-eyebrow">⚠ &nbsp;For your eyes only!</p>
+      <h2 id="manual-backup-title">This secret phrase unlocks<br />your wallet</h2>
+      <div className="wallet-manual-acknowledgements">
+        <button type="button" className="wallet-manual-acknowledgement" onClick={() => toggleAcknowledgement(0)} aria-pressed={acknowledgements[0]}><ManualBackupCheck checked={acknowledgements[0]} /><span>Trust wallet does not have access to this key.</span></button>
+        <button type="button" className="wallet-manual-acknowledgement" onClick={() => toggleAcknowledgement(1)} aria-pressed={acknowledgements[1]}><ManualBackupCheck checked={acknowledgements[1]} /><span>Don’t save this in any digital format, write it on paper and store securely.</span></button>
+      </div>
+      <button type="button" className="wallet-manual-primary" disabled={!acknowledgements.every(Boolean)} onClick={() => setStep('phrase')}>Continue</button>
+    </section>
+  </div>
+
+  if (step === 'phrase') return <section className="wallet-manual-backup-screen" aria-labelledby="manual-phrase-title">
+    <header className="wallet-manual-backup-header wallet-manual-light-header">
+      <button type="button" onClick={() => setStep('warning')} aria-label="Back to backup reminder"><BackArrowIcon /></button>
+      <h1 id="manual-phrase-title">Secret phrase</h1>
+      <button type="button" aria-label="Secret phrase information"><Icon name="info" size={22} /></button>
+    </header>
+    <div className="wallet-manual-warning-banner"><span>⚠</span><strong>Never share your secret phrase<br />with anyone.</strong><Icon name="info" size={18} /></div>
+    <div className="wallet-secret-grid">{phrase.map((word, index) => <div className="wallet-secret-word" key={`${word}-${index}`}><span>{index + 1}</span><strong>{word}</strong></div>)}</div>
+    <p className="wallet-manual-footer-warning">⚠ Never share your secret phrase with<br />anyone, store it securely!</p>
+    <button type="button" className="wallet-manual-primary wallet-manual-screen-continue" onClick={openVerification}>Continue</button>
+  </section>
+
+  return <section className="wallet-manual-backup-screen wallet-manual-verify-screen" aria-labelledby="manual-verify-title">
+    <header className="wallet-manual-backup-header wallet-manual-light-header">
+      <button type="button" onClick={() => setStep('phrase')} aria-label="Back to secret phrase"><BackArrowIcon /></button>
+      <h1 id="manual-verify-title">Verify phrase</h1>
+      <button type="button" aria-label="Verification information"><Icon name="info" size={22} /></button>
+    </header>
+    <div className="wallet-manual-verify-copy"><h2>Select the correct words</h2><p>Tap the words that match your secret phrase.</p></div>
+    <div className="wallet-verification-list">{verificationIndexes.map((index) => <div className="wallet-verification-row" key={index}><strong>Word {index + 1}</strong><div className="wallet-verification-options">{getVerificationOptions(phrase, index).map((word) => <button type="button" className={selectedWords[index] === word ? 'selected' : ''} key={word} onClick={() => { setSelectedWords((current) => ({ ...current, [index]: word })); setVerificationError(false) }}>{word}</button>)}</div></div>)}</div>
+    {verificationError && <p className="wallet-verification-error">Some words are incorrect. Try again.</p>}
+    <button type="button" className="wallet-manual-primary wallet-manual-screen-continue" disabled={verificationIndexes.some((index) => !selectedWords[index])} onClick={completeVerification}>Continue</button>
+  </section>
+}
 
 function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: WalletDefinition; onBack: () => void; onRename: (walletId: string, name: string) => void; onDelete: (walletId: string) => void }) {
   const [draftName, setDraftName] = useState(wallet.name)
   const [deleteStep, setDeleteStep] = useState<WalletDeleteStep>('closed')
+  const [manualBackupStep, setManualBackupStep] = useState<WalletManualBackupStep>('closed')
+  const [manualBackupCompleted, setManualBackupCompleted] = useState(() => isManualBackupCompleted(wallet.id))
 
   useEffect(() => {
     setDraftName(wallet.name)
+    setManualBackupCompleted(isManualBackupCompleted(wallet.id))
   }, [wallet.id, wallet.name])
 
   const saveName = () => {
@@ -2394,8 +2646,11 @@ function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: Wall
     <section className="wallet-backups" aria-labelledby="wallet-backups-title">
       <h2 id="wallet-backups-title">Secret phrase backups</h2>
       <div className="wallet-backup-row"><GoogleDriveBackupIcon /><strong>Google Drive</strong><span>Back up now</span></div>
-      <div className="wallet-backup-row"><ManualBackupIcon /><strong>Manual</strong><span>Back up now</span></div>
+      <button type="button" className="wallet-backup-row wallet-manual-backup-row" onClick={() => setManualBackupStep('warning')} aria-label="Back up manually">
+        <ManualBackupIcon /><strong>Manual</strong>{manualBackupCompleted ? <span className="wallet-backup-active">Active</span> : <span>Back up now</span>}
+      </button>
     </section>
+    {manualBackupStep !== 'closed' && <WalletManualBackupFlow wallet={wallet} onClose={() => setManualBackupStep('closed')} onComplete={() => setManualBackupCompleted(true)} />}
     {deleteStep !== 'closed' && <div className={`wallet-delete-overlay ${deleteStep === 'backup' ? 'backup-open' : 'confirm-open'}`} onClick={closeDeleteFlow}>
       {deleteStep === 'confirm' ? <section className="wallet-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-wallet-title" onClick={(event) => event.stopPropagation()}>
         <h2 id="delete-wallet-title">Are you sure you would like to<br />delete this wallet?</h2>
@@ -2406,7 +2661,7 @@ function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: Wall
         <div className="wallet-backup-art"><img src="/delete_part.png" alt="" /></div>
         <h2 id="backup-wallet-title">Back up your seed phrase</h2>
         <p>Protect your assets by backing up your seed<br />phrase now.</p>
-        <button type="button" className="wallet-backup-primary" onClick={closeDeleteFlow}>Back up manually</button>
+        <button type="button" className="wallet-backup-primary" onClick={() => { closeDeleteFlow(); setManualBackupStep('warning') }}>Back up manually</button>
         <button type="button" className="wallet-backup-secondary" onClick={closeDeleteFlow}>Back up to Google Drive</button>
         <button type="button" className="wallet-proceed-anyway" onClick={() => onDelete(wallet.id)}>Proceed anyway</button>
       </section>}
