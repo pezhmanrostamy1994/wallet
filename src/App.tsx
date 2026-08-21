@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
-import { RiDownload2Line, RiSparkling2Line } from 'react-icons/ri'
+import { RiAtLine, RiContactsBook2Line, RiCustomerService2Line, RiDownload2Line, RiLockPasswordLine, RiMoonLine, RiNotification3Line, RiPlug2Line, RiQrScan2Line, RiScan2Line, RiSettings3Line, RiShieldCheckLine, RiSparkling2Line } from 'react-icons/ri'
 import { uiFeatureConfig } from './feature-config'
 import { walletDefinitions, walletTokenDefinitions, type WalletDefinition, type WalletTokenKind } from './wallet-data'
 
@@ -98,6 +98,10 @@ function BackArrowIcon() {
   return <svg className="back-arrow-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M26 16H6M6 16l8-8M6 16l8 8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
 }
 
+function SecretInfoIcon() {
+  return <svg className="secret-info-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#66676a" /><path d="M12 10.8v5" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" /><circle cx="12" cy="7.8" r=".65" fill="#fff" /></svg>
+}
+
 function WalletMoreIcon() {
   return <svg className="wallet-more-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.65" /><circle cx="12" cy="12" r="1.65" /><circle cx="12" cy="19" r="1.65" /></svg>
 }
@@ -129,20 +133,23 @@ function WalletSettingsIcon() {
 type SettingsMenuIconName = 'moon' | 'address-book' | 'extension' | 'handle' | 'scan' | 'wallet-connect' | 'preferences' | 'security' | 'notifications' | 'support' | 'about' | 'x' | 'telegram' | 'facebook' | 'reddit' | 'youtube' | 'instagram' | 'tiktok'
 
 function SettingsMenuIcon({ name }: { name: SettingsMenuIconName }) {
+  switch (name) {
+    case 'moon': return <RiMoonLine className="settings-row-icon" aria-hidden="true" />
+    case 'address-book': return <RiContactsBook2Line className="settings-row-icon" aria-hidden="true" />
+    case 'extension': return <ExtensionQrIcon className="settings-row-icon" />
+    case 'handle': return <RiAtLine className="settings-row-icon" aria-hidden="true" />
+    case 'scan': return <RiScan2Line className="settings-row-icon" aria-hidden="true" />
+    case 'wallet-connect': return <RiPlug2Line className="settings-row-icon" aria-hidden="true" />
+    case 'preferences': return <RiSettings3Line className="settings-row-icon" aria-hidden="true" />
+    case 'security': return <RiLockPasswordLine className="settings-row-icon" aria-hidden="true" />
+    case 'notifications': return <RiNotification3Line className="settings-row-icon" aria-hidden="true" />
+    case 'support': return <RiCustomerService2Line className="settings-row-icon" aria-hidden="true" />
+    case 'about': return <RiShieldCheckLine className="settings-row-icon" aria-hidden="true" />
+  }
+
   let glyph: ReactNode
 
   switch (name) {
-    case 'moon': glyph = <path d="M20.7 18.2A10.1 10.1 0 0 1 9.8 4.1 10.2 10.2 0 1 0 20.7 18.2Z" />; break
-    case 'address-book': glyph = <><path d="M7 5.5h13.5v17H7z" /><path d="M7 8H4.5m2.5 4H4.5m2.5 4H4.5m2.5 4H4.5M11 10h6m-6 4h6m-6 4h4" /></>; break
-    case 'extension': glyph = <><rect x="4" y="4" width="6.5" height="6.5" rx=".8" /><rect x="17.5" y="4" width="6.5" height="6.5" rx=".8" /><rect x="4" y="17.5" width="6.5" height="6.5" rx=".8" /><path d="M18 18h2.2m1.8 0h.1M18 21.5h.1m3.9 0H24M20 20h.1" strokeLinecap="round" /></>; break
-    case 'handle': glyph = <><path d="M19.5 13.2v2.1a5.5 5.5 0 1 1-1.8-4.1" /><path d="M19.5 10.2v3h-4.1" /><circle cx="12" cy="13.5" r="3.2" /></>; break
-    case 'scan': glyph = <><path d="M9.5 4.5H5.2v4.3m0 10.4v4.3h4.3m9.3 0h4.3v-4.3m0-10.4V4.5h-4.3" /><path d="M10 14h8" strokeLinecap="round" /></>; break
-    case 'wallet-connect': glyph = <><path d="m9.1 17.2 3.1-3.1a3.5 3.5 0 0 1 5 5l-2.1 2.1a3.5 3.5 0 0 1-5 0" /><path d="m18.9 10.8-3.1 3.1a3.5 3.5 0 0 1-5-5l2.1-2.1a3.5 3.5 0 0 1 5 0" /></>; break
-    case 'preferences': glyph = <path d="M21.6 14.1c.1-.4.1-.8.1-1.1s0-.8-.1-1.2l2-1.5-2.1-3.6-2.3.9c-.6-.5-1.2-.8-1.9-1.1L17 4h-4l-.4 2.5c-.7.3-1.3.6-1.9 1.1l-2.3-.9-2.1 3.6 2 1.5c-.1.4-.1.8-.1 1.2s0 .7.1 1.1l-2 1.6 2.1 3.6 2.3-.9c.6.5 1.2.8 1.9 1.1L13 22h4l.4-2.5c.7-.3 1.3-.6 1.9-1.1l2.3.9 2.1-3.6-2-1.6ZM15 13a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor" stroke="none" />; break
-    case 'security': glyph = <><rect x="5.5" y="12" width="17" height="11" rx="2" /><path d="M9 12V9a5 5 0 0 1 10 0v3m-8.3 5.5h6.6m-6.6 2.5h6.6" /></>; break
-    case 'notifications': glyph = <><path d="M6.3 18.3h15.4l-2.1-3v-4.1a5.6 5.6 0 1 0-11.2 0v4.1l-2.1 3Z" /><path d="M11.3 22h3.4" strokeLinecap="round" /></>; break
-    case 'support': glyph = <><path d="M5 14v-1a9 9 0 0 1 18 0v1" /><path d="M5 14v3.5a2 2 0 0 0 2 2h1.5v-6H7a2 2 0 0 0-2 2.5Zm18 0v3.5a2 2 0 0 1-2 2h-1.5v-6H21a2 2 0 0 1 2 2.5Z" /><path d="M19.5 20.5c0 1.6-1.2 2.5-3.3 2.5h-1" strokeLinecap="round" /></>; break
-    case 'about': glyph = <><path d="M14 3.7 22 7v5.8c0 5.2-3.5 8.7-8 10.5-4.5-1.8-8-5.3-8-10.5V7l8-3.3Z" /><path d="m10.2 13.1 2.4 2.4 5.2-5.3" strokeLinecap="round" strokeLinejoin="round" /></>; break
     case 'x': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="m9 9 10 10m0-10L9 19" strokeLinecap="round" /></>; break
     case 'telegram': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="m8 11 12-3.5-3.8 12-3.2-4.2L8 11Zm5.2 4.3 2.2-2.3" strokeLinecap="round" strokeLinejoin="round" /></>; break
     case 'facebook': glyph = <><rect x="4" y="4" width="20" height="20" rx="3" /><path d="M16.7 10h-2c-.8 0-1.2.4-1.2 1.2V14h3l-.4 2.7h-2.6V22h-3v-5.3H8V14h2.5v-3.1c0-2.4 1.4-3.9 3.8-3.9h2.4V10Z" fill="currentColor" stroke="none" /></>; break
@@ -155,8 +162,8 @@ function SettingsMenuIcon({ name }: { name: SettingsMenuIconName }) {
   return <svg className="settings-row-icon" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{glyph}</svg>
 }
 
-function ExtensionQrIcon() {
-  return <svg className="extension-qr-icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><g stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="17.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="17.5" width="7" height="7" rx="1" /></g><g fill="currentColor"><circle cx="19" cy="19" r="1.35" /><circle cx="22.5" cy="19" r="1.35" /><circle cx="20.75" cy="20.75" r="1.35" /><circle cx="19" cy="22.5" r="1.35" /><circle cx="22.5" cy="22.5" r="1.35" /></g></svg>
+function ExtensionQrIcon({ className = 'extension-qr-icon' }: { className?: string } = {}) {
+  return <svg className={className} viewBox="0 0 28 28" fill="none" aria-hidden="true"><g stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="17.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="17.5" width="7" height="7" rx="1" /></g><g fill="currentColor"><circle cx="19" cy="19" r="1.35" /><circle cx="22.5" cy="19" r="1.35" /><circle cx="20.75" cy="20.75" r="1.35" /><circle cx="19" cy="22.5" r="1.35" /><circle cx="22.5" cy="22.5" r="1.35" /></g></svg>
 }
 
 function QrBadge() {
@@ -433,6 +440,18 @@ function saveManualBackupVerification(walletId: string, indexes: number[]) {
   }
 }
 
+function getStableManualBackupVerification(wallet: WalletDefinition, phraseLength: number) {
+  const seed = Array.from(`${wallet.id}:${wallet.address}:verification`).reduce((total, character, index) => total + character.charCodeAt(0) * (index + 23), 0)
+  const indexes: number[] = []
+  let offset = 0
+  while (indexes.length < 4) {
+    const candidate = (seed + offset * 13 + indexes.length * 5) % phraseLength
+    if (!indexes.includes(candidate)) indexes.push(candidate)
+    offset += 1
+  }
+  return indexes.sort((left, right) => left - right)
+}
+
 function cloneConfiguredWallets() {
   return walletDefinitions.map((wallet) => ({ ...wallet, balances: { ...wallet.balances } }))
 }
@@ -542,7 +561,7 @@ function createInitialWalletHistory(wallets: WalletDefinition[]) {
 
   const availableWalletIds = new Set(wallets.map((wallet) => wallet.id))
   const totalInitialBalance = walletDefinitions.reduce((total, wallet) => total + (wallet.balances.USDT ?? 0), 0)
-  const initialDayStart = getPreviousHistoryDayStart(Date.now())
+  const initialDayStart = getInitialHistoryDayStart()
   const entries: WalletHistoryEntry[] = []
 
   // Wallet 1 is the source wallet: it receives the complete initial pool and
@@ -1696,10 +1715,9 @@ function getHistoryDayStart(timestamp: number) {
   return date.getTime()
 }
 
-function getPreviousHistoryDayStart(timestamp: number) {
-  const date = new Date(timestamp)
+function getInitialHistoryDayStart() {
+  const date = new Date(2026, 7, 13)
   date.setHours(0, 0, 0, 0)
-  date.setDate(date.getDate() - 1)
   return date.getTime()
 }
 
@@ -1718,7 +1736,6 @@ function formatHistoryDay(timestamp: number) {
   const dayStart = getHistoryDayStart(timestamp)
   const todayStart = getHistoryDayStart(Date.now())
   if (dayStart === todayStart) return 'Today'
-  if (dayStart === getPreviousHistoryDayStart(Date.now())) return 'Yesterday'
   return new Date(timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
@@ -2505,9 +2522,37 @@ function WalletReadyScreen({ onContinue }: { onContinue: () => void }) {
 
 type WalletDeleteStep = 'closed' | 'confirm' | 'backup'
 type WalletManualBackupStep = 'closed' | 'warning' | 'phrase' | 'verify'
+type GoogleBackupStep = 'processing' | 'error'
 
 function ManualBackupCheck({ checked }: { checked: boolean }) {
   return <span className={`manual-backup-check${checked ? ' checked' : ''}`} aria-hidden="true">{checked ? '✓' : ''}</span>
+}
+
+function GoogleDriveBackupFlow({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<GoogleBackupStep>('processing')
+
+  useEffect(() => {
+    if (step !== 'processing') return
+    const timer = window.setTimeout(() => setStep('error'), 4000)
+    return () => window.clearTimeout(timer)
+  }, [step])
+
+  return <section className="google-backup-flow" aria-live="polite" aria-labelledby="google-backup-title">
+    <header className="google-backup-header">
+      <button type="button" onClick={onClose} aria-label="Back to wallet backups"><BackArrowIcon /></button>
+      <h1 id="google-backup-title">{step === 'processing' ? 'Processing...' : 'Backup failed'}</h1>
+      <span aria-hidden="true" />
+    </header>
+    {step === 'processing' ? <div className="google-backup-processing" role="status" aria-label="Backing up wallet">
+      <div className="google-backup-loader" aria-hidden="true"><span /><span /><span /><span /></div>
+    </div> : <div className="google-backup-error" role="alert">
+      <span className="google-backup-error-icon" aria-hidden="true">!</span>
+      <h2>Something went wrong</h2>
+      <p>We couldn’t back up your wallet to Google Drive. Please try again.</p>
+      <button type="button" className="google-backup-retry" onClick={() => setStep('processing')}>Try again</button>
+      <button type="button" className="google-backup-close" onClick={onClose}>Close</button>
+    </div>}
+  </section>
 }
 
 function getVerificationOptions(phrase: string[], index: number) {
@@ -2535,15 +2580,8 @@ function WalletManualBackupFlow({ wallet, onClose, onComplete }: { wallet: Walle
 
   const openVerification = () => {
     const savedIndexes = readManualBackupVerification(wallet.id, phrase.length)
-    let nextIndexes = savedIndexes
-    if (!nextIndexes) {
-      const candidates = Array.from({ length: phrase.length }, (_, index) => index)
-      const randomIndexes: number[] = []
-      while (randomIndexes.length < 4) {
-        const candidate = candidates[Math.floor(Math.random() * candidates.length)]
-        if (!randomIndexes.includes(candidate)) randomIndexes.push(candidate)
-      }
-      nextIndexes = randomIndexes.sort((left, right) => left - right)
+    const nextIndexes = savedIndexes ?? getStableManualBackupVerification(wallet, phrase.length)
+    if (!savedIndexes) {
       saveManualBackupVerification(wallet.id, nextIndexes)
     }
     setVerificationIndexes(nextIndexes)
@@ -2566,7 +2604,7 @@ function WalletManualBackupFlow({ wallet, onClose, onComplete }: { wallet: Walle
   if (step === 'warning') return <div className="wallet-manual-backup-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
     <section className="wallet-manual-warning-sheet" role="dialog" aria-modal="true" aria-labelledby="manual-backup-title" onMouseDown={(event) => event.stopPropagation()}>
       <button type="button" className="wallet-backup-close" onClick={onClose} aria-label="Close manual backup"><Icon name="close" size={28} /></button>
-      <div className="wallet-backup-art"><img src="/delete_part.png" alt="" /></div>
+      <div className="wallet-backup-art"><img src="/phrase.png" alt="" /></div>
       <p className="wallet-manual-eyebrow">⚠ &nbsp;For your eyes only!</p>
       <h2 id="manual-backup-title">This secret phrase unlocks<br />your wallet</h2>
       <div className="wallet-manual-acknowledgements">
@@ -2581,22 +2619,27 @@ function WalletManualBackupFlow({ wallet, onClose, onComplete }: { wallet: Walle
     <header className="wallet-manual-backup-header wallet-manual-light-header">
       <button type="button" onClick={() => setStep('warning')} aria-label="Back to backup reminder"><BackArrowIcon /></button>
       <h1 id="manual-phrase-title">Secret phrase</h1>
-      <button type="button" aria-label="Secret phrase information"><Icon name="info" size={22} /></button>
+      <button type="button" aria-label="Secret phrase information"><SecretInfoIcon /></button>
     </header>
-    <div className="wallet-manual-warning-banner"><span>⚠</span><strong>Never share your secret phrase<br />with anyone.</strong><Icon name="info" size={18} /></div>
-    <div className="wallet-secret-grid">{phrase.map((word, index) => <div className="wallet-secret-word" key={`${word}-${index}`}><span>{index + 1}</span><strong>{word}</strong></div>)}</div>
-    <p className="wallet-manual-footer-warning">⚠ Never share your secret phrase with<br />anyone, store it securely!</p>
+    <div className="wallet-secret-grid">{phrase.map((word, index) => <div className="wallet-secret-word" key={`${word}-${index}`}><span>{index + 1}.</span><strong>{word}</strong></div>)}</div>
+    <div className="wallet-manual-footer-warning" role="note">
+      <Icon name="info" size={18} />
+      <div>
+        <p>Never share your secret phrase with anyone, and<br />store it securely!</p>
+        <button type="button">Learn more</button>
+      </div>
+    </div>
     <button type="button" className="wallet-manual-primary wallet-manual-screen-continue" onClick={openVerification}>Continue</button>
   </section>
 
   return <section className="wallet-manual-backup-screen wallet-manual-verify-screen" aria-labelledby="manual-verify-title">
     <header className="wallet-manual-backup-header wallet-manual-light-header">
       <button type="button" onClick={() => setStep('phrase')} aria-label="Back to secret phrase"><BackArrowIcon /></button>
-      <h1 id="manual-verify-title">Verify phrase</h1>
-      <button type="button" aria-label="Verification information"><Icon name="info" size={22} /></button>
+      <h1 id="manual-verify-title">Confirm secret phrase</h1>
+      <span aria-hidden="true" />
     </header>
-    <div className="wallet-manual-verify-copy"><h2>Select the correct words</h2><p>Tap the words that match your secret phrase.</p></div>
-    <div className="wallet-verification-list">{verificationIndexes.map((index) => <div className="wallet-verification-row" key={index}><strong>Word {index + 1}</strong><div className="wallet-verification-options">{getVerificationOptions(phrase, index).map((word) => <button type="button" className={selectedWords[index] === word ? 'selected' : ''} key={word} onClick={() => { setSelectedWords((current) => ({ ...current, [index]: word })); setVerificationError(false) }}>{word}</button>)}</div></div>)}</div>
+    <div className="wallet-manual-verify-copy"><p>Please tap on the correct answer of the below<br />seed phrases.</p></div>
+    <div className="wallet-verification-list">{verificationIndexes.map((index) => <div className="wallet-verification-row" key={index}><strong>Word #{index + 1}</strong><div className="wallet-verification-options">{getVerificationOptions(phrase, index).map((word) => <button type="button" className={selectedWords[index] === word ? 'selected' : ''} key={word} onClick={() => { setSelectedWords((current) => ({ ...current, [index]: word })); setVerificationError(false) }}>{word}</button>)}</div></div>)}</div>
     {verificationError && <p className="wallet-verification-error">Some words are incorrect. Try again.</p>}
     <button type="button" className="wallet-manual-primary wallet-manual-screen-continue" disabled={verificationIndexes.some((index) => !selectedWords[index])} onClick={completeVerification}>Continue</button>
   </section>
@@ -2606,6 +2649,7 @@ function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: Wall
   const [draftName, setDraftName] = useState(wallet.name)
   const [deleteStep, setDeleteStep] = useState<WalletDeleteStep>('closed')
   const [manualBackupStep, setManualBackupStep] = useState<WalletManualBackupStep>('closed')
+  const [googleBackupStep, setGoogleBackupStep] = useState<GoogleBackupStep | 'closed'>('closed')
   const [manualBackupCompleted, setManualBackupCompleted] = useState(() => isManualBackupCompleted(wallet.id))
 
   useEffect(() => {
@@ -2645,11 +2689,12 @@ function WalletEditScreen({ wallet, onBack, onRename, onDelete }: { wallet: Wall
     </form>
     <section className="wallet-backups" aria-labelledby="wallet-backups-title">
       <h2 id="wallet-backups-title">Secret phrase backups</h2>
-      <div className="wallet-backup-row"><GoogleDriveBackupIcon /><strong>Google Drive</strong><span>Back up now</span></div>
+      <button type="button" className="wallet-backup-row wallet-google-backup-row" onClick={() => setGoogleBackupStep('processing')}><GoogleDriveBackupIcon /><strong>Google Drive</strong><span>Back up now</span></button>
       <button type="button" className="wallet-backup-row wallet-manual-backup-row" onClick={() => setManualBackupStep('warning')} aria-label="Back up manually">
         <ManualBackupIcon /><strong>Manual</strong>{manualBackupCompleted ? <span className="wallet-backup-active">Active</span> : <span>Back up now</span>}
       </button>
     </section>
+    {googleBackupStep !== 'closed' && <GoogleDriveBackupFlow onClose={() => setGoogleBackupStep('closed')} />}
     {manualBackupStep !== 'closed' && <WalletManualBackupFlow wallet={wallet} onClose={() => setManualBackupStep('closed')} onComplete={() => setManualBackupCompleted(true)} />}
     {deleteStep !== 'closed' && <div className={`wallet-delete-overlay ${deleteStep === 'backup' ? 'backup-open' : 'confirm-open'}`} onClick={closeDeleteFlow}>
       {deleteStep === 'confirm' ? <section className="wallet-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-wallet-title" onClick={(event) => event.stopPropagation()}>
